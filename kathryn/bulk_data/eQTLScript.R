@@ -79,7 +79,6 @@ trans_homer_results$MotifNameAbbreviated <-  sub("*\\(.*", "", trans_homer_resul
 # trans_homer_results_organized_snps_cis_gene_snps <- left_join(trans_homer_results_organized_snps, franke_cis_gene_snps) #left_join only yields 30,472,391, inner_join only yields 30,118,485
 # colnames(trans_homer_results_organized_snps_cis_gene_snps) <- c("Offset", "Strand", "MotifScore", "Trans_Gene", "MotifNameAbbreviated", "SNP", "Cis_Gene")
 
-
 # WITHOUT STRAND
 trans_homer_results_organized <- data.table(trans_homer_results[,"Offset"],trans_homer_results[,"MotifScore"],trans_homer_results[,"Ensembl"],trans_homer_results[,"MotifNameAbbreviated"]) #336,445
 franke_trans_gene_snps <- data.table(franke_trans_data$SNP, franke_trans_data$Gene) #59,786
@@ -89,6 +88,10 @@ colnames(trans_homer_results_organized_snps) <- c("Offset", "MotifScore", "Trans
 trans_homer_results_organized_snps_cis_gene_snps <- left_join(trans_homer_results_organized_snps, franke_cis_gene_snps) #left_join only yields 30,472,391, inner_join only yields 30,118,485
 colnames(trans_homer_results_organized_snps_cis_gene_snps) <- c("Offset", "MotifScore", "Trans_Gene", "MotifNameAbbreviated", "SNP", "Cis_Gene")
 
+write.csv(trans_homer_results_organized_snps_cis_gene_snps, file="trans_homer_results_organized_snps_cis_gene_snps.csv")
+# WRITE CODE TO GET UNIQUE ONES - can't run on local computer
+
+franke_cis_trans_common_snps_gene <- inner_join(franke_trans_gene_snps, franke_cis_gene_snps, by="SNP")
 
 # ==========================================================
 # QUESTION 2_2

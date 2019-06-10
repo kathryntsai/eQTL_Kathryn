@@ -148,6 +148,7 @@ colnames(snps_interesting_TFmatch)[4] <- "cisGene_commonname"
 snps_interesting_TFmatch <- snps_interesting_TFmatch[,c(1,2,4,3)]
 write.table(snps_interesting_TFmatch, "snps_interesting_TFmatch.txt", row.names = F, col.names = T)
 
+# A represents Activator, R represents Repressor, A/R indicates it can be both.
 cis_gene_cards <- paste(paste("https://www.genecards.org/cgi-bin/carddisp.pl?gene=", trim(snps_interesting_TFmatch[,unique(snps_interesting_TFmatch$cisGene_commonname)]), sep="\n"), collapse=", ")
 cis_gene_cards_fxns <- data.table(snps_interesting_TFmatch[,unique(snps_interesting_TFmatch$cisGene_commonname)], 
 paste("https://www.genecards.org/cgi-bin/carddisp.pl?gene=", trim(snps_interesting_TFmatch[,unique(snps_interesting_TFmatch$cisGene_commonname)]), sep=""), 
@@ -197,7 +198,7 @@ library("biomaRt")
 mart <- useMart("ENSEMBL_MART_ENSEMBL")
 mart <- useDataset("hsapiens_gene_ensembl", mart)
 ens <- snps_interesting_TFmatch[,unique(snps_interesting_TFmatch$transGene)]
-ensLookup <- gsub("\\.[0-9]*$", "", ens)
+ensLookup <- gsub("\\.[0-9]*$", "", ens) # not necessary
 
 annotLookup <- getBM(
   mart=mart,
@@ -221,3 +222,14 @@ fwrite(annotLookup_abbrev, "trans_gene_commonname.csv")
 # ==========================================================
 #Search for motif in sequence with swapped alleles (according to cis eQTL ref/alt).: swap these? franke_cis_data[,"AssessedAllele"], franke_cis_data[,"OtherAllele"]
 
+# ==========================================================
+# CREATION OF BED FILE WITH EQTLGEN
+# ==========================================================
+
+franke_cis_bed_file <- data.table(franke_cis_data$SNPChr, 
+                                  franke_cis_data$SNPPos - 20, 
+                                  franke_cis_data$SNPPos + 20,
+                                  franke_cis_data$SNP, # is this right?
+                                  0,
+                                  0)
+fwrite(franke_cis_bed_file, file="franke_cis_bed_file.csv",col.names=F)

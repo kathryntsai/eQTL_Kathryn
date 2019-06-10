@@ -235,7 +235,8 @@ list(
   "A - Transcription activator that binds DNA cooperatively with DP proteins through the E2 recognition site, 5'-TTTC[CG]CGC-3' found in the promoter region of a number of genes whose products are involved in cell cycle regulation or in DNA replication. The DRTF1/E2F complex functions in the control of cell-cycle progression from G1 to S phase. E2F4 binds with high affinity to RBL1 and RBL2. In some instances can also bind RB1. Specifically required for multiciliate cell differentiation: together with MCIDAS and E2F5, binds and activate genes required for centriole biogenesis."))
 cis_gene_cards_fxns <- data.frame(cis_gene_cards_fxns)
 colnames(cis_gene_cards_fxns) <- c("GENE", "LINK", "FUNCTION")
-fwrite(cis_gene_cards_fxns, file="cis_gene_cards_fxns.csv")
+cis_gene_cards_fxns_snps <- merge(cis_gene_cards_fxns, snps_interesting_TFmatch, by.x = "GENE", by.y="cisGene_commonname")
+fwrite(cis_gene_cards_fxns_snps, file="cis_gene_cards_fxns_snps.csv")
 
 trans_gene_cards <- data.table(snps_interesting_TFmatch[,unique(snps_interesting_TFmatch$transGene)], paste("https://www.genecards.org/cgi-bin/carddisp.pl?gene=", trim(snps_interesting_TFmatch[,unique(snps_interesting_TFmatch$transGene)]), sep=""))
 

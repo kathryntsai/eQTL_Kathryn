@@ -96,7 +96,7 @@ nrow(franke_cis_trans_common_snps)/nrow(franke_cis_snps) # 0.08867992% proportio
 # 
 
 # ==========================================================
-# QUESTION 2-1: TIFFANY
+# QUESTION 2-1: TIFFANY'S SCRIPT FOR INTERESTING SNPS
 # ==========================================================
 
 #setup: restricted ourselves to SNPs that are both cis and trans eQTLs. 
@@ -148,7 +148,11 @@ colnames(snps_interesting_TFmatch)[4] <- "cisGene_commonname"
 snps_interesting_TFmatch <- snps_interesting_TFmatch[,c(1,2,4,3)]
 write.table(snps_interesting_TFmatch, "snps_interesting_TFmatch.txt", row.names = F, col.names = T)
 
-# A represents Activator, R represents Repressor, A/R indicates it can be both.
+# ==========================================================
+# ACTIVATOR/REPRESSOR ANALYSIS AND COMPARISON WITH Z-SCORES
+# ==========================================================
+
+# A represents Activator, R represents Repressor, A/R indicates it can be both.  Information taken from UniProt
 cis_gene_cards <- paste(paste("https://www.genecards.org/cgi-bin/carddisp.pl?gene=", trim(snps_interesting_TFmatch[,unique(snps_interesting_TFmatch$cisGene_commonname)]), sep="\n"), collapse=", ")
 cis_gene_cards_fxns <- data.table(snps_interesting_TFmatch[,unique(snps_interesting_TFmatch$cisGene_commonname)], 
 paste("https://www.genecards.org/cgi-bin/carddisp.pl?gene=", trim(snps_interesting_TFmatch[,unique(snps_interesting_TFmatch$cisGene_commonname)]), sep=""), 
@@ -181,10 +185,24 @@ list(
   "A - Transcription factor that binds to the immunoglobulin enhancer Mu-E5/KE5-motif. Involved in the initiation of neuronal differentiation. Activates transcription by binding to the E box (5'-CANNTG-3'). Binds to the E-box present in the somatostatin receptor 2 initiator element (SSTR2-INR) to activate transcription (By similarity). Preferentially binds to either 5'-ACANNTGT-3' or 5'-CCANNTGG-3'. ITF2_HUMAN,P15884",
   "A/R - Acts as a transcriptional activator or repressor (PubMed:27181683). Plays a pivotal role in regulating lineage-specific hematopoiesis by repressing ETS1-mediated transcription of erythroid-specific genes in myeloid cells. Required for monocytic, macrophage, osteoclast, podocyte and islet beta cell differentiation. Involved in renal tubule survival and F4/80 maturation. Activates the insulin and glucagon promoters. Together with PAX6, transactivates weakly the glucagon gene promoter through the G1 element. SUMO modification controls its transcriptional activity and ability to specify macrophage fate. Binds element G1 on the glucagon promoter (By similarity). Involved either as an oncogene or as a tumor suppressor, depending on the cell context. MAFB_HUMAN,Q9Y5Q3",
   "A - Transcription activator that binds DNA cooperatively with DP proteins through the E2 recognition site, 5'-TTTC[CG]CGC-3' found in the promoter region of a number of genes whose products are involved in cell cycle regulation or in DNA replication. The DRTF1/E2F complex functions in the control of cell-cycle progression from G1 to S phase. E2F4 binds with high affinity to RBL1 and RBL2. In some instances can also bind RB1. Specifically required for multiciliate cell differentiation: together with MCIDAS and E2F5, binds and activate genes required for centriole biogenesis."))
+colnames(cis_gene_cards_fxns) <- c("Gene", "Link", "Function")
+cis_gene_cards_fxns$Function_Abbreviation <- gsub(" \\-.*$", "", cis_gene_cards_fxns$Function)
 cis_gene_cards_fxns <- data.frame(cis_gene_cards_fxns)
-colnames(cis_gene_cards_fxns) <- c("GENE", "LINK", "FUNCTION")
-cis_gene_cards_fxns_snps <- merge(cis_gene_cards_fxns, snps_interesting_TFmatch, by.x = "GENE", by.y="cisGene_commonname")
-fwrite(cis_gene_cards_fxns_snps, file="cis_gene_cards_fxns_snps.csv")
+cis_gene_cards_fxns_snps <- merge(cis_gene_cards_fxns, snps_interesting_TFmatch, by.x = "Gene", by.y="cisGene_commonname")
+# fwrite(cis_gene_cards_fxns_snps, file="cis_gene_cards_fxns_snps.csv")
+cis_gene_cards_fxns_snps_z <- merge(cis_gene_cards_fxns_snps, data.table(franke_cis_data[,"SNP"], franke_cis_data[,"Zscore"]))
+#r <- as.data.frame(lapply(cis_gene_cards_fxns_snps_z$Zscore, FUN = function(x) (gsub("[0-9].*$", "", x))))
+cis_gene_cards_fxns_snps_z$ZSign <- sign(cis_gene_cards_fxns_snps_z$Zscore)
+cis_gene_cards_comparison <- aggregate(cis_gene_cards_fxns_snps_z$ZSign, by=list(Gene=cis_gene_cards_fxns_snps_z$Gene), FUN=sum)
+cis_gene_cards_comparison <- inner_join(cis_gene_cards_fxns, cis_gene_cards_comparison, by = "Gene")
+cis_gene_cards_comparison <- cis_gene_cards_comparison[order(cis_gene_cards_comparison$x),]
+
+# cis_gene_cards_comparison is sorted by the aggregated Z-score. This data is a little ambiguous.
+# A A R A A A R A/R A A R? A A A/R A?? A A? R UNKNOWN R? A/R? A? || R? || A/R? UNKNOWN AR A?
+
+# ==========================================================
+# Trans GeneCards
+# ==========================================================
 
 trans_gene_cards <- data.table(snps_interesting_TFmatch[,unique(snps_interesting_TFmatch$transGene)], paste("https://www.genecards.org/cgi-bin/carddisp.pl?gene=", trim(snps_interesting_TFmatch[,unique(snps_interesting_TFmatch$transGene)]), sep=""))
 
@@ -223,7 +241,11 @@ fwrite(annotLookup_abbrev, "trans_gene_commonname.csv")
 #Search for motif in sequence with swapped alleles (according to cis eQTL ref/alt).: swap these? franke_cis_data[,"AssessedAllele"], franke_cis_data[,"OtherAllele"]
 
 # ==========================================================
-# CREATION OF BED FILE WITH EQTLGEN
+# QUESTION 2_1: ARE THE SNPS NEAR A BINDING MOTIF?
+# ==========================================================
+
+# ==========================================================
+# 2_1-A CREATION OF BED FILE WITH EQTLGEN AND PFIZER DATA FOR ANALYSIS IN HOMER
 # ==========================================================
 
 franke_cis_bed_file <- data.table(paste0("chr",franke_cis_data$SNPChr),
@@ -233,6 +255,8 @@ franke_cis_bed_file <- data.table(paste0("chr",franke_cis_data$SNPChr),
                                   0,
                                   0)
 colnames(franke_cis_bed_file) <- c("c1","c2","c3","c4","c5","c6")
+
+# these write.tables are irrelevant
 # write.table(franke_cis_bed_file[1:(nrow(franke_cis_bed_file)/3), ], file="franke_cis_bed_file1.txt", col.names = F, row.names=F, quote=F, sep='\t')
 # write.table(franke_cis_bed_file[nrow(franke_cis_bed_file)/3:(2*nrow(franke_cis_bed_file)/3), ], file="franke_cis_bed_file2.txt", col.names = F, row.names=F, quote=F, sep='\t')
 # write.table(franke_cis_bed_file[2*nrow(franke_cis_bed_file)/3:(3*nrow(franke_cis_bed_file)/3), ], file="franke_cis_bed_file2.txt", col.names = F, row.names=F, quote=F, sep='\t')
@@ -240,12 +264,19 @@ colnames(franke_cis_bed_file) <- c("c1","c2","c3","c4","c5","c6")
 franke_cis_bed_file_small <- franke_cis_bed_file[!duplicated(franke_cis_bed_file$c4)]
 write.table(franke_cis_bed_file_small, file="franke_cis_bed_file_small.txt", col.names = F, row.names=F, quote=F, sep='\t')
 
+# these two lines not necessary
 # fwrite(franke_cis_bed_file, file="franke_cis_bed_file.csv",col.names=F)
 # brew install dos2unix
-# findMotifsGenome.pl ~/Documents/franke_cis_bed_file.txt hg19 output/ -find /data/knownTFs/vertebrates/known.motifs  > franke_ouput.txt
 
+# 10 M sequences - runs for too long
 #findMotifsGenome.pl ~/Documents/franke_cis_bed_file.txt hg19 output/ -find ~/homer/data/knownTFs/vertebrates/known.motifs  > franke_output1.txt
+
+# 4 M sequences - still runs for a while
 #findMotifsGenome.pl <input> hg19 output/ -find ~/homer/data/knownTFs/vertebrates/known.motifs  > franke_output1.txt
+
+# ==========================================================
+# 2_1-B CALCULATE PROPORTIONS
+# ==========================================================
 
 davenport_bed_file <- data.table(paste0("chr", davenport_data$SNP_chr), 
                                  davenport_data$SNP_pos - 20, 
@@ -266,6 +297,25 @@ davenport_output_unique <- unique(davenport_output_unique)
 davenport_bed_file_total <- data.table(unique(davenport_bed_file$c4))
 # FOR PFIZER DATA:
 dim(davenport_output_unique)[1] / dim(davenport_bed_file_total)[1] # 4464 / 4525 * 100 = 98.65193% !!
-franke_output <- fread("franke_output1.txt")
+# ----
+
+# THIS WILL NOT WORK BECAUSE IT'S TOO BIG: franke_output <- fread("franke_output1.txt")
+
+# use SQLLite?
+# library(sqldf) iris2 <- read.csv.sql("franke_output1.txt",sql = "select * from file where Species = 'setosa' ")
+
+library(bigmemory)
+library(biganalytics)
+library(bigtabulate)
+library(ff)
+
+school.ff <- read.csv.ffdf(file="/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/eQTLPart1_2/franke_output1.txt⁩")
+
+# Expected:
+# TF    cis-G   trans-G
+# Act   z > 0   z > 0
+# Rep   z < 0   z > 0
+# Rep   z > 0   z < 0
+# Act   z < 0   z < 0
 
 

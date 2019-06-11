@@ -11,11 +11,12 @@ library(data.table)
 library(dplyr)
 library(glue)
 # Read Emma Davenport's eQTL R-variables - not used
-load("files_for_pfizer_eqtl.rda")
+load("input_data/files_for_pfizer_eqtl.rda")
+
 # Read Emma Davenport's Pfzier Data
-davenport_data <- read.csv("pfizer_eqtl_table_1.csv")
+davenport_data <- read.csv("input_data/pfizer_eqtl_table_1.csv")
 # Read Lude Franke's cis-eQTL data
-franke_cis_data <- fread("cis-eQTL_significant_20181017.txt", header = TRUE, sep = "\t", dec = ".")
+franke_cis_data <- fread("input_data/cis-eQTL_significant_20181017.txt", header = TRUE, sep = "\t", dec = ".")
 
 # inner_join (only keep observations that are similar) by SNPS+GENE
 franke_cis_gene_snps <- unique(data.table(franke_cis_data[,8], franke_cis_data[,2])) #10,527,168x2
@@ -33,7 +34,7 @@ nrow(franke_davenport_gene_snps_common)/nrow(franke_cis_gene_snps) # = 0.0281367
 
 franke_cis_snps <- unique(data.table(franke_cis_data[,2])) #10,527,168x2
 # Read Lude Franke's trans-eQTL data
-franke_trans_data <- fread("trans-eQTL_significant_20181017.txt", header = TRUE, sep = "\t", dec = ".")
+franke_trans_data <- fread("input_data/trans-eQTL_significant_20181017.txt", header = TRUE, sep = "\t", dec = ".")
 franke_trans_snps <- unique(data.table(franke_trans_data[,2])) # 59786
 
 # inner_join by SNPs
@@ -42,6 +43,7 @@ franke_cis_trans_common_snps <- inner_join(franke_trans_snps, franke_cis_snps, b
 nrow(franke_cis_trans_common_snps)/nrow(franke_trans_snps) # 85.15443% proportion!
 nrow(franke_cis_trans_common_snps)/nrow(franke_cis_snps) # 0.08867992% proportion!
 
+# NOTE: HOMER PATHS DON'T WORK ANYMORE DUE TO ORGANIZATION 6/11/19
 # ==========================================================
 # QUESTION 2_1
 # ==========================================================
@@ -53,19 +55,19 @@ nrow(franke_cis_trans_common_snps)/nrow(franke_cis_snps) # 0.08867992% proportio
 # might show an artificially strong association signal with expression. 
 
 # # use homer to find trans eQTLs that also overlap cis eQTLs
-# write.table(franke_cis_trans_common_snps, file="franke_cis_trans_common.txt",row.names= FALSE,col.names=FALSE,quote=FALSE) # write SNPs to file
+# write.table(franke_cis_trans_common_snps, file="q2_1_written/franke_cis_trans_common.txt",row.names= FALSE,col.names=FALSE,quote=FALSE) # write SNPs to file
 # 
 # # match cis/trans snps to cis genes, keep only unique genes for Homer findmotifs.pl // do I need more specificity for gene?  i.e. gene.1, gene.2...?  Do i keep only unique genes?
 # franke_cis_trans_common_cis_genes <- unique(data.table(right_join(franke_cis_gene_snps, franke_cis_trans_common_snps))[,"Gene"]) # 24490 merged -> 4605 unique
-# write.table(franke_cis_trans_common_cis_genes, file="franke_cis_trans_common_cis_genes.txt",row.names= FALSE,col.names="Gene_ID",quote=FALSE) # write cis genes to file
+# write.table(franke_cis_trans_common_cis_genes, file="input_data_homer/q2_1_old/franke_cis_trans_common_cis_genes.txt",row.names= FALSE,col.names="Gene_ID",quote=FALSE) # write cis genes to file
 # # match cis/trans snps to trans genes, keep only unique genes for Homer findmotifs.pl // same questions as for cis
 # franke_cis_trans_common_trans_genes <- unique(data.table(right_join(data.table(franke_trans_data[,"SNP"], franke_trans_data[,"Gene"]), franke_cis_trans_common_snps))[,"Gene"]) #56038 merged -> 6059 unique
-# write.table(franke_cis_trans_common_trans_genes, file="franke_cis_trans_common_trans_genes.txt",row.names= FALSE,col.names="Gene_ID",quote=FALSE) # write trans genes to file
+# write.table(franke_cis_trans_common_trans_genes, file="input_data_homer/q2_1_old/franke_cis_trans_common_trans_genes.txt",row.names= FALSE,col.names="Gene_ID",quote=FALSE) # write trans genes to file
 # 
 # # having issues getting homer to find file?  am i putting it in the right directory? FIXED - spell "franke" correctly
 # # findMotifs.pl franke_cis_trans_common_trans_genes.txt human  motifResults_trans1/ -find data/knownTFs/vertebrates/known.motifs > /my_dir/trans_output.txt
 # 
-# trans_homer_results <- fread("trans_output.txt",header = TRUE, sep = "\t", dec = ".") #336,445
+# trans_homer_results <- fread("input_data_homer/old/trans_output.txt",header = TRUE, sep = "\t", dec = ".") #336,445
 #   
 # # parse out after parentheses in motif name
 # # create table from data + trans_genes
@@ -89,7 +91,7 @@ nrow(franke_cis_trans_common_snps)/nrow(franke_cis_snps) # 0.08867992% proportio
 # trans_homer_results_organized_snps_cis_gene_snps <- left_join(trans_homer_results_organized_snps, franke_cis_gene_snps) #left_join only yields 30,472,391, inner_join only yields 30,118,485
 # colnames(trans_homer_results_organized_snps_cis_gene_snps) <- c("Offset", "MotifScore", "Trans_Gene", "MotifNameAbbreviated", "SNP", "Cis_Gene")
 # 
-# write.csv(trans_homer_results_organized_snps_cis_gene_snps, file="trans_homer_results_organized_snps_cis_gene_snps.csv")
+# write.csv(trans_homer_results_organized_snps_cis_gene_snps, file="input_data_homer/q2_1_old/trans_homer_results_organized_snps_cis_gene_snps.csv")
 # # WRITE CODE TO GET UNIQUE ONES - can't run on local computer
 # 
 # franke_cis_trans_common_snps_gene <- inner_join(franke_trans_gene_snps, franke_cis_gene_snps, by="SNP")
@@ -102,19 +104,19 @@ nrow(franke_cis_trans_common_snps)/nrow(franke_cis_snps) # 0.08867992% proportio
 #setup: restricted ourselves to SNPs that are both cis and trans eQTLs. 
 #did not restrict ourselves to cis Genes that are TFs. 
 #goal: want to identify if any cis eQTL Genes are TFs that can bind in the promoter of the trans eQTL gene 
-dat <- fread("trans_output.txt", header = T, sep = "\t", dec = ".")
+dat <- fread("input_data_homer/q2_1_old/trans_output.txt", header = T, sep = "\t", dec = ".")
 #336K by 16 
 
 #table with SNP, cis Gene, trans Gene, list of Motifs 
 TFs <- sapply(1:nrow(dat), function(x) strsplit(dat$`Motif Name`[x], split = "[(]")[[1]][1])
 length(unique(TFs)) #407 
 
-snps <- fread("franke_cis_trans_common_snps_gene.csv", header = T, sep = ",")
+snps <- fread("q2_1_input/franke_cis_trans_common_snps_gene.csv", header = T, sep = ",")
 snps <- snps[,-1]
 colnames(snps) <- c("SNP","cisGene","transGene")
 # 601288  x    3
 
-franke_data <- fread("cis-eQTL_significant_20181017.txt", header = T, sep = "\t", dec = ".")
+franke_data <- fread("input_data/cis-eQTL_significant_20181017.txt", header = T, sep = "\t", dec = ".")
 common_cisgenename <- franke_data$GeneSymbol[match(snps$cisGene, franke_data$Gene)]
 
 #did not restrict ourselves to cis Genes that are TFs.
@@ -146,7 +148,7 @@ head(snps_interesting_TFmatch)
 snps_interesting_TFmatch <- cbind(snps_interesting_TFmatch, common_cisgenename_interesting[which(!is.na(matches))])
 colnames(snps_interesting_TFmatch)[4] <- "cisGene_commonname"
 snps_interesting_TFmatch <- snps_interesting_TFmatch[,c(1,2,4,3)]
-write.table(snps_interesting_TFmatch, "snps_interesting_TFmatch.txt", row.names = F, col.names = T)
+write.table(snps_interesting_TFmatch, "q2_1_written/snps_interesting_TFmatch.txt", row.names = F, col.names = T)
 
 # ==========================================================
 # ACTIVATOR/REPRESSOR ANALYSIS AND COMPARISON WITH Z-SCORES
@@ -189,7 +191,7 @@ colnames(cis_gene_cards_fxns) <- c("Gene", "Link", "Function")
 cis_gene_cards_fxns$Function_Abbreviation <- gsub(" \\-.*$", "", cis_gene_cards_fxns$Function)
 cis_gene_cards_fxns <- data.frame(cis_gene_cards_fxns)
 cis_gene_cards_fxns_snps <- merge(cis_gene_cards_fxns, snps_interesting_TFmatch, by.x = "Gene", by.y="cisGene_commonname")
-# fwrite(cis_gene_cards_fxns_snps, file="cis_gene_cards_fxns_snps.csv")
+fwrite(cis_gene_cards_fxns_snps, file="q2_1_written/cis_gene_cards_fxns_snps.csv")
 cis_gene_cards_fxns_snps_z <- merge(cis_gene_cards_fxns_snps, data.table(franke_cis_data[,"SNP"], franke_cis_data[,"Zscore"]))
 #r <- as.data.frame(lapply(cis_gene_cards_fxns_snps_z$Zscore, FUN = function(x) (gsub("[0-9].*$", "", x))))
 cis_gene_cards_fxns_snps_z$ZSign <- sign(cis_gene_cards_fxns_snps_z$Zscore)
@@ -233,19 +235,14 @@ colnames(annotLookup2) <- c(
   "original_id",
   c("ensembl_transcript_id", "ensembl_gene_id", "gene_biotype", "external_gene_name"))
 annotLookup_abbrev <- data.table(unique(annotLookup2[, "original_id"]), unique(annotLookup2[, "external_gene_name"]))
-fwrite(annotLookup_abbrev, "trans_gene_commonname.csv")
+fwrite(annotLookup_abbrev, "q2_1_written/trans_gene_commonname.csv")
 
 # ==========================================================
-# QUESTION 2_2
-# ==========================================================
-#Search for motif in sequence with swapped alleles (according to cis eQTL ref/alt).: swap these? franke_cis_data[,"AssessedAllele"], franke_cis_data[,"OtherAllele"]
-
-# ==========================================================
-# QUESTION 2_1: ARE THE SNPS NEAR A BINDING MOTIF?
+# QUESTION 2_2: ARE THE SNPS NEAR A BINDING MOTIF?
 # ==========================================================
 
 # ==========================================================
-# 2_1-A CREATION OF BED FILE WITH EQTLGEN AND PFIZER DATA FOR ANALYSIS IN HOMER
+# 2_2-A CREATION OF BED FILE WITH EQTLGEN AND PFIZER DATA FOR ANALYSIS IN HOMER
 # ==========================================================
 
 franke_cis_bed_file <- data.table(paste0("chr",franke_cis_data$SNPChr),
@@ -262,7 +259,7 @@ colnames(franke_cis_bed_file) <- c("c1","c2","c3","c4","c5","c6")
 # write.table(franke_cis_bed_file[2*nrow(franke_cis_bed_file)/3:(3*nrow(franke_cis_bed_file)/3), ], file="franke_cis_bed_file2.txt", col.names = F, row.names=F, quote=F, sep='\t')
 
 franke_cis_bed_file_small <- franke_cis_bed_file[!duplicated(franke_cis_bed_file$c4)]
-write.table(franke_cis_bed_file_small, file="franke_cis_bed_file_small.txt", col.names = F, row.names=F, quote=F, sep='\t')
+# write.table(franke_cis_bed_file_small, file="q2_2_bedfiles/2/franke_cis_bed_file_small.txt", col.names = F, row.names=F, quote=F, sep='\t')
 
 # these two lines not necessary
 # fwrite(franke_cis_bed_file, file="franke_cis_bed_file.csv",col.names=F)
@@ -274,9 +271,29 @@ write.table(franke_cis_bed_file_small, file="franke_cis_bed_file_small.txt", col
 # 4 M sequences - still runs for a while
 #findMotifsGenome.pl <input> hg19 output/ -find ~/homer/data/knownTFs/vertebrates/known.motifs  > franke_output1.txt
 
-# ==========================================================
-# 2_1-B CALCULATE PROPORTIONS
-# ==========================================================
+# https://www.google.com/search?q=IMPORT+large+11+gb+file+to+r&oq=IMPORT+large+11+gb+file+to+r&aqs=chrome..69i57j33l4.6046j0j1&sourceid=chrome&ie=UTF-8
+# https://stackoverflow.com/questions/15030910/randomly-sample-a-percentage-of-rows-within-a-data-frame
+# https://www.google.com/search?ei=uer_XKyQPOjn_Qa3_bXYBA&q=IMPORT+large+11+gb+file+to+r++caret&oq=IMPORT+large+11+gb+file+to+r++caret&gs_l=psy-ab.3..33i22i29i30.477.4130..4170...0.0..0.804.1097.1j1j6-1......0....1..gws-wiz.......0i71j35i302i39.nT1C0kZk4dU
+
+franke_cis_bed_file_smaller1 <- franke_cis_bed_file_small %>% sample_frac(dim(davenport_data)[1] / dim(franke_cis_bed_file_small)[1])
+franke_cis_bed_file_smaller2 <- franke_cis_bed_file_small %>% sample_frac(dim(davenport_data)[1] / dim(franke_cis_bed_file_small)[1])
+franke_cis_bed_file_smaller3 <- franke_cis_bed_file_small %>% sample_frac(dim(davenport_data)[1] / dim(franke_cis_bed_file_small)[1])
+franke_cis_bed_file_smaller4 <- franke_cis_bed_file_small %>% sample_frac(dim(davenport_data)[1] / dim(franke_cis_bed_file_small)[1])
+franke_cis_bed_file_smaller5 <- franke_cis_bed_file_small %>% sample_frac(dim(davenport_data)[1] / dim(franke_cis_bed_file_small)[1])
+
+write.table(franke_cis_bed_file_smaller1, file="q2_2_bedfiles/3/franke_cis_bed_file_smaller1.txt", col.names = F, row.names=F, quote=F, sep='\t')
+write.table(franke_cis_bed_file_smaller2, file="q2_2_bedfiles/3/franke_cis_bed_file_smaller2.txt", col.names = F, row.names=F, quote=F, sep='\t')
+write.table(franke_cis_bed_file_smaller3, file="q2_2_bedfiles/3/franke_cis_bed_file_smaller3.txt", col.names = F, row.names=F, quote=F, sep='\t')
+write.table(franke_cis_bed_file_smaller4, file="q2_2_bedfiles/3/franke_cis_bed_file_smaller4.txt", col.names = F, row.names=F, quote=F, sep='\t')
+write.table(franke_cis_bed_file_smaller5, file="q2_2_bedfiles/3/franke_cis_bed_file_smaller5.txt", col.names = F, row.names=F, quote=F, sep='\t')
+
+# findMotifsGenome.pl /Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/eQTLPart1_2/q2_2_bedfiles/3/franke_cis_bed_file_smaller1.txt  hg19 output/ -find ~/homer/data/knownTFs/vertebrates/known.motifs > franke_downsampled_output1.txt
+# findMotifsGenome.pl /Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/eQTLPart1_2/q2_2_bedfiles/3/franke_cis_bed_file_smaller2.txt  hg19 output/ -find ~/homer/data/knownTFs/vertebrates/known.motifs > franke_downsampled_output2.txt
+# findMotifsGenome.pl /Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/eQTLPart1_2/q2_2_bedfiles/3/franke_cis_bed_file_smaller3.txt  hg19 output/ -find ~/homer/data/knownTFs/vertebrates/known.motifs > franke_downsampled_output3.txt
+# findMotifsGenome.pl /Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/eQTLPart1_2/q2_2_bedfiles/3/franke_cis_bed_file_smaller4.txt  hg19 output/ -find ~/homer/data/knownTFs/vertebrates/known.motifs > franke_downsampled_output4.txt
+# findMotifsGenome.pl /Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/eQTLPart1_2/q2_2_bedfiles/3/franke_cis_bed_file_smaller5.txt  hg19 output/ -find ~/homer/data/knownTFs/vertebrates/known.motifs > franke_downsampled_output5.txt
+
+# ----
 
 davenport_bed_file <- data.table(paste0("chr", davenport_data$SNP_chr), 
                                  davenport_data$SNP_pos - 20, 
@@ -285,11 +302,16 @@ davenport_bed_file <- data.table(paste0("chr", davenport_data$SNP_chr),
                                   0,
                                   0)
 colnames(davenport_bed_file) <- c("c1","c2","c3","c4","c5","c6")
-write.table(davenport_bed_file, file="davenport_bed_file.txt", col.names = F, row.names=F, quote=F, sep='\t')
+write.table(davenport_bed_file, file="q2_2_bedfiles/davenport_bed_file.txt", col.names = F, row.names=F, quote=F, sep='\t')
 # DON'T USE THIS fwrite(davenport_bed_file, file="davenport_bed_file.csv",col.names=F)
 # findMotifsGenome.pl ~/Documents/davenport_bed_file.txt hg19 output/ -find ~/homer/data/knownTFs/vertebrates/known.motifs > davenport_ouput.txt
 
-davenport_output <- fread("davenport_output.txt")
+
+# ==========================================================
+# 2_2-B CALCULATE PROPORTIONS
+# ==========================================================
+
+davenport_output <- fread("input_data_homer/q2_2/davenport_output.txt")
 # analyze unique because it's faster
 davenport_output_unique <- data.frame(unique(davenport_output$PositionID))
 davenport_output_unique <- as.data.frame(lapply(davenport_output_unique, FUN = function(x) (gsub("\\-.*$", "", x))))
@@ -297,19 +319,124 @@ davenport_output_unique <- unique(davenport_output_unique)
 davenport_bed_file_total <- data.table(unique(davenport_bed_file$c4))
 # FOR PFIZER DATA:
 dim(davenport_output_unique)[1] / dim(davenport_bed_file_total)[1] # 4464 / 4525 * 100 = 98.65193% !!
+
 # ----
 
-# THIS WILL NOT WORK BECAUSE IT'S TOO BIG: franke_output <- fread("franke_output1.txt")
+# THIS WILL NOT WORK BECAUSE IT'S TOO BIG: franke_output <- fread("input_data_homer/q2_2/1/franke_output1.txt")
 
 # use SQLLite?
-# library(sqldf) iris2 <- read.csv.sql("franke_output1.txt",sql = "select * from file where Species = 'setosa' ")
+# library(sqldf) iris2 <- read.csv.sql("input_data_homer/franke_output1.txt",sql = "select * from file where Species = 'setosa' ")
+# only for csv: library(ff) franke_output <- read.csv.ffdf(file="input_data_homer/q2_2/1/franke_output1.txt⁩")
 
-library(bigmemory)
-library(biganalytics)
-library(bigtabulate)
-library(ff)
+# library(bigmemory), library(biganalytics), library(bigtabulate)
+# https://rstudio-pubs-static.s3.amazonaws.com/72295_692737b667614d369bd87cb0f51c9a4b.html
+# library(caret)
 
-school.ff <- read.csv.ffdf(file="/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/eQTLPart1_2/franke_output1.txt⁩")
+
+franke_downsampled_output1 <- fread("input_data_homer/q2_2/3/franke_downsampled_output1.txt")
+franke_downsampled_output2 <- fread("input_data_homer/q2_2/3/franke_downsampled_output2.txt")
+franke_downsampled_output3 <- fread("input_data_homer/q2_2/3/franke_downsampled_output3.txt")
+franke_downsampled_output4 <- fread("input_data_homer/q2_2/3/franke_downsampled_output4.txt")
+franke_downsampled_output5 <- fread("input_data_homer/q2_2/3/franke_downsampled_output5.txt")
+
+franke_downsampled_output1_unique <- data.frame(unique(franke_downsampled_output1$PositionID))
+franke_downsampled_output1_unique <- as.data.frame(lapply(franke_downsampled_output1_unique, FUN = function(x) (gsub("\\-.*$", "", x))))
+franke_downsampled_output1_unique <- unique(franke_downsampled_output1_unique)
+franke_cis_bed_file_smaller1_total <- data.table(unique(franke_cis_bed_file_smaller1[,4])) #same for all 5 samples
+dim(franke_downsampled_output1_unique)[1] / dim(franke_cis_bed_file_smaller1_total)[1] # 4818/4818 = 100%
+
+franke_downsampled_output2_unique <- data.frame(unique(franke_downsampled_output2$PositionID))
+franke_downsampled_output2_unique <- as.data.frame(lapply(franke_downsampled_output2_unique, FUN = function(x) (gsub("\\-.*$", "", x))))
+franke_downsampled_output2_unique <- unique(franke_downsampled_output2_unique)
+dim(franke_downsampled_output2_unique)[1] / dim(franke_cis_bed_file_smaller1_total)[1] # 100%
+
+franke_downsampled_output3_unique <- data.frame(unique(franke_downsampled_output3$PositionID))
+franke_downsampled_output3_unique <- as.data.frame(lapply(franke_downsampled_output3_unique, FUN = function(x) (gsub("\\-.*$", "", x))))
+franke_downsampled_output3_unique <- unique(franke_downsampled_output3_unique)
+dim(franke_downsampled_output3_unique)[1] / dim(franke_cis_bed_file_smaller1_total)[1] # 100%
+
+franke_downsampled_output4_unique <- data.frame(unique(franke_downsampled_output4$PositionID))
+franke_downsampled_output4_unique <- as.data.frame(lapply(franke_downsampled_output4_unique, FUN = function(x) (gsub("\\-.*$", "", x))))
+franke_downsampled_output4_unique <- unique(franke_downsampled_output4_unique)
+dim(franke_downsampled_output4_unique)[1] / dim(franke_cis_bed_file_smaller1_total)[1] # 100%
+
+franke_downsampled_output5_unique <- data.frame(unique(franke_downsampled_output5$PositionID))
+franke_downsampled_output5_unique <- as.data.frame(lapply(franke_downsampled_output5_unique, FUN = function(x) (gsub("\\-.*$", "", x))))
+franke_downsampled_output5_unique <- unique(franke_downsampled_output5_unique)
+dim(franke_downsampled_output5_unique)[1] / dim(franke_cis_bed_file_smaller1_total)[1] # 100%
+
+
+# ==========================================================
+# 2_2-C CALCULATE PROPORTION FOR TRANS EQTLS
+# ==========================================================
+
+franke_trans_bed_file <- data.table(paste0("chr",franke_trans_data$SNPChr), #59786 x 6
+                                    franke_trans_data$SNPPos - 20,
+                                    franke_trans_data$SNPPos + 20,
+                                    franke_trans_data$SNP,
+                                    0,
+                                    0)
+colnames(franke_trans_bed_file) <- c("c1","c2","c3","c4","c5","c6")
+
+franke_trans_bed_file_small <- franke_trans_bed_file[!duplicated(franke_trans_bed_file$c4)] #3853 x 6
+franke_trans_bed_file_smaller1 <- franke_trans_bed_file_small %>% sample_frac(.2) #771 x 6
+franke_trans_bed_file_smaller2 <- franke_trans_bed_file_small %>% sample_frac(.2)
+franke_trans_bed_file_smaller3 <- franke_trans_bed_file_small %>% sample_frac(.2)
+franke_trans_bed_file_smaller4 <- franke_trans_bed_file_small %>% sample_frac(.2)
+franke_trans_bed_file_smaller5 <- franke_trans_bed_file_small %>% sample_frac(.2)
+
+write.table(franke_trans_bed_file_smaller1, file="q2_2_bedfiles/3/franke_trans_bed_file_smaller1.txt", col.names = F, row.names=F, quote=F, sep='\t')
+write.table(franke_trans_bed_file_smaller2, file="q2_2_bedfiles/3/franke_trans_bed_file_smaller2.txt", col.names = F, row.names=F, quote=F, sep='\t')
+write.table(franke_trans_bed_file_smaller3, file="q2_2_bedfiles/3/franke_trans_bed_file_smaller3.txt", col.names = F, row.names=F, quote=F, sep='\t')
+write.table(franke_trans_bed_file_smaller4, file="q2_2_bedfiles/3/franke_trans_bed_file_smaller4.txt", col.names = F, row.names=F, quote=F, sep='\t')
+write.table(franke_trans_bed_file_smaller5, file="q2_2_bedfiles/3/franke_trans_bed_file_smaller5.txt", col.names = F, row.names=F, quote=F, sep='\t')
+
+# findMotifsGenome.pl /Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/eQTLPart1_2/q2_2_bedfiles/3/franke_trans_bed_file_smaller1.txt   hg19 output/ -find ~/homer/data/knownTFs/vertebrates/known.motifs > franke_trans_downsampled_output1.txt
+# findMotifsGenome.pl /Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/eQTLPart1_2/q2_2_bedfiles/3/franke_trans_bed_file_smaller2.txt   hg19 output/ -find ~/homer/data/knownTFs/vertebrates/known.motifs > franke_trans_downsampled_output2.txt
+# findMotifsGenome.pl /Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/eQTLPart1_2/q2_2_bedfiles/3/franke_trans_bed_file_smaller3.txt   hg19 output/ -find ~/homer/data/knownTFs/vertebrates/known.motifs > franke_trans_downsampled_output3.txt
+# findMotifsGenome.pl /Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/eQTLPart1_2/q2_2_bedfiles/3/franke_trans_bed_file_smaller4.txt   hg19 output/ -find ~/homer/data/knownTFs/vertebrates/known.motifs > franke_trans_downsampled_output4.txt
+# findMotifsGenome.pl /Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/eQTLPart1_2/q2_2_bedfiles/3/franke_trans_bed_file_smaller5.txt   hg19 output/ -find ~/homer/data/knownTFs/vertebrates/known.motifs > franke_trans_downsampled_output5.txt
+
+franke_downsampled_output1 <- fread("input_data_homer/q2_2/3/franke_trans_downsampled_output1.txt") # 31347
+franke_downsampled_output2 <- fread("input_data_homer/q2_2/3/franke_trans_downsampled_output2.txt") # 32005
+franke_downsampled_output3 <- fread("input_data_homer/q2_2/3/franke_trans_downsampled_output3.txt") # 31387
+franke_downsampled_output4 <- fread("input_data_homer/q2_2/3/franke_trans_downsampled_output4.txt") # 31717
+franke_downsampled_output5 <- fread("input_data_homer/q2_2/3/franke_trans_downsampled_output5.txt") # 31727
+
+franke_downsampled_output1_unique <- data.frame(unique(franke_downsampled_output1$PositionID))
+franke_downsampled_output1_unique <- as.data.frame(lapply(franke_downsampled_output1_unique, FUN = function(x) (gsub("\\-.*$", "", x))))
+franke_downsampled_output1_unique <- unique(franke_downsampled_output1_unique)
+franke_trans_bed_file_smaller1_total <- data.table(franke_trans_bed_file_smaller1[,4]) #same for all 5 samples
+dim(franke_downsampled_output1_unique)[1] / dim(franke_trans_bed_file_smaller1_total)[1] # 100%
+
+franke_downsampled_output2_unique <- data.frame(unique(franke_downsampled_output2$PositionID))
+franke_downsampled_output2_unique <- as.data.frame(lapply(franke_downsampled_output2_unique, FUN = function(x) (gsub("\\-.*$", "", x))))
+franke_downsampled_output2_unique <- unique(franke_downsampled_output2_unique)
+dim(franke_downsampled_output2_unique)[1] / dim(franke_trans_bed_file_smaller1)[1] # 100%
+
+franke_downsampled_output3_unique <- data.frame(unique(franke_downsampled_output3$PositionID))
+franke_downsampled_output3_unique <- as.data.frame(lapply(franke_downsampled_output3_unique, FUN = function(x) (gsub("\\-.*$", "", x))))
+franke_downsampled_output3_unique <- unique(franke_downsampled_output3_unique)
+dim(franke_downsampled_output3_unique)[1] / dim(franke_trans_bed_file_smaller1)[1] # 100%%
+
+franke_downsampled_output4_unique <- data.frame(unique(franke_downsampled_output4$PositionID))
+franke_downsampled_output4_unique <- as.data.frame(lapply(franke_downsampled_output4_unique, FUN = function(x) (gsub("\\-.*$", "", x))))
+franke_downsampled_output4_unique <- unique(franke_downsampled_output4_unique)
+dim(franke_downsampled_output4_unique)[1] / dim(franke_trans_bed_file_smaller1)[1] # 100%%
+
+franke_downsampled_output5_unique <- data.frame(unique(franke_downsampled_output5$PositionID))
+franke_downsampled_output5_unique <- as.data.frame(lapply(franke_downsampled_output5_unique, FUN = function(x) (gsub("\\-.*$", "", x))))
+franke_downsampled_output5_unique <- unique(franke_downsampled_output5_unique)
+dim(franke_downsampled_output5_unique)[1] / dim(franke_trans_bed_file_smaller1)[1] # 100%%
+
+# trans gives 100% for some reason but i don't know why // come back to this
+
+# ==========================================================
+# QUESTION 2_3
+# ==========================================================
+#Search for motif in sequence with swapped alleles (according to cis eQTL ref/alt).: swap these? franke_cis_data[,"AssessedAllele"], franke_cis_data[,"OtherAllele"]
+
+
 
 # Expected:
 # TF    cis-G   trans-G

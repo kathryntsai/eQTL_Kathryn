@@ -63,9 +63,9 @@ nrow(franke_cis_trans_common_snps)/nrow(franke_cis_snps) # 0.08867992% proportio
 # write.table(franke_cis_trans_common_trans_genes, file="franke_cis_trans_common_trans_genes.txt",row.names= FALSE,col.names="Gene_ID",quote=FALSE) # write trans genes to file
 # 
 # # having issues getting homer to find file?  am i putting it in the right directory? FIXED - spell "franke" correctly
-# # findMotifs.pl franke_cis_trans_common_trans_genes.txt human  motifResults_trans1/ -find data/knownTFs/vertebrates/known.motifs > /my_dir/output_trans.txt
+# # findMotifs.pl franke_cis_trans_common_trans_genes.txt human  motifResults_trans1/ -find data/knownTFs/vertebrates/known.motifs > /my_dir/trans_output.txt
 # 
-# trans_homer_results <- fread("output_trans.txt",header = TRUE, sep = "\t", dec = ".") #336,445
+# trans_homer_results <- fread("trans_output.txt",header = TRUE, sep = "\t", dec = ".") #336,445
 #   
 # # parse out after parentheses in motif name
 # # create table from data + trans_genes
@@ -102,7 +102,7 @@ nrow(franke_cis_trans_common_snps)/nrow(franke_cis_snps) # 0.08867992% proportio
 #setup: restricted ourselves to SNPs that are both cis and trans eQTLs. 
 #did not restrict ourselves to cis Genes that are TFs. 
 #goal: want to identify if any cis eQTL Genes are TFs that can bind in the promoter of the trans eQTL gene 
-dat <- fread("output_trans.txt", header = T, sep = "\t", dec = ".")
+dat <- fread("trans_output.txt", header = T, sep = "\t", dec = ".")
 #336K by 16 
 
 #table with SNP, cis Gene, trans Gene, list of Motifs 
@@ -213,7 +213,7 @@ annotLookup2 <- data.frame(
 
 colnames(annotLookup2) <- c(
   "original_id",
-  c("ensembl_transcript_id", "ensembl_gene_id", "gene_biotype", "original_id2", "external_gene_name"))
+  c("ensembl_transcript_id", "ensembl_gene_id", "gene_biotype", "external_gene_name"))
 annotLookup_abbrev <- data.table(unique(annotLookup2[, "original_id"]), unique(annotLookup2[, "external_gene_name"]))
 fwrite(annotLookup_abbrev, "trans_gene_commonname.csv")
 
@@ -226,10 +226,46 @@ fwrite(annotLookup_abbrev, "trans_gene_commonname.csv")
 # CREATION OF BED FILE WITH EQTLGEN
 # ==========================================================
 
-franke_cis_bed_file <- data.table(franke_cis_data$SNPChr, 
-                                  franke_cis_data$SNPPos - 20, 
+franke_cis_bed_file <- data.table(paste0("chr",franke_cis_data$SNPChr),
+                                  franke_cis_data$SNPPos - 20,
                                   franke_cis_data$SNPPos + 20,
                                   franke_cis_data$SNP, # is this right?
                                   0,
                                   0)
-fwrite(franke_cis_bed_file, file="franke_cis_bed_file.csv",col.names=F)
+colnames(franke_cis_bed_file) <- c("c1","c2","c3","c4","c5","c6")
+# write.table(franke_cis_bed_file[1:(nrow(franke_cis_bed_file)/3), ], file="franke_cis_bed_file1.txt", col.names = F, row.names=F, quote=F, sep='\t')
+# write.table(franke_cis_bed_file[nrow(franke_cis_bed_file)/3:(2*nrow(franke_cis_bed_file)/3), ], file="franke_cis_bed_file2.txt", col.names = F, row.names=F, quote=F, sep='\t')
+# write.table(franke_cis_bed_file[2*nrow(franke_cis_bed_file)/3:(3*nrow(franke_cis_bed_file)/3), ], file="franke_cis_bed_file2.txt", col.names = F, row.names=F, quote=F, sep='\t')
+
+franke_cis_bed_file_small <- franke_cis_bed_file[!duplicated(franke_cis_bed_file$c4)]
+write.table(franke_cis_bed_file_small, file="franke_cis_bed_file_small.txt", col.names = F, row.names=F, quote=F, sep='\t')
+
+# fwrite(franke_cis_bed_file, file="franke_cis_bed_file.csv",col.names=F)
+# brew install dos2unix
+# findMotifsGenome.pl ~/Documents/franke_cis_bed_file.txt hg19 output/ -find /data/knownTFs/vertebrates/known.motifs  > franke_ouput.txt
+
+#findMotifsGenome.pl ~/Documents/franke_cis_bed_file.txt hg19 output/ -find ~/homer/data/knownTFs/vertebrates/known.motifs  > franke_output1.txt
+#findMotifsGenome.pl <input> hg19 output/ -find ~/homer/data/knownTFs/vertebrates/known.motifs  > franke_output1.txt
+
+davenport_bed_file <- data.table(paste0("chr", davenport_data$SNP_chr), 
+                                 davenport_data$SNP_pos - 20, 
+                                 davenport_data$SNP_pos + 20,
+                                 davenport_data$SNP, # is this right?
+                                  0,
+                                  0)
+colnames(davenport_bed_file) <- c("c1","c2","c3","c4","c5","c6")
+write.table(davenport_bed_file, file="davenport_bed_file.txt", col.names = F, row.names=F, quote=F, sep='\t')
+# DON'T USE THIS fwrite(davenport_bed_file, file="davenport_bed_file.csv",col.names=F)
+# findMotifsGenome.pl ~/Documents/davenport_bed_file.txt hg19 output/ -find ~/homer/data/knownTFs/vertebrates/known.motifs > davenport_ouput.txt
+
+davenport_output <- fread("davenport_output.txt")
+# analyze unique because it's faster
+davenport_output_unique <- data.frame(unique(davenport_output$PositionID))
+davenport_output_unique <- as.data.frame(lapply(davenport_output_unique, FUN = function(x) (gsub("\\-.*$", "", x))))
+davenport_output_unique <- unique(davenport_output_unique)
+davenport_bed_file_total <- data.table(unique(davenport_bed_file$c4))
+# FOR PFIZER DATA:
+dim(davenport_output_unique)[1] / dim(davenport_bed_file_total)[1] # 4464 / 4525 * 100 = 98.65193% !!
+franke_output <- fread("franke_output1.txt")
+
+

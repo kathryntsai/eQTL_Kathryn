@@ -1,7 +1,3 @@
-library(data.table)
-library(dplyr)
-library(glue)
-
 # NOTE: HOMER PATHS DON'T WORK ANYMORE DUE TO ORGANIZATION 6/11/19
 # ==========================================================
 # QUESTION 2_1
@@ -106,7 +102,7 @@ head(snps_interesting_TFmatch)
 snps_interesting_TFmatch <- cbind(snps_interesting_TFmatch, common_cisgenename_interesting[which(!is.na(matches))])
 colnames(snps_interesting_TFmatch)[4] <- "cisGene_commonname"
 snps_interesting_TFmatch <- snps_interesting_TFmatch[,c(1,2,4,3)]
-write.table(snps_interesting_TFmatch, "q2_1_written/snps_interesting_TFmatch.txt", row.names = F, col.names = T)
+# write.table(snps_interesting_TFmatch, "q2_1_written/snps_interesting_TFmatch.txt", row.names = F, col.names = T)
 
 # ==========================================================
 # ACTIVATOR/REPRESSOR ANALYSIS AND COMPARISON WITH Z-SCORES
@@ -150,9 +146,9 @@ cis_gene_cards_fxns$Function_Abbreviation <- gsub(" \\-.*$", "", cis_gene_cards_
 cis_gene_cards_fxns <- data.frame(cis_gene_cards_fxns)
 cis_gene_cards_fxns_snps <- merge(cis_gene_cards_fxns, snps_interesting_TFmatch, by.x = "Gene", by.y="cisGene_commonname")
 # fwrite(cis_gene_cards_fxns_snps, file="q2_1_written/cis_gene_cards_fxns_snps.csv")
-cis_gene_cards_fxns_snps_z <- inner_join(cis_gene_cards_fxns_snps, data.table(franke_cis_data[,"SNP"], franke_cis_data[,"Zscore"]))
+cis_gene_cards_fxns_snps_z <- cis_gene_cards_fxns_snps %fin% data.table(franke_cis_data[,"SNP"], franke_cis_data[,"Zscore"]) # right_join(cis_gene_cards_fxns_snps, data.table(franke_cis_data[,"SNP"], franke_cis_data[,"Zscore"]))
 colnames(cis_gene_cards_fxns_snps_z) <- c("SNP", "Gene", "Link", "Function", "Function_Abbreviation", "cisGene", "transGene", "CisZscore")
-gene_cards_fxns_snps_z2 <- right_join(cis_gene_cards_fxns_snps_z, data.table(franke_trans_data[,"SNP"], franke_trans_data[,"Zscore"]))
+gene_cards_fxns_snps_z2 <- cis_gene_cards_fxns_snps_z %fin% data.table(franke_trans_data[,"SNP"], franke_trans_data[,"Zscore"]) # right_join(cis_gene_cards_fxns_snps_z, data.table(franke_trans_data[,"SNP"], franke_trans_data[,"Zscore"]))
 colnames(gene_cards_fxns_snps_z2) <- c("SNP", "Gene", "Link", "Function", "Function_Abbreviation", "cisGene", "transGene", "CisZscore", "TransZscore")
 gene_cards_fxns_snps_z2$CisZSign <- sign((gene_cards_fxns_snps_z2$CisZscore))
 gene_cards_fxns_snps_z2$TransZSign <- sign((gene_cards_fxns_snps_z2$TransZscore))

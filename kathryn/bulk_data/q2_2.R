@@ -1,7 +1,3 @@
-library(data.table)
-library(dplyr)
-library(glue)
-
 # ==========================================================
 # QUESTION 2_2: ARE THE SNPS NEAR A BINDING MOTIF?
 # ==========================================================
@@ -182,16 +178,16 @@ dim(franke_downsampled_output2_unique)[1] / dim(franke_trans_bed_file_smaller1)[
 franke_downsampled_output3_unique <- data.frame(unique(franke_downsampled_output3$PositionID))
 franke_downsampled_output3_unique <- as.data.frame(lapply(franke_downsampled_output3_unique, FUN = function(x) (gsub("\\-.*$", "", x))))
 franke_downsampled_output3_unique <- unique(franke_downsampled_output3_unique)
-dim(franke_downsampled_output3_unique)[1] / dim(franke_trans_bed_file_smaller1)[1] # 100%%
+dim(franke_downsampled_output3_unique)[1] / dim(franke_trans_bed_file_smaller1)[1] # 100%
 
 franke_downsampled_output4_unique <- data.frame(unique(franke_downsampled_output4$PositionID))
 franke_downsampled_output4_unique <- as.data.frame(lapply(franke_downsampled_output4_unique, FUN = function(x) (gsub("\\-.*$", "", x))))
 franke_downsampled_output4_unique <- unique(franke_downsampled_output4_unique)
-dim(franke_downsampled_output4_unique)[1] / dim(franke_trans_bed_file_smaller1)[1] # 100%%
+dim(franke_downsampled_output4_unique)[1] / dim(franke_trans_bed_file_smaller1)[1] # 100%
 
 franke_downsampled_output5_unique <- data.frame(unique(franke_downsampled_output5$PositionID))
 franke_downsampled_output5_unique <- as.data.frame(lapply(franke_downsampled_output5_unique, FUN = function(x) (gsub("\\-.*$", "", x))))
 franke_downsampled_output5_unique <- unique(franke_downsampled_output5_unique)
-dim(franke_downsampled_output5_unique)[1] / dim(franke_trans_bed_file_smaller1)[1] # 100%%
+dim(franke_downsampled_output5_unique)[1] / dim(franke_trans_bed_file_smaller1)[1] # 100%
 
 # trans gives 100% for some reason but i don't know why // come back to this

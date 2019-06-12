@@ -1,4 +1,6 @@
-
+library(data.table)
+library(dplyr)
+library(glue)
 
 # ==========================================================
 # QUESTION 2_2: ARE THE SNPS NEAR A BINDING MOTIF?
@@ -74,7 +76,7 @@ write.table(davenport_bed_file, file="q2_2_bedfiles/davenport_bed_file.txt", col
 # 2_2-B CALCULATE PROPORTIONS
 # ==========================================================
 
-davenport_output <- fread("input_data_homer/q2_2/davenport_output.txt")
+davenport_output <- fread("q2_2_input/homer/davenport_output.txt")
 # analyze unique because it's faster
 davenport_output_unique <- data.frame(unique(davenport_output$PositionID))
 davenport_output_unique <- as.data.frame(lapply(davenport_output_unique, FUN = function(x) (gsub("\\-.*$", "", x))))
@@ -85,22 +87,22 @@ dim(davenport_output_unique)[1] / dim(davenport_bed_file_total)[1] # 4464 / 4525
 
 # ----
 
-# THIS WILL NOT WORK BECAUSE IT'S TOO BIG: franke_output <- fread("input_data_homer/q2_2/1/franke_output1.txt")
+# THIS WILL NOT WORK BECAUSE IT'S TOO BIG: franke_output <- fread("q2_2_input/homer/1/franke_output1.txt")
 
 # use SQLLite?
-# library(sqldf) iris2 <- read.csv.sql("input_data_homer/franke_output1.txt",sql = "select * from file where Species = 'setosa' ")
-# only for csv: library(ff) franke_output <- read.csv.ffdf(file="input_data_homer/q2_2/1/franke_output1.txt⁩")
+# library(sqldf) iris2 <- read.csv.sql("q2_2_input/homer/franke_output1.txt",sql = "select * from file where Species = 'setosa' ")
+# only for csv: library(ff) franke_output <- read.csv.ffdf(file="q2_2_input/homer/q2_2/1/franke_output1.txt⁩")
 
 # library(bigmemory), library(biganalytics), library(bigtabulate)
 # https://rstudio-pubs-static.s3.amazonaws.com/72295_692737b667614d369bd87cb0f51c9a4b.html
 # library(caret)
 
 
-franke_downsampled_output1 <- fread("input_data_homer/q2_2/3/franke_downsampled_output1.txt")
-franke_downsampled_output2 <- fread("input_data_homer/q2_2/3/franke_downsampled_output2.txt")
-franke_downsampled_output3 <- fread("input_data_homer/q2_2/3/franke_downsampled_output3.txt")
-franke_downsampled_output4 <- fread("input_data_homer/q2_2/3/franke_downsampled_output4.txt")
-franke_downsampled_output5 <- fread("input_data_homer/q2_2/3/franke_downsampled_output5.txt")
+franke_downsampled_output1 <- fread("q2_2_input/homer/q2_2/3/franke_downsampled_output1.txt")
+franke_downsampled_output2 <- fread("q2_2_input/homer/q2_2/3/franke_downsampled_output2.txt")
+franke_downsampled_output3 <- fread("q2_2_input/homer/q2_2/3/franke_downsampled_output3.txt")
+franke_downsampled_output4 <- fread("q2_2_input/homer/q2_2/3/franke_downsampled_output4.txt")
+franke_downsampled_output5 <- fread("q2_2_input/homer/q2_2/3/franke_downsampled_output5.txt")
 
 franke_downsampled_output1_unique <- data.frame(unique(franke_downsampled_output1$PositionID))
 franke_downsampled_output1_unique <- as.data.frame(lapply(franke_downsampled_output1_unique, FUN = function(x) (gsub("\\-.*$", "", x))))
@@ -160,11 +162,11 @@ write.table(franke_trans_bed_file_smaller5, file="q2_2_bedfiles/3/franke_trans_b
 # findMotifsGenome.pl /Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/eQTLPart1_2/q2_2_bedfiles/3/franke_trans_bed_file_smaller4.txt   hg19 output/ -find ~/homer/data/knownTFs/vertebrates/known.motifs > franke_trans_downsampled_output4.txt
 # findMotifsGenome.pl /Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/eQTLPart1_2/q2_2_bedfiles/3/franke_trans_bed_file_smaller5.txt   hg19 output/ -find ~/homer/data/knownTFs/vertebrates/known.motifs > franke_trans_downsampled_output5.txt
 
-franke_downsampled_output1 <- fread("input_data_homer/q2_2/3/franke_trans_downsampled_output1.txt") # 31347
-franke_downsampled_output2 <- fread("input_data_homer/q2_2/3/franke_trans_downsampled_output2.txt") # 32005
-franke_downsampled_output3 <- fread("input_data_homer/q2_2/3/franke_trans_downsampled_output3.txt") # 31387
-franke_downsampled_output4 <- fread("input_data_homer/q2_2/3/franke_trans_downsampled_output4.txt") # 31717
-franke_downsampled_output5 <- fread("input_data_homer/q2_2/3/franke_trans_downsampled_output5.txt") # 31727
+franke_downsampled_output1 <- fread("q2_2_input/homer/q2_2/3/franke_trans_downsampled_output1.txt") # 31347
+franke_downsampled_output2 <- fread("q2_2_input/homer/q2_2/3/franke_trans_downsampled_output2.txt") # 32005
+franke_downsampled_output3 <- fread("q2_2_input/homer/q2_2/3/franke_trans_downsampled_output3.txt") # 31387
+franke_downsampled_output4 <- fread("q2_2_input/homer/q2_2/3/franke_trans_downsampled_output4.txt") # 31717
+franke_downsampled_output5 <- fread("q2_2_input/homer/q2_2/3/franke_trans_downsampled_output5.txt") # 31727
 
 franke_downsampled_output1_unique <- data.frame(unique(franke_downsampled_output1$PositionID))
 franke_downsampled_output1_unique <- as.data.frame(lapply(franke_downsampled_output1_unique, FUN = function(x) (gsub("\\-.*$", "", x))))

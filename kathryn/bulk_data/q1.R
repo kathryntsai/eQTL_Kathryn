@@ -7,16 +7,6 @@
 # ==========================================================
 
 # How many SNP-gene associations exist in both bulk eqtl datasets? 
-library(data.table)
-library(dplyr)
-library(glue)
-# Read Emma Davenport's eQTL R-variables - not used
-load("input_data/files_for_pfizer_eqtl.rda")
-
-# Read Emma Davenport's Pfizer Data
-davenport_data <- read.csv("input_data/pfizer_eqtl_table_1.csv")
-# Read Lude Franke's cis-eQTL data
-franke_cis_data <- fread("input_data/cis-eQTL_significant_20181017.txt", header = TRUE, sep = "\t", dec = ".")
 
 # inner_join (only keep observations that are similar) by SNPS+GENE
 franke_cis_gene_snps <- unique(data.table(franke_cis_data[,8], franke_cis_data[,2])) #10,527,168x2
@@ -33,8 +23,6 @@ nrow(franke_davenport_gene_snps_common)/nrow(franke_cis_gene_snps) # = 0.0281367
 # What proportion of eQTLgen trans-eQTLs are also cis-eQTLs (with a nearby gene?)
 
 franke_cis_snps <- unique(data.table(franke_cis_data[,2])) #10,527,168x2
-# Read Lude Franke's trans-eQTL data
-franke_trans_data <- fread("input_data/trans-eQTL_significant_20181017.txt", header = TRUE, sep = "\t", dec = ".")
 franke_trans_snps <- unique(data.table(franke_trans_data[,2])) # 59786
 
 # inner_join by SNPs

@@ -1,3 +1,56 @@
+# NOTE: HOMER PATHS DON'T WORK ANYMORE DUE TO ORGANIZATION 6/11/19
+# ==========================================================
+# QUESTION 2_1
+# ==========================================================
+# What % of eQTLs (cis / trans consider separately) overlap 
+# a motif or are in LD with a SNP that overlaps a motif? 
+# If a SNP is not genotyped or poorly imputed (missing data or incorrect data), 
+# we won’t be able to see it’s true association with gene expression. 
+# Therefore, a SNP in tight LD with this poorly documented SNP (which is in reality the causal SNP) 
+# might show an artificially strong association signal with expression. 
+
+# # use homer to find trans eQTLs that also overlap cis eQTLs
+# write.table(franke_cis_trans_common_snps, file="q2_1_written/franke_cis_trans_common.txt",row.names= FALSE,col.names=FALSE,quote=FALSE) # write SNPs to file
+# 
+# # match cis/trans snps to cis genes, keep only unique genes for Homer findmotifs.pl // do I need more specificity for gene?  i.e. gene.1, gene.2...?  Do i keep only unique genes?
+# franke_cis_trans_common_cis_genes <- unique(data.table(right_join(franke_cis_gene_snps, franke_cis_trans_common_snps))[,"Gene"]) # 24490 merged -> 4605 unique
+# write.table(franke_cis_trans_common_cis_genes, file="input_data_homer/q2_1_old/franke_cis_trans_common_cis_genes.txt",row.names= FALSE,col.names="Gene_ID",quote=FALSE) # write cis genes to file
+# # match cis/trans snps to trans genes, keep only unique genes for Homer findmotifs.pl // same questions as for cis
+# franke_cis_trans_common_trans_genes <- unique(data.table(right_join(data.table(franke_trans_data[,"SNP"], franke_trans_data[,"Gene"]), franke_cis_trans_common_snps))[,"Gene"]) #56038 merged -> 6059 unique
+# write.table(franke_cis_trans_common_trans_genes, file="input_data_homer/q2_1_old/franke_cis_trans_common_trans_genes.txt",row.names= FALSE,col.names="Gene_ID",quote=FALSE) # write trans genes to file
+# 
+# # having issues getting homer to find file?  am i putting it in the right directory? FIXED - spell "franke" correctly
+# # findMotifs.pl franke_cis_trans_common_trans_genes.txt human  motifResults_trans1/ -find data/knownTFs/vertebrates/known.motifs > /my_dir/trans_output.txt
+# 
+# trans_homer_results <- fread("input_data_homer/old/trans_output.txt",header = TRUE, sep = "\t", dec = ".") #336,445
+#   
+# # parse out after parentheses in motif name
+# # create table from data + trans_genes
+# # print list of factors
+# 
+# trans_homer_results$MotifNameAbbreviated <-  sub("*\\(.*", "", trans_homer_results$'Motif Name')
+# # trans_homer_results_organized <- data.table(trans_homer_results[,"Offset"],trans_homer_results[,"Strand"],trans_homer_results[,"MotifScore"],trans_homer_results[,"Ensembl"],trans_homer_results[,"MotifNameAbbreviated"]) #336,445
+# # franke_trans_gene_snps <- data.table(franke_trans_data$SNP, franke_trans_data$Gene) #59,786
+# # colnames(franke_trans_gene_snps) <- c("SNP", "Ensembl")
+# # trans_homer_results_organized_snps <- left_join(trans_homer_results_organized, franke_trans_gene_snps) #left_join only yields 3,359,095, inner_join only yields 3,359,095 results
+# # colnames(trans_homer_results_organized_snps) <- c("Offset", "Strand", "MotifScore", "Trans_Gene", "MotifNameAbbreviated", "SNP")
+# # trans_homer_results_organized_snps_cis_gene_snps <- left_join(trans_homer_results_organized_snps, franke_cis_gene_snps) #left_join only yields 30,472,391, inner_join only yields 30,118,485
+# # colnames(trans_homer_results_organized_snps_cis_gene_snps) <- c("Offset", "Strand", "MotifScore", "Trans_Gene", "MotifNameAbbreviated", "SNP", "Cis_Gene")
+# 
+# # WITHOUT STRAND
+# trans_homer_results_organized <- data.table(trans_homer_results[,"Offset"],trans_homer_results[,"MotifScore"],trans_homer_results[,"Ensembl"],trans_homer_results[,"MotifNameAbbreviated"]) #336,445
+# franke_trans_gene_snps <- data.table(franke_trans_data$SNP, franke_trans_data$Gene) #59,786
+# colnames(franke_trans_gene_snps) <- c("SNP", "Ensembl")
+# trans_homer_results_organized_snps <- left_join(trans_homer_results_organized, franke_trans_gene_snps) #left_join only yields 3,359,095, inner_join only yields 3,359,095 results
+# colnames(trans_homer_results_organized_snps) <- c("Offset", "MotifScore", "Trans_Gene", "MotifNameAbbreviated", "SNP")
+# trans_homer_results_organized_snps_cis_gene_snps <- left_join(trans_homer_results_organized_snps, franke_cis_gene_snps) #left_join only yields 30,472,391, inner_join only yields 30,118,485
+# colnames(trans_homer_results_organized_snps_cis_gene_snps) <- c("Offset", "MotifScore", "Trans_Gene", "MotifNameAbbreviated", "SNP", "Cis_Gene")
+# 
+# write.csv(trans_homer_results_organized_snps_cis_gene_snps, file="input_data_homer/q2_1_old/trans_homer_results_organized_snps_cis_gene_snps.csv")
+# # WRITE CODE TO GET UNIQUE ONES - can't run on local computer
+# 
+# franke_cis_trans_common_snps_gene <- inner_join(franke_trans_gene_snps, franke_cis_gene_snps, by="SNP")
+
 # ==========================================================
 # QUESTION 2-1: TIFFANY'S SCRIPT FOR INTERESTING SNPS
 # ==========================================================
@@ -94,14 +147,21 @@ cis_gene_cards_fxns <- data.frame(cis_gene_cards_fxns)
 cis_gene_cards_fxns_snps <- merge(cis_gene_cards_fxns, snps_interesting_TFmatch, by.x = "Gene", by.y="cisGene_commonname")
 fwrite(cis_gene_cards_fxns_snps, file="q2_1_written/cis_gene_cards_fxns_snps.csv")
 cis_gene_cards_fxns_snps_z <- merge(cis_gene_cards_fxns_snps, data.table(franke_cis_data[,"SNP"], franke_cis_data[,"Zscore"]))
-#r <- as.data.frame(lapply(cis_gene_cards_fxns_snps_z$Zscore, FUN = function(x) (gsub("[0-9].*$", "", x))))
-cis_gene_cards_fxns_snps_z$ZSign <- sign(cis_gene_cards_fxns_snps_z$Zscore)
-cis_gene_cards_comparison <- aggregate(cis_gene_cards_fxns_snps_z$ZSign, by=list(Gene=cis_gene_cards_fxns_snps_z$Gene), FUN=sum)
-cis_gene_cards_comparison <- inner_join(cis_gene_cards_fxns, cis_gene_cards_comparison, by = "Gene")
-cis_gene_cards_comparison <- cis_gene_cards_comparison[order(cis_gene_cards_comparison$x),]
+colnames(cis_gene_cards_fxns_snps_z) <- c("SNP", "Gene", "Link", "Function", "Function_Abbreviation", "cisGene", "transGene", "CisZscore")
+gene_cards_fxns_snps_z2 <- merge(cis_gene_cards_fxns_snps_z, data.table(franke_trans_data[,"SNP"], franke_trans_data[,"Zscore"]))
+colnames(gene_cards_fxns_snps_z2) <- c("SNP", "Gene", "Link", "Function", "Function_Abbreviation", "cisGene", "transGene", "CisZscore", "TransZscore")
+gene_cards_fxns_snps_z2$CisZSign <- sign((gene_cards_fxns_snps_z2$CisZscore))
+gene_cards_fxns_snps_z2$TransZSign <- sign((gene_cards_fxns_snps_z2$TransZscore))
 
-# cis_gene_cards_comparison is sorted by the aggregated Z-score. This data is a little ambiguous.
-# A A R A A A R A/R A A R? A A A/R A?? A A? R UNKNOWN R? A/R? A? || R? || A/R? UNKNOWN AR A?
+gene_cards_fxns_snps_z2$Calculated_Function <- apply(gene_cards_fxns_snps_z2, 1, FUN=function(x) if (x$CisZSign*x$TransZSign == 1) "A" else "R")
+gene_cards_fxns_snps_z2$DoesItMatch <- apply(gene_cards_fxns_snps_z2, 1, FUN=function(x) if (x$Function_Abbreviation == x$Calculated_Function) "T" else "F")
+
+# Expected:
+# TF    cis-G   trans-G
+# Act   z > 0   z > 0
+# Rep   z < 0   z > 0
+# Rep   z > 0   z < 0
+# Act   z < 0   z < 0
 
 # ==========================================================
 # Trans GeneCards
@@ -137,3 +197,11 @@ colnames(annotLookup2) <- c(
   c("ensembl_transcript_id", "ensembl_gene_id", "gene_biotype", "external_gene_name"))
 annotLookup_abbrev <- data.table(unique(annotLookup2[, "original_id"]), unique(annotLookup2[, "external_gene_name"]))
 fwrite(annotLookup_abbrev, "q2_1_written/trans_gene_commonname.csv")
+
+# ===========================
+# cis_gene_cards_comparison_1 <- aggregate(cis_gene_cards_fxns_snps_z$ZSign, by=list(Gene=cis_gene_cards_fxns_snps_z$Gene), FUN=sum)
+# cis_gene_cards_comparison_1 <- inner_join(cis_gene_cards_fxns, cis_gene_cards_comparison_1, by = "Gene")
+# cis_gene_cards_comparison_1 <- cis_gene_cards_comparison_1[order(cis_gene_cards_comparison_1$x),]
+
+# cis_gene_cards_comparison is sorted by the aggregated Z-score. This data is a little ambiguous.
+# A A R A A A R A/R A A R? A A A/R A?? A A? R UNKNOWN R? A/R? A? || R? || A/R? UNKNOWN AR A?

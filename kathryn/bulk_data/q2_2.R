@@ -193,19 +193,3 @@ franke_downsampled_output5_unique <- unique(franke_downsampled_output5_unique)
 dim(franke_downsampled_output5_unique)[1] / dim(franke_trans_bed_file_smaller1)[1] # 100%%
 
 # trans gives 100% for some reason but i don't know why // come back to this
-
-# ==========================================================
-# QUESTION 2_3
-# ==========================================================
-#Search for motif in sequence with swapped alleles (according to cis eQTL ref/alt).: swap these? franke_cis_data[,"AssessedAllele"], franke_cis_data[,"OtherAllele"]
-
-
-
-# Expected:
-# TF    cis-G   trans-G
-# Act   z > 0   z > 0
-# Rep   z < 0   z > 0
-# Rep   z > 0   z < 0
-# Act   z < 0   z < 0
-
-

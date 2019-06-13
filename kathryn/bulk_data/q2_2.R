@@ -191,3 +191,8 @@ franke_downsampled_output5_unique <- unique(franke_downsampled_output5_unique)
 dim(franke_downsampled_output5_unique)[1] / dim(franke_trans_bed_file_smaller1)[1] # 100%
 
 # trans gives 100% for some reason but i don't know why // come back to this
+
+# STILL NEED TO DO THIS
+
+offset >= 20 - len(motif) & offset < 20 & strand = "+"
+offset >= 19 - len(motif) & offset < 21 & strand = "-"

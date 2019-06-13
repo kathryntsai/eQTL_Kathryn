@@ -93,12 +93,36 @@ dim(davenport_output_unique)[1] / dim(davenport_bed_file_total)[1] # 4464 / 4525
 # https://rstudio-pubs-static.s3.amazonaws.com/72295_692737b667614d369bd87cb0f51c9a4b.html
 # library(caret)
 
+decide <- function(x){
+  #offset >= 20 - len(motif) & offset < 20 & strand = "+"
+  if(x['Offset']>= 20 - nchar(x['Sequence']) & x['Offset'] < 20 & x['Strand'] == "+")
+    return (1)
+  #offset >= 19 - len(motif) & offset < 21 & strand = "-"
+  else if (x['Offset']>= 19 - nchar(x['Sequence']) & x['Offset'] < 21 & x['Strand'] == "-")
+    return (1)
+  else 
+    return (0)
+}
 
-franke_downsampled_output1 <- fread("q2_2_input/homer/q2_2/3/franke_downsampled_output1.txt")
-franke_downsampled_output2 <- fread("q2_2_input/homer/q2_2/3/franke_downsampled_output2.txt")
-franke_downsampled_output3 <- fread("q2_2_input/homer/q2_2/3/franke_downsampled_output3.txt")
-franke_downsampled_output4 <- fread("q2_2_input/homer/q2_2/3/franke_downsampled_output4.txt")
-franke_downsampled_output5 <- fread("q2_2_input/homer/q2_2/3/franke_downsampled_output5.txt")
+franke_downsampled_output1 <- fread("q2_2_input/homer/3/franke_downsampled_output1.txt")
+franke_downsampled_output2 <- fread("q2_2_input/homer/3/franke_downsampled_output2.txt")
+franke_downsampled_output3 <- fread("q2_2_input/homer/3/franke_downsampled_output3.txt")
+franke_downsampled_output4 <- fread("q2_2_input/homer/3/franke_downsampled_output4.txt")
+franke_downsampled_output5 <- fread("q2_2_input/homer/3/franke_downsampled_output5.txt")
+
+# New code - does TF bind exactly to SNP?  Comment this out if there are not exact answers
+franke_downsampled_output1$DoesItBindExactly <- apply(franke_downsampled_output1, 1, decide)
+franke_downsampled_output2$DoesItBindExactly <- apply(franke_downsampled_output2, 1, decide)
+franke_downsampled_output3$DoesItBindExactly <- apply(franke_downsampled_output3, 1, decide)
+franke_downsampled_output4$DoesItBindExactly <- apply(franke_downsampled_output4, 1, decide)
+franke_downsampled_output5$DoesItBindExactly <- apply(franke_downsampled_output5, 1, decide)
+
+# New code - filter homer output for whether the TF binds exactly.  Comment this out if there are not exact answers
+franke_downsampled_output1 <- franke_downsampled_output1 %>% filter(DoesItBindExactly == 1)
+franke_downsampled_output2 <- franke_downsampled_output2 %>% filter(DoesItBindExactly == 1)
+franke_downsampled_output3 <- franke_downsampled_output3 %>% filter(DoesItBindExactly == 1)
+franke_downsampled_output4 <- franke_downsampled_output4 %>% filter(DoesItBindExactly == 1)
+franke_downsampled_output5 <- franke_downsampled_output5 %>% filter(DoesItBindExactly == 1)
 
 franke_downsampled_output1_unique <- data.frame(unique(franke_downsampled_output1$PositionID))
 franke_downsampled_output1_unique <- as.data.frame(lapply(franke_downsampled_output1_unique, FUN = function(x) (gsub("\\-.*$", "", x))))
@@ -158,11 +182,26 @@ write.table(franke_trans_bed_file_smaller5, file="q2_2_bedfiles/3/franke_trans_b
 # findMotifsGenome.pl /Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/eQTLPart1_2/q2_2_bedfiles/3/franke_trans_bed_file_smaller4.txt   hg19 output/ -find ~/homer/data/knownTFs/vertebrates/known.motifs > franke_trans_downsampled_output4.txt
 # findMotifsGenome.pl /Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/eQTLPart1_2/q2_2_bedfiles/3/franke_trans_bed_file_smaller5.txt   hg19 output/ -find ~/homer/data/knownTFs/vertebrates/known.motifs > franke_trans_downsampled_output5.txt
 
-franke_downsampled_output1 <- fread("q2_2_input/homer/q2_2/3/franke_trans_downsampled_output1.txt") # 31347
-franke_downsampled_output2 <- fread("q2_2_input/homer/q2_2/3/franke_trans_downsampled_output2.txt") # 32005
-franke_downsampled_output3 <- fread("q2_2_input/homer/q2_2/3/franke_trans_downsampled_output3.txt") # 31387
-franke_downsampled_output4 <- fread("q2_2_input/homer/q2_2/3/franke_trans_downsampled_output4.txt") # 31717
-franke_downsampled_output5 <- fread("q2_2_input/homer/q2_2/3/franke_trans_downsampled_output5.txt") # 31727
+# Note: these variables are reused from the cis analysis
+franke_downsampled_output1 <- fread("q2_2_input/homer/3/franke_trans_downsampled_output1.txt") # 31347
+franke_downsampled_output2 <- fread("q2_2_input/homer/3/franke_trans_downsampled_output2.txt") # 32005
+franke_downsampled_output3 <- fread("q2_2_input/homer/3/franke_trans_downsampled_output3.txt") # 31387
+franke_downsampled_output4 <- fread("q2_2_input/homer/3/franke_trans_downsampled_output4.txt") # 31717
+franke_downsampled_output5 <- fread("q2_2_input/homer/3/franke_trans_downsampled_output5.txt") # 31727
+
+# New code - does TF bind exactly to SNP?  Comment this out if there are not exact answers
+franke_downsampled_output1$DoesItBindExactly <- apply(franke_downsampled_output1, 1, decide)
+franke_downsampled_output2$DoesItBindExactly <- apply(franke_downsampled_output2, 1, decide)
+franke_downsampled_output3$DoesItBindExactly <- apply(franke_downsampled_output3, 1, decide)
+franke_downsampled_output4$DoesItBindExactly <- apply(franke_downsampled_output4, 1, decide)
+franke_downsampled_output5$DoesItBindExactly <- apply(franke_downsampled_output5, 1, decide)
+
+# New code - filter homer output for whether the TF binds exactly.  Comment this out if there are not exact answers
+franke_downsampled_output1 <- franke_downsampled_output1 %>% filter(DoesItBindExactly == 1)
+franke_downsampled_output2 <- franke_downsampled_output2 %>% filter(DoesItBindExactly == 1)
+franke_downsampled_output3 <- franke_downsampled_output3 %>% filter(DoesItBindExactly == 1)
+franke_downsampled_output4 <- franke_downsampled_output4 %>% filter(DoesItBindExactly == 1)
+franke_downsampled_output5 <- franke_downsampled_output5 %>% filter(DoesItBindExactly == 1)
 
 franke_downsampled_output1_unique <- data.frame(unique(franke_downsampled_output1$PositionID))
 franke_downsampled_output1_unique <- as.data.frame(lapply(franke_downsampled_output1_unique, FUN = function(x) (gsub("\\-.*$", "", x))))
@@ -192,7 +231,4 @@ dim(franke_downsampled_output5_unique)[1] / dim(franke_trans_bed_file_smaller1)[
 
 # trans gives 100% for some reason but i don't know why // come back to this
 
-# STILL NEED TO DO THIS
-
-offset >= 20 - len(motif) & offset < 20 & strand = "+"
-offset >= 19 - len(motif) & offset < 21 & strand = "-"
+# If TF binds exactly, it is set to 0.

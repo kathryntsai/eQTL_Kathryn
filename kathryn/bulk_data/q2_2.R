@@ -62,14 +62,31 @@ write.table(davenport_bed_file, file="q2_2_bedfiles/davenport_bed_file.txt", col
 # 2_2-B CALCULATE PROPORTIONS
 # ==========================================================
 
+# New code - does TF bind exactly to SNP?  Comment this out if there are not exact answers
+decide <- function(x){
+  #offset >= 20 - len(motif) & offset < 20 & strand = "+"
+  if(x['Offset'] >= 20 - nchar(x['Sequence']) & x['Offset'] < 20 & x['Strand'] == "+")
+    return (1)
+  #offset >= 19 - len(motif) & offset < 21 & strand = "-"
+  else if (x['Offset'] >= 19 - nchar(x['Sequence']) & x['Offset'] < 21 & x['Strand'] == "-")
+    return (1)
+  else
+    return (0)
+}
+
 davenport_output <- fread("q2_2_input/homer/davenport_output.txt")
+
+# New code
+davenport_output$DoesItBindExactly <- apply(davenport_output, 1, decide)
+davenport_output <- davenport_output %>% filter(DoesItBindExactly == 1)
+
 # analyze unique because it's faster
 davenport_output_unique <- data.frame(unique(davenport_output$PositionID))
 davenport_output_unique <- as.data.frame(lapply(davenport_output_unique, FUN = function(x) (gsub("\\-.*$", "", x))))
 davenport_output_unique <- unique(davenport_output_unique)
 davenport_bed_file_total <- data.table(unique(davenport_bed_file$c4))
 # FOR PFIZER DATA:
-dim(davenport_output_unique)[1] / dim(davenport_bed_file_total)[1] # 4181 / 4525 * 100 = 92.39779% !!
+dim(davenport_output_unique)[1] / dim(davenport_bed_file_total)[1] # 4181 / 4818 * 100 = 92.39779% !! // Exact Binding: 3 / 4525 = 0.06629%
 
 # ----
 
@@ -92,18 +109,6 @@ franke_downsampled_output5 <- fread("q2_2_input/homer/3/franke_downsampled_outpu
 # franke_downsampled_output3 %>% filter(franke_downsampled_output1$Offset>=30 & franke_downsampled_output1$Offset < 70)
 # franke_downsampled_output4 %>% filter(franke_downsampled_output1$Offset>=30 & franke_downsampled_output1$Offset < 70)
 # franke_downsampled_output5 %>% filter(franke_downsampled_output1$Offset>=30 & franke_downsampled_output1$Offset < 70)
-
-# New code - does TF bind exactly to SNP?  Comment this out if there are not exact answers
-decide <- function(x){
-  #offset >= 20 - len(motif) & offset < 20 & strand = "+"
-  if(x['Offset'] >= 20 - nchar(x['Sequence']) & x['Offset'] < 20 & x['Strand'] == "+")
-    return (1)
-  #offset >= 19 - len(motif) & offset < 21 & strand = "-"
-  else if (x['Offset'] >= 19 - nchar(x['Sequence']) & x['Offset'] < 21 & x['Strand'] == "-")
-    return (1)
-  else
-    return (0)
-}
 
 franke_downsampled_output1$DoesItBindExactly <- apply(franke_downsampled_output1, 1, decide)
 franke_downsampled_output2$DoesItBindExactly <- apply(franke_downsampled_output2, 1, decide)

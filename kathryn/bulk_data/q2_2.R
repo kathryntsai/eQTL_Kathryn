@@ -14,17 +14,8 @@ franke_cis_bed_file <- data.table(paste0("chr",franke_cis_data$SNPChr),
                                   0)
 colnames(franke_cis_bed_file) <- c("c1","c2","c3","c4","c5","c6")
 
-# these write.tables are irrelevant
-# write.table(franke_cis_bed_file[1:(nrow(franke_cis_bed_file)/3), ], file="franke_cis_bed_file1.txt", col.names = F, row.names=F, quote=F, sep='\t')
-# write.table(franke_cis_bed_file[nrow(franke_cis_bed_file)/3:(2*nrow(franke_cis_bed_file)/3), ], file="franke_cis_bed_file2.txt", col.names = F, row.names=F, quote=F, sep='\t')
-# write.table(franke_cis_bed_file[2*nrow(franke_cis_bed_file)/3:(3*nrow(franke_cis_bed_file)/3), ], file="franke_cis_bed_file2.txt", col.names = F, row.names=F, quote=F, sep='\t')
-
 franke_cis_bed_file_small <- franke_cis_bed_file[!duplicated(franke_cis_bed_file$c4)]
 # write.table(franke_cis_bed_file_small, file="q2_2_bedfiles/2/franke_cis_bed_file_small.txt", col.names = F, row.names=F, quote=F, sep='\t')
-
-# these two lines not necessary
-# fwrite(franke_cis_bed_file, file="franke_cis_bed_file.csv",col.names=F)
-# brew install dos2unix
 
 # 10 M sequences - runs for too long
 #findMotifsGenome.pl ~/Documents/franke_cis_bed_file.txt hg19 output/ -find ~/homer/data/knownTFs/vertebrates/known.motifs  > franke_output1.txt
@@ -64,9 +55,8 @@ davenport_bed_file <- data.table(paste0("chr", davenport_data$SNP_chr),
                                  0)
 colnames(davenport_bed_file) <- c("c1","c2","c3","c4","c5","c6")
 write.table(davenport_bed_file, file="q2_2_bedfiles/davenport_bed_file.txt", col.names = F, row.names=F, quote=F, sep='\t')
-# DON'T USE THIS fwrite(davenport_bed_file, file="davenport_bed_file.csv",col.names=F)
-# findMotifsGenome.pl ~/Documents/davenport_bed_file.txt hg19 output/ -find ~/homer/data/knownTFs/vertebrates/known.motifs > davenport_ouput.txt
 
+# findMotifsGenome.pl /Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/eQTLPart1_2/q2_2_bedfiles/davenport_bed_file.txt hg19 output/ -find ~/homer/data/knownTFs/vertebrates/known.motifs -size 40  > davenport_output.txt
 
 # ==========================================================
 # 2_2-B CALCULATE PROPORTIONS
@@ -79,38 +69,42 @@ davenport_output_unique <- as.data.frame(lapply(davenport_output_unique, FUN = f
 davenport_output_unique <- unique(davenport_output_unique)
 davenport_bed_file_total <- data.table(unique(davenport_bed_file$c4))
 # FOR PFIZER DATA:
-dim(davenport_output_unique)[1] / dim(davenport_bed_file_total)[1] # 4464 / 4525 * 100 = 98.65193% !!
+dim(davenport_output_unique)[1] / dim(davenport_bed_file_total)[1] # 4181 / 4525 * 100 = 92.39779% !!
 
 # ----
 
-# THIS WILL NOT WORK BECAUSE IT'S TOO BIG: franke_output <- fread("q2_2_input/homer/1/franke_output1.txt")
+franke_downsampled_output1 <- fread("q2_2_input/homer/3/franke_downsampled_output1.txt") # 31938
+franke_downsampled_output2 <- fread("q2_2_input/homer/3/franke_downsampled_output2.txt") # 30998
+franke_downsampled_output3 <- fread("q2_2_input/homer/3/franke_downsampled_output3.txt") # 30838
+franke_downsampled_output4 <- fread("q2_2_input/homer/3/franke_downsampled_output4.txt") # 31117
+franke_downsampled_output5 <- fread("q2_2_input/homer/3/franke_downsampled_output5.txt") # 31058
 
-# use SQLLite?
-# library(sqldf) iris2 <- read.csv.sql("q2_2_input/homer/franke_output1.txt",sql = "select * from file where Species = 'setosa' ")
-# only for csv: library(ff) franke_output <- read.csv.ffdf(file="q2_2_input/homer/q2_2/1/franke_output1.txt⁩")
+# ERROR: Homer sampled from -100 to 100, not -20 to 20: need to rerun analysis
 
-# library(bigmemory), library(biganalytics), library(bigtabulate)
-# https://rstudio-pubs-static.s3.amazonaws.com/72295_692737b667614d369bd87cb0f51c9a4b.html
-# library(caret)
+# findMotifsGenome.pl /Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/eQTLPart1_2/q2_2_bedfiles/3/franke_cis_bed_file_smaller1.txt  hg19 ~/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/eQTLPart1_2/input_data_homer/q2_2/3/ -find ~/homer/data/knownTFs/vertebrates/known.motifs -size 40 > franke_downsampled_output1.txt
+# findMotifsGenome.pl /Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/eQTLPart1_2/q2_2_bedfiles/3/franke_cis_bed_file_smaller2.txt  hg19 ~/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/eQTLPart1_2/input_data_homer/q2_2/3/ -find ~/homer/data/knownTFs/vertebrates/known.motifs -size 40 > franke_downsampled_output2.txt
+# findMotifsGenome.pl /Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/eQTLPart1_2/q2_2_bedfiles/3/franke_cis_bed_file_smaller3.txt  hg19 ~/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/eQTLPart1_2/input_data_homer/q2_2/3/ -find ~/homer/data/knownTFs/vertebrates/known.motifs -size 40 > franke_downsampled_output3.txt
+# findMotifsGenome.pl /Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/eQTLPart1_2/q2_2_bedfiles/3/franke_cis_bed_file_smaller4.txt  hg19 ~/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/eQTLPart1_2/input_data_homer/q2_2/3/ -find ~/homer/data/knownTFs/vertebrates/known.motifs -size 40 > franke_downsampled_output4.txt
+# findMotifsGenome.pl /Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/eQTLPart1_2/q2_2_bedfiles/3/franke_cis_bed_file_smaller5.txt  hg19 ~/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/eQTLPart1_2/input_data_homer/q2_2/3/ -find ~/homer/data/knownTFs/vertebrates/known.motifs -size 40 > franke_downsampled_output5.txt
 
+# franke_downsampled_output1 %>% filter(franke_downsampled_output1$Offset>=30 & franke_downsampled_output1$Offset < 70)
+# franke_downsampled_output2 %>% filter(franke_downsampled_output1$Offset>=30 & franke_downsampled_output1$Offset < 70)
+# franke_downsampled_output3 %>% filter(franke_downsampled_output1$Offset>=30 & franke_downsampled_output1$Offset < 70)
+# franke_downsampled_output4 %>% filter(franke_downsampled_output1$Offset>=30 & franke_downsampled_output1$Offset < 70)
+# franke_downsampled_output5 %>% filter(franke_downsampled_output1$Offset>=30 & franke_downsampled_output1$Offset < 70)
+
+# New code - does TF bind exactly to SNP?  Comment this out if there are not exact answers
 decide <- function(x){
   #offset >= 20 - len(motif) & offset < 20 & strand = "+"
-  if(x['Offset']>= 20 - nchar(x['Sequence']) & x['Offset'] < 20 & x['Strand'] == "+")
+  if(x['Offset'] >= 20 - nchar(x['Sequence']) & x['Offset'] < 20 & x['Strand'] == "+")
     return (1)
   #offset >= 19 - len(motif) & offset < 21 & strand = "-"
-  else if (x['Offset']>= 19 - nchar(x['Sequence']) & x['Offset'] < 21 & x['Strand'] == "-")
+  else if (x['Offset'] >= 19 - nchar(x['Sequence']) & x['Offset'] < 21 & x['Strand'] == "-")
     return (1)
-  else 
+  else
     return (0)
 }
 
-franke_downsampled_output1 <- fread("q2_2_input/homer/3/franke_downsampled_output1.txt")
-franke_downsampled_output2 <- fread("q2_2_input/homer/3/franke_downsampled_output2.txt")
-franke_downsampled_output3 <- fread("q2_2_input/homer/3/franke_downsampled_output3.txt")
-franke_downsampled_output4 <- fread("q2_2_input/homer/3/franke_downsampled_output4.txt")
-franke_downsampled_output5 <- fread("q2_2_input/homer/3/franke_downsampled_output5.txt")
-
-# New code - does TF bind exactly to SNP?  Comment this out if there are not exact answers
 franke_downsampled_output1$DoesItBindExactly <- apply(franke_downsampled_output1, 1, decide)
 franke_downsampled_output2$DoesItBindExactly <- apply(franke_downsampled_output2, 1, decide)
 franke_downsampled_output3$DoesItBindExactly <- apply(franke_downsampled_output3, 1, decide)
@@ -128,27 +122,27 @@ franke_downsampled_output1_unique <- data.frame(unique(franke_downsampled_output
 franke_downsampled_output1_unique <- as.data.frame(lapply(franke_downsampled_output1_unique, FUN = function(x) (gsub("\\-.*$", "", x))))
 franke_downsampled_output1_unique <- unique(franke_downsampled_output1_unique)
 franke_cis_bed_file_smaller1_total <- data.table(unique(franke_cis_bed_file_smaller1[,4])) #same for all 5 samples
-dim(franke_downsampled_output1_unique)[1] / dim(franke_cis_bed_file_smaller1_total)[1] # 4818/4818 = 100%
+dim(franke_downsampled_output1_unique)[1] / dim(franke_cis_bed_file_smaller1_total)[1] # 4449/4818 = 92.34122% // Exact Binding: 9 .1867995%
 
 franke_downsampled_output2_unique <- data.frame(unique(franke_downsampled_output2$PositionID))
 franke_downsampled_output2_unique <- as.data.frame(lapply(franke_downsampled_output2_unique, FUN = function(x) (gsub("\\-.*$", "", x))))
 franke_downsampled_output2_unique <- unique(franke_downsampled_output2_unique)
-dim(franke_downsampled_output2_unique)[1] / dim(franke_cis_bed_file_smaller1_total)[1] # 100%
+dim(franke_downsampled_output2_unique)[1] / dim(franke_cis_bed_file_smaller1_total)[1] # 4480 92.98464% // 5 .1037775%
 
 franke_downsampled_output3_unique <- data.frame(unique(franke_downsampled_output3$PositionID))
 franke_downsampled_output3_unique <- as.data.frame(lapply(franke_downsampled_output3_unique, FUN = function(x) (gsub("\\-.*$", "", x))))
 franke_downsampled_output3_unique <- unique(franke_downsampled_output3_unique)
-dim(franke_downsampled_output3_unique)[1] / dim(franke_cis_bed_file_smaller1_total)[1] # 100%
+dim(franke_downsampled_output3_unique)[1] / dim(franke_cis_bed_file_smaller1_total)[1] # 4497 93.33748% // 3 .0622665%
 
 franke_downsampled_output4_unique <- data.frame(unique(franke_downsampled_output4$PositionID))
 franke_downsampled_output4_unique <- as.data.frame(lapply(franke_downsampled_output4_unique, FUN = function(x) (gsub("\\-.*$", "", x))))
 franke_downsampled_output4_unique <- unique(franke_downsampled_output4_unique)
-dim(franke_downsampled_output4_unique)[1] / dim(franke_cis_bed_file_smaller1_total)[1] # 100%
+dim(franke_downsampled_output4_unique)[1] / dim(franke_cis_bed_file_smaller1_total)[1] # 4476 92.90162% // 4 .083022%
 
 franke_downsampled_output5_unique <- data.frame(unique(franke_downsampled_output5$PositionID))
 franke_downsampled_output5_unique <- as.data.frame(lapply(franke_downsampled_output5_unique, FUN = function(x) (gsub("\\-.*$", "", x))))
 franke_downsampled_output5_unique <- unique(franke_downsampled_output5_unique)
-dim(franke_downsampled_output5_unique)[1] / dim(franke_cis_bed_file_smaller1_total)[1] # 100%
+dim(franke_downsampled_output5_unique)[1] / dim(franke_cis_bed_file_smaller1_total)[1] # 4490 93.1922% // 5 .1037775%
 
 
 # ==========================================================
@@ -207,28 +201,25 @@ franke_downsampled_output1_unique <- data.frame(unique(franke_downsampled_output
 franke_downsampled_output1_unique <- as.data.frame(lapply(franke_downsampled_output1_unique, FUN = function(x) (gsub("\\-.*$", "", x))))
 franke_downsampled_output1_unique <- unique(franke_downsampled_output1_unique)
 franke_trans_bed_file_smaller1_total <- data.table(franke_trans_bed_file_smaller1[,4]) #same for all 5 samples
-dim(franke_downsampled_output1_unique)[1] / dim(franke_trans_bed_file_smaller1_total)[1] # 100%
+dim(franke_downsampled_output1_unique)[1] / dim(franke_trans_bed_file_smaller1_total)[1] # 721/771 93.51492% // 1 0.1297017%
 
 franke_downsampled_output2_unique <- data.frame(unique(franke_downsampled_output2$PositionID))
 franke_downsampled_output2_unique <- as.data.frame(lapply(franke_downsampled_output2_unique, FUN = function(x) (gsub("\\-.*$", "", x))))
 franke_downsampled_output2_unique <- unique(franke_downsampled_output2_unique)
-dim(franke_downsampled_output2_unique)[1] / dim(franke_trans_bed_file_smaller1)[1] # 100%
+dim(franke_downsampled_output2_unique)[1] / dim(franke_trans_bed_file_smaller1)[1] # 734/771 94.94163% // 3 0.3891051%
 
 franke_downsampled_output3_unique <- data.frame(unique(franke_downsampled_output3$PositionID))
 franke_downsampled_output3_unique <- as.data.frame(lapply(franke_downsampled_output3_unique, FUN = function(x) (gsub("\\-.*$", "", x))))
 franke_downsampled_output3_unique <- unique(franke_downsampled_output3_unique)
-dim(franke_downsampled_output3_unique)[1] / dim(franke_trans_bed_file_smaller1)[1] # 100%
+dim(franke_downsampled_output3_unique)[1] / dim(franke_trans_bed_file_smaller1)[1] # 732/771 94.42283% // 1 0.1297017%
 
 franke_downsampled_output4_unique <- data.frame(unique(franke_downsampled_output4$PositionID))
 franke_downsampled_output4_unique <- as.data.frame(lapply(franke_downsampled_output4_unique, FUN = function(x) (gsub("\\-.*$", "", x))))
 franke_downsampled_output4_unique <- unique(franke_downsampled_output4_unique)
-dim(franke_downsampled_output4_unique)[1] / dim(franke_trans_bed_file_smaller1)[1] # 100%
+dim(franke_downsampled_output4_unique)[1] / dim(franke_trans_bed_file_smaller1)[1] #728/771 0.9338521 // 0 0%
 
 franke_downsampled_output5_unique <- data.frame(unique(franke_downsampled_output5$PositionID))
 franke_downsampled_output5_unique <- as.data.frame(lapply(franke_downsampled_output5_unique, FUN = function(x) (gsub("\\-.*$", "", x))))
 franke_downsampled_output5_unique <- unique(franke_downsampled_output5_unique)
-dim(franke_downsampled_output5_unique)[1] / dim(franke_trans_bed_file_smaller1)[1] # 100%
+dim(franke_downsampled_output5_unique)[1] / dim(franke_trans_bed_file_smaller1)[1] # 720/771 100% // 0 0%
 
-# trans gives 100% for some reason but i don't know why // come back to this
-
-# If TF binds exactly, it is set to 0.

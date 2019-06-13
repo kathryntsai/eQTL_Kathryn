@@ -116,12 +116,11 @@
 
 snps_interesting_TFmatch <- fread("q2_1_written/snps_interesting_TFmatch.txt")
 # A represents Activator, R represents Repressor, A/R indicates it can be both.  Information taken from UniProt
-z <- snps_interesting_TFmatch[!duplicated(snps_interesting_TFmatch$"cisGene_commonname"),]
+z <- snps_interesting_TFmatch[!duplicated(snps_interesting_TFmatch$"cisGene_commonname"),2:6]
 cis_gene_cards <- integer(28)
 for (i in 1:nrow(z)){
   cis_gene_cards[i] <- paste("https://www.genecards.org/cgi-bin/carddisp.pl?gene=", z[i,"cisGene_commonname"], sep="")
 }
-# cis_gene_cards <- data.frame(strsplit())
 
 functions_u <- data.frame(
   "A - Transcriptional activator (By similarity). Binds a GC box motif. Could play a role in B-cell growth and development.", 
@@ -152,13 +151,12 @@ functions_u <- data.frame(
   "A - Transcription factor that binds to the immunoglobulin enhancer Mu-E5/KE5-motif. Involved in the initiation of neuronal differentiation. Activates transcription by binding to the E box (5'-CANNTG-3'). Binds to the E-box present in the somatostatin receptor 2 initiator element (SSTR2-INR) to activate transcription (By similarity). Preferentially binds to either 5'-ACANNTGT-3' or 5'-CCANNTGG-3'. ITF2_HUMAN,P15884",
   "A/R - Acts as a transcriptional activator or repressor (PubMed:27181683). Plays a pivotal role in regulating lineage-specific hematopoiesis by repressing ETS1-mediated transcription of erythroid-specific genes in myeloid cells. Required for monocytic, macrophage, osteoclast, podocyte and islet beta cell differentiation. Involved in renal tubule survival and F4/80 maturation. Activates the insulin and glucagon promoters. Together with PAX6, transactivates weakly the glucagon gene promoter through the G1 element. SUMO modification controls its transcriptional activity and ability to specify macrophage fate. Binds element G1 on the glucagon promoter (By similarity). Involved either as an oncogene or as a tumor suppressor, depending on the cell context. MAFB_HUMAN,Q9Y5Q3",
   "A - Transcription activator that binds DNA cooperatively with DP proteins through the E2 recognition site, 5'-TTTC[CG]CGC-3' found in the promoter region of a number of genes whose products are involved in cell cycle regulation or in DNA replication. The DRTF1/E2F complex functions in the control of cell-cycle progression from G1 to S phase. E2F4 binds with high affinity to RBL1 and RBL2. In some instances can also bind RB1. Specifically required for multiciliate cell differentiation: together with MCIDAS and E2F5, binds and activate genes required for centriole biogenesis.")
-
 functions <- transpose(as.data.frame(functions_u))
 
 cis_gene_cards_fxns <- data.frame(z, 
                              unique(cis_gene_cards),
                              functions)
-colnames(cis_gene_cards_fxns)[7:8] <- c("Link", "Function")
+colnames(cis_gene_cards_fxns)[6:7] <- c("Link", "Function")
 cis_gene_cards_fxns$Function_Abbreviation <- gsub(" \\-.*$", "", cis_gene_cards_fxns$Function)
 cis_gene_cards_fxns$CisZSign <- sign((cis_gene_cards_fxns$cisZscore))
 cis_gene_cards_fxns$TransZSign <- sign((cis_gene_cards_fxns$transZscore))
@@ -171,6 +169,11 @@ cis_gene_cards_fxns$TransZSign <- sign((cis_gene_cards_fxns$transZscore))
 # Act   z < 0   z < 0
 
 # Does not take into account A/R
+x <- cis_gene_cards_fxns
+
+#backup: 
+cis_gene_cards_fxns <- x
+cis_gene_cards_fxns <- merge(x, data.frame(snps_interesting_TFmatch[,"SNP"], snps_interesting_TFmatch[,"cisGene"]),by.x = "cisGene", by.y="cisGene", all.y=T)
 cis_gene_cards_fxns <- as.data.frame(cis_gene_cards_fxns)
 for (i in 1:length(cis_gene_cards_fxns)){
   if (cis_gene_cards_fxns$CisZSign[i]*cis_gene_cards_fxns$TransZSign[i] == 1)
@@ -179,48 +182,251 @@ for (i in 1:length(cis_gene_cards_fxns)){
     cis_gene_cards_fxns$Calculated_Function[i]  <- "R"
 }
 # cis_gene_cards_fxns$Calculated_Function <- apply(cis_gene_cards_fxns, 1, FUN=function(x) if (x$CisZSign*x$TransZSign == 1) "A" else "R")
-for (i in 1:length(cis_gene_cards_fxns)){
-  if (cis_gene_cards_fxns$Function_Abbreviation[i] == cis_gene_cards_fxns$Calculated_Function[i])
-    cis_gene_cards_fxns$DoesItMatch[i]<- 1 #T
+for (i in 1:dim(cis_gene_cards_fxns)[1]){
+  if (identical(cis_gene_cards_fxns$Function_Abbreviation[i],cis_gene_cards_fxns$Calculated_Function[i]))
+  {
+    cis_gene_cards_fxns$DoesItMatch[i] <- 1 #T
+    #print(paste(cis_gene_cards_fxns$Function_Abbreviation[i], " ", cis_gene_cards_fxns$Calculated_Function[i], " ", cis_gene_cards_fxns$DoesItMatch[i]), " paste 1")
+  }
   else 
+  {
     cis_gene_cards_fxns$DoesItMatch[i]  <- 0 #F
+    #print(paste(cis_gene_cards_fxns$Function_Abbreviation[i], " ", cis_gene_cards_fxns$Calculated_Function[i], " ", cis_gene_cards_fxns$DoesItMatch[i]), " paste 0")
+  }
 }
 
 # NOT COMPLETELY ACCURATE BECAUSE A/R IS UNKNOWN
 cis_gene_cards_fxns %>% count(DoesItMatch)
-# 0 = F = Doesn't Match  = 24
-# 1 = T = Does Match = 4
+# 0 = F = Doesn't Match  = 358
+# 1 = T = Does Match = 100
 
-aggregate(cis_gene_cards_fxns$DoesItMatch, by=list(SNP=cis_gene_cards_fxns$SNP), FUN=mean)
+y <- aggregate(cis_gene_cards_fxns$DoesItMatch, by=list(SNP=cis_gene_cards_fxns$SNP), FUN=mean)
 
 # Accuracy of Prediction
-# SNP   x
-# 1   rs10744777 1.0
-# 2   rs10774624 0.5
-# 3   rs10821936 0.0
-# 4   rs11065979 0.0
-# 5   rs11204677 0.0
-# 6  rs114211054 0.0
-# 7  rs115054796 0.0
-# 8  rs115715453 0.0
-# 9   rs12485738 0.0
-# 10  rs13015714 1.0
-# 11   rs1354034 0.0
-# 12    rs174555 0.0
-# 13 rs182050989 0.0
-# 14    rs234709 0.0
-# 15   rs2617170 0.0
-# 16  rs28453840 0.0
-# 17   rs3130564 0.0
-# 18   rs3774937 0.0
-# 19   rs3809627 1.0
-# 20   rs3819306 0.0
-# 21   rs4785587 0.0
-# 22   rs4794820 0.0
-# 23    rs492400 0.0
-# 24   rs6695223 0.0
-# 25  rs77216612 0.0
-# 26   rs7973618 0.0
+# SNP         x
+# 1    rs10445308 1.0000000
+# 2     rs1055348 0.0000000
+# 3    rs10744777 1.0000000
+# 4    rs10774624 0.3750000
+# 5    rs10774625 0.4000000
+# 6    rs10821936 1.0000000
+# 7    rs10844706 0.0000000
+# 8    rs11052877 0.0000000
+# 9    rs11065979 0.4000000
+# 10   rs11065987 0.4000000
+# 11   rs11066301 0.2500000
+# 12   rs11078927 1.0000000
+# 13  rs111230933 0.6666667
+# 14  rs111255518 0.0000000
+# 15  rs111410428 0.0000000
+# 16  rs111496944 0.0000000
+# 17   rs11204677 0.0000000
+# 18  rs112115374 0.0000000
+# 19  rs112227868 0.0000000
+# 20  rs112296382 0.0000000
+# 21  rs112954547 0.0000000
+# 22  rs113589048 0.0000000
+# 23  rs114012716 0.0000000
+# 24  rs114127008 0.0000000
+# 25  rs114211054 0.0000000
+# 26  rs114240154 0.0000000
+# 27  rs114250120 0.5000000
+# 28  rs114260710 0.0000000
+# 29  rs114348871 0.0000000
+# 30  rs114394153 0.0000000
+# 31  rs114415823 0.0000000
+# 32  rs114487324 0.0000000
+# 33  rs114535641 0.0000000
+# 34  rs114571307 0.0000000
+# 35  rs114573742 0.0000000
+# 36  rs114592706 0.0000000
+# 37  rs114638960 0.0000000
+# 38  rs114874012 0.0000000
+# 39  rs114962780 0.0000000
+# 40  rs114987030 0.0000000
+# 41  rs115029884 0.0000000
+# 42  rs115054796 0.0000000
+# 43    rs1150753 0.0000000
+# 44    rs1150757 0.0000000
+# 45  rs115116967 0.0000000
+# 46  rs115122307 0.2500000
+# 47  rs115146037 0.0000000
+# 48  rs115164593 0.0000000
+# 49  rs115318382 0.0000000
+# 50  rs115326065 0.0000000
+# 51  rs115344853 0.0000000
+# 52  rs115347165 0.0000000
+# 53  rs115374828 0.0000000
+# 54  rs115484360 0.0000000
+# 55  rs115509556 0.3333333
+# 56  rs115603641 0.0000000
+# 57  rs115610190 0.0000000
+# 58  rs115611791 0.0000000
+# 59  rs115613956 0.0000000
+# 60  rs115619714 0.0000000
+# 61  rs115648972 0.0000000
+# 62  rs115687010 0.2500000
+# 63  rs115715453 0.0000000
+# 64  rs115741842 0.0000000
+# 65  rs115772457 0.0000000
+# 66  rs115845232 0.2500000
+# 67  rs115902351 0.0000000
+# 68  rs116026314 0.0000000
+# 69  rs116152465 0.0000000
+# 70  rs116212130 0.0000000
+# 71  rs116336456 0.0000000
+# 72  rs116351884 0.0000000
+# 73  rs116358946 0.0000000
+# 74  rs116392568 0.0000000
+# 75  rs116396237 0.0000000
+# 76  rs116414615 0.0000000
+# 77  rs116528482 0.0000000
+# 78  rs116627865 0.0000000
+# 79  rs116628560 0.0000000
+# 80  rs116633882 0.0000000
+# 81  rs116743258 0.0000000
+# 82  rs116766239 0.0000000
+# 83  rs116766442 0.0000000
+# 84  rs116778584 0.0000000
+# 85  rs116839689 0.0000000
+# 86   rs11696739 0.0000000
+# 87   rs12485738 0.0000000
+# 88    rs1265097 0.7500000
+# 89    rs1265564 0.5000000
+# 90    rs1270942 0.0000000
+# 91   rs12946510 1.0000000
+# 92   rs13015714 1.0000000
+# 93   rs13325613 0.0000000
+# 94    rs1354034 0.0000000
+# 95    rs1420103 1.0000000
+# 96  rs144033971 0.0000000
+# 97  rs149110519 0.0000000
+# 98  rs150881176 1.0000000
+# 99    rs1569723 0.0000000
+# 100    rs174555 1.0000000
+# 101  rs17613465 0.0000000
+# 102  rs17696736 0.3750000
+# 103   rs1799964 0.0000000
+# 104 rs182050989 0.0000000
+# 105   rs1883832 0.0000000
+# 106   rs1892548 0.0000000
+# 107   rs2058660 1.0000000
+# 108   rs2071591 0.0000000
+# 109   rs2229094 0.0000000
+# 110   rs2305480 1.0000000
+# 111    rs234709 1.0000000
+# 112   rs2523607 0.0000000
+# 113   rs2596500 0.0000000
+# 114   rs2617170 0.1666667
+# 115  rs28453840 0.0000000
+# 116   rs2872507 1.0000000
+# 117  rs28798705 0.0000000
+# 118   rs3130564 1.0000000
+# 119   rs3130614 0.0000000
+# 120   rs3131379 0.0000000
+# 121   rs3184504 0.3846154
+# 122   rs3774937 0.0000000
+# 123   rs3809272 0.5000000
+# 124   rs3809627 0.0000000
+# 125   rs3819306 0.0000000
+# 126   rs4239702 0.0000000
+# 127   rs4328821 1.0000000
+# 128   rs4766578 0.4166667
+# 129    rs477515 0.0000000
+# 130   rs4785587 0.0000000
+# 131   rs4794820 0.5000000
+# 132   rs4795397 1.0000000
+# 133   rs4810485 0.0000000
+# 134    rs492400 0.0000000
+# 135   rs4947311 0.0000000
+# 136   rs4970966 0.0000000
+# 137  rs59716545 1.0000000
+# 138    rs597808 0.3636364
+# 139   rs6032662 0.0000000
+# 140   rs6074022 0.0000000
+# 141    rs615672 0.0000000
+# 142   rs6419573 1.0000000
+# 143    rs653178 0.3636364
+# 144   rs6563831 0.0000000
+# 145   rs6586282 1.0000000
+# 146   rs6695223 0.0000000
+# 147   rs6708413 1.0000000
+# 148    rs674313 0.0000000
+# 149   rs6785206 1.0000000
+# 150   rs6929796 0.0000000
+# 151   rs7089424 1.0000000
+# 152   rs7090445 1.0000000
+# 153   rs7210990 0.0000000
+# 154   rs7310615 0.3846154
+# 155  rs74942078 0.0000000
+# 156   rs7570971 0.0000000
+# 157   rs7616215 0.0000000
+# 158  rs77216612 1.0000000
+# 159   rs7740107 0.0000000
+# 160   rs7776054 1.0000000
+# 161   rs7973618 0.0000000
+# 162   rs8067378 1.0000000
+# 163   rs8069176 1.0000000
+# 164    rs917997 1.0000000
+# 165   rs9273076 0.0000000
+# 166   rs9376090 1.0000000
+# 167   rs9399137 1.0000000
+# 168    rs990171 1.0000000
+
+# y %>% count(x)
+# x     n
+# <dbl> <int>
+# 1 0       115
+# 2 0.167     1
+# 3 0.25      4
+# 4 0.333     1
+# 5 0.364     2
+# 6 0.375     2
+# 7 0.385     2
+# 8 0.4       3
+# 9 0.417     1
+# 10 0.5       4
+# 11 0.667     1
+# 12 0.75      1
+# 13 1        31
+
+# y <- aggregate(cis_gene_cards_fxns$DoesItMatch, by=list(Gene=cis_gene_cards_fxns$cisGene_commonname), FUN=mean)
+# Gene x
+# 1   BCL11A 0
+# 2  BHLHE40 0
+# 3     E2F4 0
+# 4     EBF1 0
+# 5     EGR2 0
+# 6    EOMES 0
+# 7    FOXO1 0
+# 8     IRF4 0
+# 9     KLF3 0
+# 10    KLF4 0
+# 11    KLF6 1
+# 12    MAFB 0
+# 13     MAX 0
+# 14   MEF2C 1
+# 15   MEIS1 0
+# 16     MYB 1
+# 17   NFIL3 1
+# 18   NPAS2 1
+# 19    PAX5 0
+# 20    RARA 0
+# 21    RORA 0
+# 22   SMAD3 0
+# 23     SP2 1
+# 24   STAT1 1
+# 25    TCF4 0
+# 26   TGIF1 0
+# 27    ZEB1 0
+# 28  ZNF467 0
+
+# y %>% count(x)
+# A tibble: 2 x 2
+# x     n
+# <dbl> <int>
+# 1     0    21
+# 2     1     7
 
 # ==========================================================
 # Trans GeneCards

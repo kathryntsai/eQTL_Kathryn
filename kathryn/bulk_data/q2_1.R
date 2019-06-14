@@ -173,6 +173,7 @@ x <- cis_gene_cards_fxns
 
 #backup: 
 cis_gene_cards_fxns <- x
+
 cis_gene_cards_fxns <- merge(x, data.frame(snps_interesting_TFmatch[,"SNP"], snps_interesting_TFmatch[,"cisGene"]),by.x = "cisGene", by.y="cisGene", all.y=T)
 cis_gene_cards_fxns <- as.data.frame(cis_gene_cards_fxns)
 for (i in 1:length(cis_gene_cards_fxns)){

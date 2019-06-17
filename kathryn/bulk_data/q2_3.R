@@ -72,38 +72,66 @@
 # 
 # To find instances of the output motifs, use "homer2 find".  To see other commands, just type "homer2".
 
-# Apply functions
+## Apply functions
 # https://bianalystblog.wordpress.com/2013/07/13/r-grouping-functions-sapply-vs-lapply-vs-apply-vs-tapply-vs-by-vs-aggregate-vs-plyr/
 # http://www.datasciencemadesimple.com/apply-function-r/
 
-# Important functions
+## Important functions
 franke_cis_data[,"AssessedAllele"]
 franke_cis_data[,"OtherAllele"]
 franke_cis_data[,"GeneSymbol"]
 franke_cis_data[,"Gene"]
 
+## NCBI Efetch References
+# https://www.ncbi.nlm.nih.gov/books/NBK25499/ 
+# https://dataguide.nlm.nih.gov/edirect/efetch.html
+# https://dataguide.nlm.nih.gov/eutilities/utilities.html#efetch 
+# https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=cancer&reldate=60&datetype=edat&retmax=100&usehistory=y
+
+## Google Searches
+# https://www.google.com/search?ei=BdIHXfPnH-vB_QaymL_wCA&q=match+ensg+id+to+pubmed+id+in+r&oq=match+ensg+id+to+pubmed+id+in+r&gs_l=psy-ab.3..0i71l8.2036.2455..2523...0.0..0.0.0.......0....1..gws-wiz.4mJaRAHm_sQ
+# https://www.google.com/search?ei=sc8HXfCkHqW4ggeOvr_oBQ&q=entrez+eutils+efetch+fcgi&oq=entrez+eutils+efetch&gs_l=psy-ab.1.0.0i71l8.0.0..21540...0.0..0.0.0.......0......gws-wiz.6ddBfuOMt70 
+# https://cran.r-project.org/web/packages/easyPubMed/easyPubMed.pdf
+# https://www.google.com/search?q=link+ensg+ids+to+pubmed+id&oq=link+ensg+ids+to+pubmed+id&aqs=chrome..69i57j33.5203j0j1&sourceid=chrome&ie=UTF-8
+
+## Figuring out NCBI Efetch
+# https://askvoprosy.com/tegi/bioinformatics/golosov/stranitsa/14
+# https://www.biostars.org/p/293965/
+# https://combine-australia.github.io/2017-05-19-bioconductor-melbourne/data_structures.html
+# http://ogee.medgenius.info/cancer/Burkitt's%20lymphoma
+
+## NCBI Texts
+# https://www.ncbi.nlm.nih.gov/books/NBK25499/table/chapter4.T._valid_values_of__retmode_and/?report=objectonly
+# https://www.ncbi.nlm.nih.gov/books/NBK25497/table/chapter2.T._entrez_unique_identifiers_ui/?report=objectonly 
+
+# Efetch Information
 # https://www.biostars.org/p/75700/
 # https://github.com/gschofl/reutils/issues/1 
-# https://www.ncbi.nlm.nih.gov/books/NBK25497/#chapter2.T._entrez_unique_identifiers_ui 
-# https://www.ncbi.nlm.nih.gov/books/NBK25497/table/chapter2.T._entrez_unique_identifiers_ui/?report=objectonly 
-# https://dataguide.nlm.nih.gov/eutilities/utilities.html#efetch 
-# https://www.ncbi.nlm.nih.gov/books/NBK25499/ 
-# https://www.google.com/search?ei=sc8HXfCkHqW4ggeOvr_oBQ&q=entrez+eutils+efetch+fcgi&oq=entrez+eutils+efetch&gs_l=psy-ab.1.0.0i71l8.0.0..21540...0.0..0.0.0.......0......gws-wiz.6ddBfuOMt70 
 library(reutils)
 
+## Example
+# https://www.ncbi.nlm.nih.gov/nuccore/NC_000020.11?report=fasta&from=50934855&to=50958564&strand=true
 # efetch(uid="ENSG00000000419",db="gene") --> not that useful but works https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?id=ENSG00000000419&db=gene
-# esearch(term="ENSG00000000419", db="gene",rettype="uilist") --> get uid from https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gene&term=ENSG00000000419&usehistory=y&WebEnv=web1&retmode=text&rettype=ID
+# esearch(term="ENSG00000000419", db="gene",rettype="uilist") --> get uid  
+# Not useful: https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gene&term=ENSG00000000419&usehistory=y&WebEnv=web1&retmode=text&rettype=ID
 franke_cis_data_unique_genes <-  franke_cis_data[!duplicated(franke_cis_data[,"Gene"]),"Gene"]
 franke_cis_data_unique_genes$UID <- 0
 franke_cis_data_unique_genes$Fasta <- 0
 for (i in 1:nrow(franke_cis_data_unique_genes)){
-  x <- esearch(term=franke_cis_data_unique_genes[i], db="gene", rettype="uilist")
-  franke_cis_data_unique_genes$Fasta[1] <- efetch(uid=x, db="nuccore", retmode="text", rettype="fasta")
+  x <- esearch(term=franke_cis_data_unique_genes[i,"Gene"], db="gene")
+  franke_cis_data_unique_genes$Fasta[i] <- efetch(uid=x, db="nuccore", retmode="text", rettype="fasta")
 }
 
+# Other method for matching
 # https://www.google.com/search?q=match+gene+name+to+sequence+r&oq=match+gene+name+to+sequence+r&aqs=chrome..69i57j33l5.5769j0j1&sourceid=chrome&ie=UTF-8
 # https://www.bioconductor.org/packages/release/workflows/vignettes/annotation/inst/doc/Annotation_Resources.html
-library(rentrez)
-library(seqinr)
-COI <- entrez_fetch(db = "nucleotide", id = 167843256, file_format = "fasta")
-coi.fa <- read.fasta(file = textConnection(COI), as.string = T)
+# library(rentrez)
+# library(seqinr)
+# COI <- entrez_fetch(db = "nucleotide", id = 167843256, file_format = "fasta")
+# coi.fa <- read.fasta(file = textConnection(COI), as.string = T)
+
+# Papers from Friday 6/14
+# https://string-db.org/cgi/network.pl?taskId=BtryuxaMZp8F
+# http://regulatorycircuits.org/index.html
+# https://www.nature.com/articles/nmeth.3799
+# file://localhost/Users/kathryntsai/Zotero/storage/AC35NIIW/nrg.2017.html

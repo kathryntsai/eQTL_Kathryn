@@ -87,7 +87,7 @@ davenport_output_unique <- as.data.frame(lapply(davenport_output_unique, FUN = f
 davenport_output_unique <- unique(davenport_output_unique)
 davenport_bed_file_total <- data.table(unique(davenport_bed_file$c4))
 # FOR PFIZER DATA:
-dim(davenport_output_unique)[1] / dim(davenport_bed_file_total)[1] #  4181 / 4818 * 100 = 56.50829% !! // Exact Binding: 2557 / 4525 = 0.06629%
+dim(davenport_output_unique)[1] / dim(davenport_bed_file_total)[1] # Exact Binding: 2723 / 4818 * 100 = 56.50829% !! // All: 4181 / 4818 = 86.77875%
 
 # ----
 

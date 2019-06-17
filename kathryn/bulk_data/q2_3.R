@@ -65,22 +65,41 @@
 # For more information on the output file format, see here.
 # 
 # Using homer2 directly with FASTA files:
-# homer2 is the motif finding executable, and it can choke down FASTA files if you want to avoid all the nonsense above.  Running the homer2 command will also give you access to other options for optimizing the motif finding process.  homer2 works by first specifying a command, and then the appropriate options:
+# homer2 is the motif finding executable, and it can choke down FASTA files if you want tomail avoid all the nonsense above.  Running the homer2 command will also give you access to other options for optimizing the motif finding process.  homer2 works by first specifying a command, and then the appropriate options:
 # 
 # homer2 <command> [options]
 # i.e. homer2 denovo -i input.fa -b background.fa > outputfile.txt
 # 
 # To find instances of the output motifs, use "homer2 find".  To see other commands, just type "homer2".
 
+# Apply functions
+# https://bianalystblog.wordpress.com/2013/07/13/r-grouping-functions-sapply-vs-lapply-vs-apply-vs-tapply-vs-by-vs-aggregate-vs-plyr/
+# http://www.datasciencemadesimple.com/apply-function-r/
+
+# Important functions
 franke_cis_data[,"AssessedAllele"]
 franke_cis_data[,"OtherAllele"]
 franke_cis_data[,"GeneSymbol"]
 franke_cis_data[,"Gene"]
 
 # https://www.biostars.org/p/75700/
-tmp = tempfile()
-efetch(franke_cis_data[,"Gene"], db="nucleotide", retmode="text", rettype="fasta", destfile=tmp)
-readDNAStringSet(tmp)
+# https://github.com/gschofl/reutils/issues/1 
+# https://www.ncbi.nlm.nih.gov/books/NBK25497/#chapter2.T._entrez_unique_identifiers_ui 
+# https://www.ncbi.nlm.nih.gov/books/NBK25497/table/chapter2.T._entrez_unique_identifiers_ui/?report=objectonly 
+# https://dataguide.nlm.nih.gov/eutilities/utilities.html#efetch 
+# https://www.ncbi.nlm.nih.gov/books/NBK25499/ 
+# https://www.google.com/search?ei=sc8HXfCkHqW4ggeOvr_oBQ&q=entrez+eutils+efetch+fcgi&oq=entrez+eutils+efetch&gs_l=psy-ab.1.0.0i71l8.0.0..21540...0.0..0.0.0.......0......gws-wiz.6ddBfuOMt70 
+library(reutils)
+
+# efetch(uid="ENSG00000000419",db="gene") --> not that useful but works https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?id=ENSG00000000419&db=gene
+# esearch(term="ENSG00000000419", db="gene",rettype="uilist") --> get uid from https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gene&term=ENSG00000000419&usehistory=y&WebEnv=web1&retmode=text&rettype=ID
+franke_cis_data_unique_genes <-  franke_cis_data[!duplicated(franke_cis_data[,"Gene"]),"Gene"]
+franke_cis_data_unique_genes$UID <- 0
+franke_cis_data_unique_genes$Fasta <- 0
+for (i in 1:nrow(franke_cis_data_unique_genes)){
+  x <- esearch(term=franke_cis_data_unique_genes[i], db="gene", rettype="uilist")
+  franke_cis_data_unique_genes$Fasta[1] <- efetch(uid=x, db="nuccore", retmode="text", rettype="fasta")
+}
 
 # https://www.google.com/search?q=match+gene+name+to+sequence+r&oq=match+gene+name+to+sequence+r&aqs=chrome..69i57j33l5.5769j0j1&sourceid=chrome&ie=UTF-8
 # https://www.bioconductor.org/packages/release/workflows/vignettes/annotation/inst/doc/Annotation_Resources.html

@@ -1,6 +1,7 @@
 # ==========================================================
 # QUESTION 2_3
 # ==========================================================
+# UNFINISHED
 #Search for motif in sequence with swapped alleles (according to cis eQTL ref/alt).: swap these? franke_cis_data[,"AssessedAllele"], franke_cis_data[,"OtherAllele"]
 
 # http://www.eqtlgen.org/cis-eqtls.html
@@ -110,7 +111,7 @@ franke_cis_data[,"Gene"]
 # https://rdrr.io/cran/reutils/man/efetch.html
 library(reutils)
 
-## Example
+## Example: this uses HG38 - how to find hg19?  is it worth it?  try manually searching only a few of them, because the loop yields weird information ($gene_nuccore_pos[1] is very specific and may not be accurate.)
 # https://www.ncbi.nlm.nih.gov/nuccore/NC_000020.11?report=fasta&from=50934855&to=50958564&strand=true
 # efetch(uid="ENSG00000000419",db="gene") --> not that useful but works https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?id=ENSG00000000419&db=gene
 # esearch(term="ENSG00000000419", db="gene",rettype="uilist") --> get uid  
@@ -122,6 +123,11 @@ for (i in 1:nrow(franke_cis_data_unique_genes)){
   y <- linkset(elink(uid=x, dbFrom="gene", dbTo="nuccore"))$gene_nuccore_pos[1]
   z <- efetch(uid=y, db="nuccore", retmode="text", rettype="fasta", strand=TRUE, retstart = NULL, retmax = NULL, seqstart = NULL, seqstop = NULL, outfile=paste("sequence",i,"nuccore",franke_cis_data_unique_genes[i,"Gene"], ".fasta", sep=""))
 }
+
+# Method 2: THIS USES HG19
+# look up transcription start site
+# if it's on the minus strand: +1000
+# if it's on the plus strand: -1000
 
 library("Biostrings")
 # https://stackoverflow.com/questions/21263636/read-fasta-into-a-dataframe-and-extract-subsequences-of-fasta-file
@@ -135,7 +141,9 @@ library("Biostrings")
 # coi.fa <- read.fasta(file = textConnection(COI), as.string = T)
 
 # Papers from Friday 6/14/19
-# https://string-db.org/cgi/network.pl?taskId=BtryuxaMZp8F
+# https://string-db.org/cgi/network.pl?taskId=BtryuxaMZp8F Protein-Protein Interaction - search trios for correlation between protein-protein interaction score of SNP with cis EQTL gene --> making protein product of same name, and see if he protein has a high score with trans gene that also has a relationship to the trans SNP
+# TF comes adn binds from Regime A, and then maybe something else interacts with binding, and possibly feedback loop
+# https://bioconductor.org/packages/release/bioc/html/STRINGdb.html
 # http://regulatorycircuits.org/index.html
 # https://www.nature.com/articles/nmeth.3799
 # file://localhost/Users/kathryntsai/Zotero/storage/AC35NIIW/nrg.2017.html
@@ -148,3 +156,12 @@ library("Biostrings")
 # https://www.ncbi.nlm.nih.gov/nuccore/NC_000020.11?report=fasta 
 # https://github.com/gschofl/reutils/issues/1 - Repeat
 # https://www.ncbi.nlm.nih.gov/books/NBK25499/ - Repeat
+
+# Links 6/17/19 #2
+# https://github.com/immunogenomics/IMPACT/blob/master/Features/Tcell_features/readme.txt.gz
+# https://www.ncbi.nlm.nih.gov/gene/?term=2519
+# https://www.ncbi.nlm.nih.gov/assembly/GCF_000001405.25/
+# https://www.ncbi.nlm.nih.gov/nuccore?LinkName=assembly_nuccore_insdc&from_uid=37871
+# https://www.ncbi.nlm.nih.gov/nuccore?LinkName=assembly_nuccore_refseq&from_uid=37871
+# https://www.ncbi.nlm.nih.gov/nuccore/NC_000006.12?report=fasta&from=143494812&to=143511720&strand=true
+# https://www.ncbi.nlm.nih.gov/nuccore/NC_000006.12?report=fasta&from=143494812&to=143511720&strand=true

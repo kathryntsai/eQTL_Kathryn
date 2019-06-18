@@ -82,6 +82,7 @@ franke_cis_data[,"AssessedAllele"]
 franke_cis_data[,"OtherAllele"]
 franke_cis_data[,"GeneSymbol"]
 franke_cis_data[,"Gene"]
+franke_cis_data[,c("GeneSymbol", "GeneChr", "GenePos")]
 
 ## NCBI Efetch References
 # https://www.ncbi.nlm.nih.gov/books/NBK25499/ 
@@ -140,13 +141,6 @@ library("Biostrings")
 # COI <- entrez_fetch(db = "nucleotide", id = 167843256, file_format = "fasta")
 # coi.fa <- read.fasta(file = textConnection(COI), as.string = T)
 
-# Papers from Friday 6/14/19
-# https://string-db.org/cgi/network.pl?taskId=BtryuxaMZp8F Protein-Protein Interaction - search trios for correlation between protein-protein interaction score of SNP with cis EQTL gene --> making protein product of same name, and see if he protein has a high score with trans gene that also has a relationship to the trans SNP
-# TF comes adn binds from Regime A, and then maybe something else interacts with binding, and possibly feedback loop
-
-# Find Hi-C data: look at HiGlass or some other dataset// don't use Hi-C data for T-cell or B-cell data specifically
-# https://bioconductor.org/packages/release/bioc/html/STRINGdb.html
-# http://regulatorycircuits.org/index.html
 # https://www.nature.com/articles/nmeth.3799
 # file://localhost/Users/kathryntsai/Zotero/storage/AC35NIIW/nrg.2017.html
 

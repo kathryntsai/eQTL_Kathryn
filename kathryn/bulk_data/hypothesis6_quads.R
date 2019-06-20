@@ -93,21 +93,27 @@ write.table(quads_interesting_bed_file, "hypothesis6_output/quads_interesting_be
 
 quads_interesting_analysis <- read.csv("hypothesis6_input/quads_interesting.csv", sep="\t") # 2913 x 6
 #TFs <- sapply(1:nrow(quads_interesting_analysis), function(x) strsplit(quads_interesting_analysis$`Motif Name`[x], split = "[(]")[[1]][1])
-TFs <- unique(unique(sub("*\\(.*", "", quads_interesting_analysis$'Motif.Name'))) # 320 total TFs
-length(TFs) # 320 unique TFs
+unique_TFs <- unique(unique(sub("*\\(.*", "", quads_interesting_analysis$'Motif.Name'))) # 320 total TFs
+length(unique_TFs) # 320 unique TFs
 unique_SNPs <- unique(sub("*\\-.*", "", quads_interesting_analysis$'PositionID')) # 57 total SNPs
 length(unique_SNPs) # 57 unique SNPs
-
 
 colnames(quads_interesting_analysis)[1] <- "SNP2"
 quads_interesting_analysis$SNP2_Abbreviated <- sub("*\\-.*", "", quads_interesting_analysis$'SNP2')
 
-zz <- z[,c("SNP1", "cisGene", "SNP2", "transGene", "cisZscore", "cisSNPChr", "cisSNPPos", "transZscore", "transSNPChr", "transSNPPos", "Zscore", "SNPChr", "SNPPos")]
+zz <- z[,c("SNP1", "cisGene", "SNP2", "transGene", "cisZscore", "cisSNPChr", "cisSNPPos", "transZscore", "transSNPChr", "transSNPPos", "Zscore", "SNPChr", "SNPPos")] # 646241 x 13
 colnames(zz) <- c("SNP1", "cisGene", "SNP2", "transGene", "cisZscore", "cisSNPChr", "cisSNPPos", "transZscore", "transSNPChr", "transSNPPos", "Zscore", "SNPChr", "SNPPos")
-zzz <- inner_join(quads_interesting_analysis, zz, by.x = "SNP2", by.y = "SNP2") # Why does 2913 x 6, 646241 x 13...yield 1627 x 18?
+#zzz <- inner_join(quads_interesting_analysis, zz, by.x = "SNP2", by.y = "SNP2") # Why does 2913 x 6, 646241 x 13...yield 1627 x 18?
+zzz <- zz[match(quads_interesting_analysis$SNP2_Abbreviated, zz$SNP2)] # 2913x13
+zzzz <- zzz[!is.na(zzz$SNP1)] # 609 x 13
 
 write.table(zzz, "SNP2_Offset_Sequence_Motif.name_Strand_MotifScore_SNP1_cisGene_transGene_Positions_1627_rows.txt", row.names = F, col.names = T)
 write.table(quads_interesting_analysis, "quads_interesting_analysis_analyzed_2913_rows.txt", row.names = F, col.names = T)
+
+write.table(z, "hypothesis6_output/z.txt", row.names = F, col.names = T)
+write.table(zz, "hypothesis6_output/zz.txt", row.names = F, col.names = T)
+write.table(zzz, "hypothesis6_output/zzz.txt", row.names = F, col.names = T)
+write.table(zzzz, "hypothesis6_output/zzzz.txt", row.names = F, col.names = T)
 
 # unique_SNPs from quads_interesting_analysis # 57 unique SNPs
 # [1] "rs1024467"       "rs1000778"       "chr3:46757116"   "rs1001007"       "chr21:44483233"  "rs1005455"      
@@ -134,3 +140,32 @@ write.table(quads_interesting_analysis, "quads_interesting_analysis_analyzed_291
 # 1: chr21:44483233 <NA>    <NA>        NA        NA        NA          NA          NA          NA               <NA>     NA <NA>     NA     NA           <NA>        <NA>
 #   Zscore GeneSymbol GeneChr GenePos NrCohorts NrSamples FDR
 # 1:     NA       <NA>      NA      NA        NA        NA  NA
+
+# Match transgene to cisgene
+common_transgenename <- franke_trans_data$GeneSymbol[match(zzzz$transGene, franke_trans_data$Gene)] # 1627
+TFs <- sub("*\\(.*", "", zzzz$'Motif.Name') 
+m <- match(toupper(common_transgenename), toupper(unique(TFs)))
+length(which(is.na(m))) #1627
+length(which(!is.na(m))) #0 
+
+w <- which(!is.na(m))
+snps_interesting <- snps[w,]
+common_cisgenename_interesting <- common_cisgenename[w]
+#sanity check
+z <- match(toupper(common_cisgenename_interesting), toupper(unique(TFs)))
+length(which(is.na(z))) == 0
+
+#########
+#motif_matches <- sapply(1:nrow(snps), function(x) paste(TFs[which(dat$Ensembl == as.character(snps[x,3]))], collapse = ","))
+matches <- c()
+for (i in 1:nrow(snps_interesting)){
+  matches[i] <- match(toupper(common_cisgenename_interesting[i]), toupper(TFs[which(dat$Ensembl == as.character(snps_interesting[i,"transGene"]))]))
+}
+length(which(!is.na(matches))) #458, NOW 812
+
+#snps_interesting_TFmatch <- cbind(snps_interesting, ifelse(is.na(matches), 0, 1))
+#w <- which(snps_interesting_TFmatch$V2 == 1)
+snps_interesting_TFmatch <- snps_interesting[which(!is.na(matches)),]
+snps_interesting_TFmatch <- cbind(snps_interesting_TFmatch, common_cisgenename_interesting[which(!is.na(matches))])
+#snps_interesting_TFmatch <- snps_interesting_TFmatch[,c(1,2,4,3)]
+write.table(snps_interesting_TFmatch, "q2_1_written/snps_interesting_TFmatch.txt", row.names = F, col.names = T)

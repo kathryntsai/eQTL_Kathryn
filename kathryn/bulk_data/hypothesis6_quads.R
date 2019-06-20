@@ -110,10 +110,10 @@ zzzz <- zzz[!is.na(zzz$SNP1)] # 609 x 13
 write.table(zzz, "SNP2_Offset_Sequence_Motif.name_Strand_MotifScore_SNP1_cisGene_transGene_Positions_1627_rows.txt", row.names = F, col.names = T)
 write.table(quads_interesting_analysis, "quads_interesting_analysis_analyzed_2913_rows.txt", row.names = F, col.names = T)
 
-write.table(z, "hypothesis6_output/z.txt", row.names = F, col.names = T)
-write.table(zz, "hypothesis6_output/zz.txt", row.names = F, col.names = T)
-write.table(zzz, "hypothesis6_output/zzz.txt", row.names = F, col.names = T)
-write.table(zzzz, "hypothesis6_output/zzzz.txt", row.names = F, col.names = T)
+write.table(z, "hypothesis6_output/z.csv", row.names = F, col.names = T, quote=F, sep = "\t")
+write.table(zz, "hypothesis6_output/zz.csv", row.names = F, col.names = T, quote=F, sep = "\t")
+write.table(zzz, "hypothesis6_output/zzz.csv", row.names = F, col.names = T, quote=F, sep = "\t")
+write.table(zzzz, "hypothesis6_output/zzzz.csv", row.names = F, col.names = T, quote=F, sep = "\t")
 
 # unique_SNPs from quads_interesting_analysis # 57 unique SNPs
 # [1] "rs1024467"       "rs1000778"       "chr3:46757116"   "rs1001007"       "chr21:44483233"  "rs1005455"      

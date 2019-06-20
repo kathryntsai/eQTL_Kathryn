@@ -2,7 +2,7 @@ library(data.table)
 library(dplyr)
 library(glue)
 # Read Emma Davenport's eQTL R-variables - not used
-load("input_data/files_for_pfizer_eqtl.rda")
+# load("input_data/files_for_pfizer_eqtl.rda")
 
 # Read Emma Davenport's Pfizer Data
 davenport_data <- read.csv("input_data/pfizer_eqtl_table_1.csv")

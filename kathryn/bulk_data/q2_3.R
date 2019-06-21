@@ -298,6 +298,34 @@ write.table(aa$"Fasta Sequence", 'q2_3_output/fasta_file1.fa', sep='\t', quote=F
 
 # trying to figure out fasta sequences:
 d <- read.fasta('q2_3_output/fasta_file1.fa')
+
+# kat-juno:homer kathryntsai$ findMotifs.pl fasta_file1.fa hg19 analysis_output/ > output.txt
+# Selected Options:
+#   Input file = fasta_file1.fa
+# Promoter Set = hg19
+# Output Directory = analysis_output/
+#   
+#   !!! hg19 not found in /Users/kathryntsai/homer/.//config.txt
+# Try typing "perl /Users/kathryntsai/homer/.//configureHomer.pl -list" to see available promoter sets
+# If avaliable, type "perl /Users/kathryntsai/homer/.//configureHomer.pl -install hg19" to install
+
+# kat-juno:homer kathryntsai$ findMotifs.pl fasta_file1.fa human analysis_output/ > output.txt
+# 
+# Selected Options:
+#   Input file = fasta_file1.fa
+# Promoter Set = human
+# Output Directory = analysis_output/
+#   Found mset for "human", will check against vertebrates motifs
+# 
+# Progress: Step1 - Convert input file to refseq IDs
+# Percentage of IDs converted into refseq: 0.0% (0 out of 12)
+# !!!! Homer converted less than 5% of the rows in your file.
+# !!!! Check to be sure the input file has valid gene identifiers
+# !!!! Check to be sure the input file has valid gene identifiers
+# kat-juno:homer kathryntsai$ 
+
+####
+
 # d[1][["TRAF2"]]
 # [1] " " " " "g" "t" "g" "a" "c" "t" "g" "g" "t" "c" "c" "t" "g" "g" "c" "g" "g" "g" "t" "g" "c" "t" "t"
 # [26] "a" "g" "g" "a" "g" "g" "c" "g" "g" "g" "g" "g" "c" "a" "g" "a" "g" "a" "c" "a" "t" "g" "g" "c" "t"

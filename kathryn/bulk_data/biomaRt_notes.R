@@ -284,6 +284,35 @@ TGGCAGATGCCAGGAACTCGAGCCTCCAATCCCAGATGCT'
 
 # UBXN7 - ignore
 
+# Notes on retrieving: 
+# https://www.google.com/search?q=ENSG00000127191+hg19+fasta&oq=ENSG00000127191+hg19+fasta&aqs=chrome..69i57.1989j0j1&sourceid=chrome&ie=UTF-8
+# https://rgd.mcw.edu/rgdweb/report/gene/main.html?id=1321367
+# https://www.ncbi.nlm.nih.gov/genome/gdv/browser/?id=GCF_000001405.25&context=genome
+# http://grch37.ensembl.org/Homo_sapiens/Gene/Sequence?db=core;g=ENSG00000108773;r=17:40265126-40273376
+# http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&lastVirtModeType=default&lastVirtModeExtraState=&virtModeType=default&virtMode=0&nonVirtPosition=&position=chr9%3A139780970-139821059&hgsid=731188783_MLKAzbhB9nJUnx64kxdfc05oomHe
+# https://genome.ucsc.edu/FAQ/FAQdownloads.html
+# https://www.google.com/search?q=find+fasta+sequence+for+promter+of+jgene&oq=find+fasta+sequence+for+promter+of+jgene&aqs=chrome..69i57.6446j0j1&sourceid=chrome&ie=UTF-8
+# https://molbiol-tools.ca/Promoters.htm
+# https://www.genomatix.de/online_help/help_eldorado/Gene2Promoter_Intro.html
+# https://www.genomatix.de/online_help/help_eldorado/genome_help.html
+# http://grch37.ensembl.org/Homo_sapiens/Gene/Sequence?db=core;g=ENSG00000127191;r=9:136881912-136926607
+# http://pbgworks.org/sites/pbgworks.org/files/BioPerl%20Tutorial_additionaldescription.pdf
+# https://molbio.mgh.harvard.edu/sheenweb/PromoterATAK&MZ06_.html
+# https://www.researchgate.net/post/How_can_I_find_the_promoter_sequence_of_a_gene_on_NCBI
+# https://www.omim.org/entry/604886
+# https://www.jbc.org/content/280/22/21491.full.html
+# https://signagen.com/blog/2015/10/14/how-to-locate-promoter-sequence-for-a-specific-gene/ 
+# https://www.researchgate.net/post/Does_anybody_know_how_to_find_promoter_sequences_of_both_protein_coding_and_microRNA_coding_genes
+# http://mirstart.mbc.nctu.edu.tw/browse.php
+# https://www.researchgate.net/post/How_to_get_promoter_seuqence_of_a_gene
+# https://www.ncbi.nlm.nih.gov/Class/MLACourse/Modules/Genomes/exercises/qa_mastery_per_map.html
+# https://www.ncbi.nlm.nih.gov/genome/gdv/
+# https://www.google.com/search?q=Alex+Kazberouk+%26+Mike+Zhang&oq=Alex+Kazberouk+%26+Mike+Zhang&aqs=chrome..69i57j69i64.207j0j1&sourceid=chrome&ie=UTF-8 
+# https://molbio.mgh.harvard.edu/sheenweb/PromoterATAK&MZ06.html
+# https://molbio.mgh.harvard.edu/sheenweb/category.html
+# http://grch37.ensembl.org/Homo_sapiens/DataExport/GeneSeq?component=GeneSeq;data_type=Gene;db=core;g=ENSG00000127191;r=9:136881912-136926607
+# http://grch37.ensembl.org/Homo_sapiens/Gene/Sequence?db=core;g=ENSG00000127191;r=9:139798711-139798711
+
 ##################
 
 library("Biostrings")
@@ -324,4 +353,3 @@ library("Biostrings")
 # https://www.ncbi.nlm.nih.gov/nuccore?LinkName=assembly_nuccore_refseq&from_uid=37871
 # https://www.ncbi.nlm.nih.gov/nuccore/NC_000006.12?report=fasta&from=143494812&to=143511720&strand=true
 # https://www.ncbi.nlm.nih.gov/nuccore/NC_000006.12?report=fasta&from=143494812&to=143511720&strand=true
-

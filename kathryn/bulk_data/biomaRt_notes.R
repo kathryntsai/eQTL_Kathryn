@@ -1,0 +1,327 @@
+# ==========================================================
+# Trans GeneCards
+# ==========================================================
+
+trans_gene_cards <- data.table(snps_interesting_TFmatch[,unique(snps_interesting_TFmatch$transGene)], paste("https://www.genecards.org/cgi-bin/carddisp.pl?gene=", trim(snps_interesting_TFmatch[,unique(snps_interesting_TFmatch$transGene)]), sep=""))
+
+# Install biomaRt
+# source("https://bioconductor.org/biocLite.R")
+# biocLite("biomaRt")
+
+# https://www.biostars.org/p/178726/
+library("biomaRt")
+
+mart <- useMart("ENSEMBL_MART_ENSEMBL")
+mart <- useDataset("hsapiens_gene_ensembl", mart)
+ens <- snps_interesting_TFmatch[,unique(snps_interesting_TFmatch$transGene)]
+ensLookup <- gsub("\\.[0-9]*$", "", ens) # not necessary
+
+annotLookup <- getBM(
+  mart=mart,
+  attributes=c("ensembl_transcript_id", "ensembl_gene_id", "gene_biotype", "external_gene_name"),
+  filter="ensembl_gene_id",
+  values=ensLookup,
+  uniqueRows=TRUE)
+
+annotLookup2 <- data.frame(
+  ens[match(annotLookup$ensembl_gene_id, ensLookup)],
+  annotLookup)
+
+colnames(annotLookup2) <- c(
+  "original_id",
+  c("ensembl_transcript_id", "ensembl_gene_id", "gene_biotype", "external_gene_name"))
+annotLookup_abbrev <- data.table(unique(annotLookup2[, "original_id"]), unique(annotLookup2[, "external_gene_name"]))
+fwrite(annotLookup_abbrev, "q2_1_written/trans_gene_commonname.csv")
+
+####################
+
+# NOTES: q2_3.R
+
+## Apply functions
+# https://bianalystblog.wordpress.com/2013/07/13/r-grouping-functions-sapply-vs-lapply-vs-apply-vs-tapply-vs-by-vs-aggregate-vs-plyr/
+# http://www.datasciencemadesimple.com/apply-function-r/
+
+## Important functions
+franke_cis_data[,"AssessedAllele"]
+franke_cis_data[,"OtherAllele"]
+franke_cis_data[,"GeneSymbol"]
+franke_cis_data[,"Gene"]
+franke_cis_data[,c("GeneSymbol", "GeneChr", "GenePos")]
+
+## NCBI Efetch References
+# https://www.ncbi.nlm.nih.gov/books/NBK25499/ 
+# https://dataguide.nlm.nih.gov/edirect/efetch.html
+# https://dataguide.nlm.nih.gov/eutilities/utilities.html#efetch 
+# https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=cancer&reldate=60&datetype=edat&retmax=100&usehistory=y
+
+## Google Searches
+# https://www.google.com/search?ei=BdIHXfPnH-vB_QaymL_wCA&q=match+ensg+id+to+pubmed+id+in+r&oq=match+ensg+id+to+pubmed+id+in+r&gs_l=psy-ab.3..0i71l8.2036.2455..2523...0.0..0.0.0.......0....1..gws-wiz.4mJaRAHm_sQ
+# https://www.google.com/search?ei=sc8HXfCkHqW4ggeOvr_oBQ&q=entrez+eutils+efetch+fcgi&oq=entrez+eutils+efetch&gs_l=psy-ab.1.0.0i71l8.0.0..21540...0.0..0.0.0.......0......gws-wiz.6ddBfuOMt70 
+# https://cran.r-project.org/web/packages/easyPubMed/easyPubMed.pdf
+# https://www.google.com/search?q=link+ensg+ids+to+pubmed+id&oq=link+ensg+ids+to+pubmed+id&aqs=chrome..69i57j33.5203j0j1&sourceid=chrome&ie=UTF-8
+
+## Figuring out NCBI Efetch
+# https://askvoprosy.com/tegi/bioinformatics/golosov/stranitsa/14
+# https://www.biostars.org/p/293965/
+# https://combine-australia.github.io/2017-05-19-bioconductor-melbourne/data_structures.html
+# http://ogee.medgenius.info/cancer/Burkitt's%20lymphoma
+
+## NCBI Texts
+# https://www.ncbi.nlm.nih.gov/books/NBK25499/table/chapter4.T._valid_values_of__retmode_and/?report=objectonly
+# https://www.ncbi.nlm.nih.gov/books/NBK25497/table/chapter2.T._entrez_unique_identifiers_ui/?report=objectonly 
+
+# Efetch Information
+# https://www.biostars.org/p/75700/
+# https://github.com/gschofl/reutils/issues/1 
+# https://rdrr.io/cran/reutils/man/efetch.html
+
+## Example: this uses HG38 - how to find hg19?  is it worth it?  try manually searching only a few of them, because the loop yields weird information ($gene_nuccore_pos[1] is very specific and may not be accurate.)
+# https://www.ncbi.nlm.nih.gov/nuccore/NC_000020.11?report=fasta&from=50934855&to=50958564&strand=true
+# efetch(uid="ENSG00000000419",db="gene") --> not that useful but works https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?id=ENSG00000000419&db=gene
+# esearch(term="ENSG00000000419", db="gene",rettype="uilist") --> get uid  
+# Not useful: https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gene&term=ENSG00000000419&usehistory=y&WebEnv=web1&retmode=text&rettype=ID
+franke_cis_data_unique_genes <-  franke_cis_data[!duplicated(franke_cis_data[,"Gene"]),"Gene"]
+for (i in 1:nrow(franke_cis_data_unique_genes)){
+  x <- esearch(term=franke_cis_data_unique_genes[i,"Gene"], db="gene")
+  # elink(uid="8813", dbFrom="gene", dbTo="nuccore")
+  y <- linkset(elink(uid=x, dbFrom="gene", dbTo="nuccore"))$gene_nuccore_pos[1]
+  z <- efetch(uid=y, db="nuccore", retmode="text", rettype="fasta", strand=TRUE, retstart = NULL, retmax = NULL, seqstart = NULL, seqstop = NULL, outfile=paste("sequence",i,"nuccore",franke_cis_data_unique_genes[i,"Gene"], ".fasta", sep=""))
+}
+
+
+# Method 2: THIS USES HG19
+# look up transcription start site
+# if it's on the minus strand: +1000
+# if it's on the plus strand: -1000
+
+# http://hgdownload.cse.ucsc.edu/downloads.html
+# http://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/ 
+# http://genome.ucsc.edu/admin/git.html
+# http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&lastVirtModeType=default&lastVirtModeExtraState=&virtModeType=default&virtMode=0&nonVirtPosition=&position=chr21%3A33031597-33041570&hgsid=731188783_MLKAzbhB9nJUnx64kxdfc05oomHe
+franke_cis_data_unique_genes_subset <- franke_cis_data_unique_genes %>% sample_n(10)
+
+
+franke_cis_data_unique_genes_subset_specific <- 
+  c('ENSG00000127191', 
+    'ENSG00000108773', 
+    'ENSG00000214279', 
+    'ENSG00000168765', 
+    'ENSG00000125966',
+    'ENSG00000225808',
+    'ENSG00000258531',
+    'ENSG00000237437',
+    'ENSG00000079999',
+    'ENSG00000163960'
+  )
+
+a <- franke_cis_data[which(Gene==c('ENSG00000127191', 
+                                   'ENSG00000108773', 
+                                   'ENSG00000214279', 
+                                   'ENSG00000168765', 
+                                   'ENSG00000125966',
+                                   'ENSG00000225808',
+                                   'ENSG00000258531',
+                                   'ENSG00000237437',
+                                   'ENSG00000079999',
+                                   'ENSG00000163960'
+)), c('Gene', 'GeneSymbol', 'GeneChr', 'GenePos')]
+a <- a[!duplicated(a),]
+
+# http://grch37.ensembl.org/Homo_sapiens/Gene/Sequence?db=core;g=ENSG00000127191
+# http://grch37.ensembl.org/Homo_sapiens/Gene/Sequence?db=core;g=ENSG00000108773
+# http://grch37.ensembl.org/Homo_sapiens/Gene/Sequence?db=core;g=ENSG00000214279
+# http://grch37.ensembl.org/Homo_sapiens/Gene/Sequence?db=core;g=ENSG00000168765
+# http://grch37.ensembl.org/Homo_sapiens/Gene/Sequence?db=core;g=ENSG00000125966
+# http://grch37.ensembl.org/Homo_sapiens/Gene/Sequence?db=core;g=ENSG00000225808
+# http://grch37.ensembl.org/Homo_sapiens/Gene/Sequence?db=core;g=ENSG00000258531
+# http://grch37.ensembl.org/Homo_sapiens/Gene/Sequence?db=core;g=ENSG00000237437
+# http://grch37.ensembl.org/Homo_sapiens/Gene/Sequence?db=core;g=ENSG00000079999
+# http://grch37.ensembl.org/Homo_sapiens/Gene/Sequence?db=core;g=ENSG00000163960
+
+# TRAF2
+'>chromosome:GRCh37:9:139775364:139821659:1 #fix this fasta sequence
+GTGACTGGTCCTGGCGGGTGCTTAGGAGGCGGGGGCAGAGACATGGCTCACTCCAGCCTC
+AACCTCCTGGGCTCAAGCAATTCTCCCACCTCAGCCACTCAGGTAGCTGGGGCTACAGGC
+GTGCACCATCACGCCCGGCTATTTTTTTTTTTTTTTTGAGACAGAATTTGGCTCTTATTG
+CCCAGGCTGGAGTGCAATGGTGCAATCTCAGCCACAACCTCTGCCTCCCAGGGTCAAGTG
+ATTCTCCTGCCTCAGCCTCCCAAGTAGCTAGGATTACAGGTGTGCACCACCACGCCGGGC
+TAATTTTTGTATTTTTAGTAGAAACGGGGTTTCTCCATGTTGGTCAGGTTGGTCTCGAAC
+TCCCAACCTCAGGTGATCTGCCTGCCTCAGCCTCCCAAAGTGCTGGGATTACAGGCGTGA
+GCCACCACACCCGGCCTAATTTTTGCATTTTTTGGAGAGACGGAGGTTTCACTATATTGC
+CCAGGCTGGTCTTGAACTCCCGAGCTCAAGTGATCCAGCCTTGGCCTCCCAAAGTGCTGG
+GATTACAGGTGTGAATCTTCTATTACTTTCCTGTGTGTCCTTCCCAAGTTCACAGAAAAC
+ACAAGCTGACAGAAATCCATTCTTTCCCACGGTTGCTGGCACGGATGCTGCTGTGTGACA
+GCACAAGTTCATGTGCTTGAGGGTCTCCTGGCCACAGCCAGCCCCAGGCTTGCCCTGGAC
+AGGCGGGCTTCAGATTCCCCCCAAGGTTCTATGCCATTGAGTTGGAGGACAAGAGCTTCC
+CCACTGTCCAGCGTTGAAGCAAACCTCCCTCCAGGTCCCACCCCTCCCCAGGCCTTTGTC
+CTTTTATCAGGGATTGCCCTGGGGGAGCCCCCCTGGGGAGCTGATGAGGAGGGAGCCTCT
+GTGCCCCGTGCACTGGCCTGAGGGGGTGAGGCCAGGGCTGGGGCTGCTGCAGGGGACTCT
+GGCCCGGAGCTGCGGCTGCCTTCCTGGAAACACTCCTGTC'
+
+# KAT2A - don't use
+'>chromosome:GRCh37:17:40264526:40274376:-1
+CCCCACGCGGACACGCGACACGAGGAGGTGGACTGGTCTCTCCGGCTGCATTAATTCTTC
+CCGGGGCGTCCTGTGCTGCAGGCTGTGGTCTGGGCTCTGGGGCCACAAAGATGAAGACGC
+AGTTGGGGCTTCAGGAGAGTGGCTCCCAGTGCACAGAGAAAGACCTAGCCCTCCTCCGCC
+TCACCCTCCACGTCAGTAGCCTTCTTGGTGACCATCATAACCACAGCTATGCCTCTGGTG
+CTGTTATTTGATAATTTTTTTTTTTTAAGAGACAGGGTATCATTATGTTGCCCAGGTTAA
+TCTCGAACTCCTGGGCTCAAGCGATCCTCCCATCTCGGCCTCCCAAAGTGCTGAGATTAC
+AGGCGTGAGCCACCTCGCCCAGCCTATAAACTTTATTTTTTATTTTTTTGTAGAGATTGG
+TGGGGGGGGTCTCCCAATGTTGCCCAGCCTGGTCTCGAACTCCTGCAGGGCTCAAGCTCT
+CCTCCCGCGTGAGCCAGCCACCCGGCCTGATAAACTCCTTTTTGTTGAGTGATACTATTA
+AATACATACATACTGAAAAGCGCAGAAAAAGGTGCAGGTGAATGTCAGGAGGAGAACACA
+CCCAAGTCACCACCACACTACTGCAGAACTGTTGCTACATCTCATCTCTACCGCAGCTGC
+AATTCCGTGTCCGGAGCCGCGTGGGGCAGGGCCTGTGCGGGAGTTGGGGGAGGGGGTTAA
+GTGGGAGACAGGCGCGTGAAAGAGGCAGACCCCACGATTCTCCCCAAGACTCCTTGTCCC
+CAAGAGGACAGCCATCGTGACTCTCCCGGACTCCATTAAAAGAGATTACAAGTGAAGAGG
+GGTCAATGTGGGGCCTTCACTCAGGCCTCACTTGGCTGTCAGGGGCCAAGAGACAGGACA
+GAAAAGTCTGGAAGCTGGAGGCAGTGAGGGGAAGGCGCGGGAAGACTACAACTCCCGTCA
+TGCGCCGCGCAGCAACGCCTGCGCACTGAGCGCTGGTTGC'
+
+# RP11-108K14.4
+'>chromosome:GRCh37:10:135266432:135337662:1
+TGCTCTGTCACCCAGGCTGGAGTGCAGTGGTGCAATCTCAGCTCACTGCAACCTCCGCCT
+CTTGGGCTCACGCCATTCTCATGCCTCAGCCTCCCGAGTAGCTGGGACTACAGGTGCATG
+TCACCCTGCCCGGCTAATTTTTGTATTTTTAGTAGAGACAGGGTTTCACCATGTTGGCCA
+GGGTGGTCTCGAACTCCTGACCTCAGGTATCTGCCCACCTCAGCCTCCCAAAGTGCTAGG
+ATTACAGGCGTGAGCCACTGCGCCTAGCCTGTTCCATTTTTATAACTTCTATTTCTTTGC
+TGAGATTTCAATTTTTCCACTTATTTCAAGAGCATTTGCAATTTGTTGTGGAAACATTTT
+TATGATGCCTGTTTTAAAATCCTTGTCAGATAATTCTGACACCTGACTCTTCCTGGTGCC
+GCCCTTAGTTGGTTGTCTCTTACTGAAATGGTCGTGTCCCTGGGTCTTCATATGATGAGT
+GATTCTTAACTGTATCTTCTCTCAAGGGTTTTCATTCCAACGACAGTTCAGTTCTCAGAG
+TTCTTGCAAAGCTCTTCCGTGTCATTCTTCTGGTGCTGCTGGGACTCCCACTCAAACCCT
+AATCCTACCCCTACCCCTAACTCTGCTAGTGCCATCTGCTGGCACAGAGGACGCCTCCTT
+GGCTGTCTGGGGCCACTGCCTTCTGTGGTGGTGGCATGGCTGAAGCCGACGGGCCCGGGT
+GGAGGGCAGAGACGCAGGGCTTCACTGATGCTGTGCTGTGGGCAGGTTGGACCATCTCTG
+CCTGATGGTTGGGTCTAGTCCCATCAGCAGCTTGATCAGTGTGGGAGGAAACCCACAGCC
+TGCACCCTCCCCATGTCTGGTGATGCTCAGGCCAGCAAGGCATTGGCTGCTCTGCTCACG
+GCTGAGAGGCAGAGCTGCTGATTCGCTCTGGAAAGGCTGTGGCTGTCCCCATTGGACCCT
+GGAGGTCCTTGGCAGCTCCCACTTCTGTATATGTGACTCT'
+
+# GSTM4
+'>chromosome:GRCh37:1:110197703:110208718:1
+GGGTGAATACTAATGTAACAATATCAATTCTGTTTCTTTCATAATTATTCTCATAAGTGT
+TAGCTTTCTTAAAAAATCATCTTCACAATTGGACCTAGACATTTTATCTTTCCCAGCTCA
+AGATGGATAAACTCAGAATGACAGGCCAGGCACCGTGGCTCATGCCTGTAATCCCAGCAC
+TTTGGGAGGCGGAGGCGGGTGGATCACTTGAGACCAGGAGTTCAAGACCAGTCTGGTCAA
+CACGGTGAAATCCCATCTCTACAGAAAATACAAAAAAGTTAGCAGGGCGTCGTGGCGCTC
+GTCTGTAATCCCAGCTGCTCGGGAGGCTGAGGCAGGAGAATCGCTTGAGCCCGGGAGGCG
+GAGGTTGCAATGAACCGAGATCGCCCTACTGCACTCCAGCCTGGGCAACACAGCGAGTCC
+CCGTTCCAAAAAAAAAAAAAAAAAAAAGACTCAGAATGACACATTCTTAATGTCTTAATG
+TATAATGAGAAGTATAACTATTCAGAAGTCCAAGCACTTGTGTGTGCATGGTGCTATCGT
+CTTGCTGTAGGCAAACCTACATGGGAATCCACCTTGACACATAGGCCACTTCCTGAGCCT
+GGACCCAGTCTCAGAGCTGGGGAACTGGCCCAATGCAAAAGGGTCGGGAGCATCTGCAAC
+AGAGACTGAGCTCTATCAGCTTCGGTGACATAGCCTCCATTCACGCTCCCCAACTCAGCA
+GAGAGAGCACACCATCAGACTTCTAAGACTTAGTAGCCAAGAAGTGTTGAATTAAACTCT
+CTGAGACCTCTCTTTAGTCTGACCCTGGCAGCCTCAGTCTCCCAGAGCCTGTGGGAACTC
+GGCAGCCGAGAGGCAGAAGGCTGGGCGACGTCCGGAGAAGAAGAAACGGGGGAAGAACTT
+TTCTCTTACGATCTGGCTTTACTCTCACGCGCACAGCCGAGTCCCTGGGGACCCAGCAGA
+GGTCCGAAGCGGAGCGGGGCGGGGCGGGGCTACGGAAGCT'
+
+# MMP24
+'>chromosome:GRCh37:20:33813457:33865404:1
+TCAGGCACATCCTGTACACCCTCAACTTCCTCCCTGAAATGCCCTCTCCTCTCCCCTCCC
+CTGGTTTAAATCCAGCCTTTCCTTCAGGTCCTAGCTAGAGTCCCACCCTCCTCCATTACA
+CTTTTTCCTAACTTCCCCAGCCCCTCATCAGGTCTCCCTCGACCCCTGGAGCAGCCGCCT
+GTATCCTTGTTGACACGTGGTGTTTGCCATTCTGTTTTTCTTTGCGTTTATGTTTTCTCA
+TCAAGCTGTAAACCTCTGCACTCCAGGAAATCGGCCTTCTCTTTTTTGTTTTTGTTTTTG
+GGTGTTTTTTTTTTTCCTTTCAGCATCCCAAGTAGCCCAGAGCCCTACAAATAGAAAGCG
+CTTGATAAATATGGGTTGTTTTGGATGAAAGATGATCTTCCCAGCTGGATGAGCTCTTTC
+CCTCTAGGGGTGAGGGACTGAGCTTCACCTCAACTTCACCTAATGTCTCACAGGAATGCC
+CCCTCTTAAACGCTCCTCAGGTCTTCTCTACCCCTTTCCCCCACCACCCCGGCCCAGGAG
+AGCCACTCAGAGCTCCCTCTCCGGAGTCACCCTCTCAGACCCAGGGCTATTTCTTTAGCT
+TGCTCTCGAACCCCGCCTTTACCCCAGAGCCGCTCCTCAGTCTCCTCCCCCAGGCTGCCT
+CTCAGGCCCCCTCTCCTCCAATGCCACTCCCTAGGACCCTCTCCCCAGGGTTCCGGACCC
+CCAACCCCGGATATGTTCCCCCAGGGCCATCCAGTTGTTCTACCTCCAGGATTACTGATT
+TAGCCTCTTCCCCCTCCTGCTCAGGGCTACCCCCAGACCCCGACCTCCAGTTCCACCCCT
+TCGGACCCTGCCTCTAGAACTGTTCTTTTAGCCTCTGCAACCCCCTCCCCAGCGCCGCTC
+CGCGGCCCCTGCCCCAGGGCTGGTCGGGGAGCCACTGCCCTCGCAGGTCCCGCCCGGGTG
+CTGCCCCCGCGCCCCCGGCCGCCCCCCACCGGGGCGGGGCGCGCGGAGGCGGGGGCGCGC'
+
+# DNAJC19P5 - don't use
+
+# BANF1P1
+'>chromosome:GRCh37:14:69402319:69404181:1
+TCTCAAACTCCTGACCTCAAGCGATCTGTCCACCTTGGCTTCCCAAAGTGCTGGGATTAC
+AGGCATGAGCCACCACACCCGGCTAGAGCGCTCTATTCTGATGTTTAAGCCTCAACACAC
+AATCCAGGCCATCCACTCTGGCTGACCTCCCCAGAGAAGCCTCCATTGACAAAGGTGCTT
+TTTCCATTTGTTGCACAGTGGAATAAACAAGATAACCCACCTGCAGCCAAACAAGACTAG
+CTGGGCAGTGGTGGGACAGCCCAGGCTCCAAACTCACGTGCTGGCCACACCTCTTCCAAG
+CACATCCTCCCACTCTCCCGGAATCAAAAATACCAGCCACCATTCAGGCCAGGGGAGTTA
+AGTGTTCAGAGGATGGGATCAGGAAACCTGGGACCTGCCCTGGCTCAGCCAGGCGTGTGA
+CCTCAGATAAGTCACTTCAATCCCTTCCAGCTCTGCTAGCGCAAACAAGTCCCTCCTACC
+TTGCAGGCTGGAGCCCAGAAACTTTTCCCATCAGAACACGCCTAATGAGAAGACACAACC
+AAACAGCACCCGGCAACAATCTTTTGTTCCTGTGTAGGGTTTATTCTGATTGGTGGGCTC
+TCAAAGAAAGCCAAAAAATTTCCCAGGGACAATTTCATCTCCATGAACTCAAAACATACT
+CAGTGTTTCTGTCTCAAGACAGCCAGCTCCTAACCCTTCTCAGCAAGCAGAATCCTGACG
+TTAGTGTCCCGGACAGCATCTAAAAGCTTTATGCTAGAACATTCCTAGCAGGACACAGAA
+GGACCAGGATCATCGGCTGCCTCCAGGGAGAGAAATGGGAAGGCAGGGGGTAGAGAACAC
+TTGCTTTTCACAGAATATGCTTTTGTTTGAGTTTTGTACCAAAATGTGCTGTCATTACCT
+TTTTTTTTTTTTTAAGTATGCAAATAAAAGAACAGTCTGTCTAGGGGGTGGCGGGAGGAA
+CTGTTACGGGAATTGAAGCTGCCGATTAGGCCTAATCAAG'
+
+# ASS1P12
+'>chromosome:GRCh37:9:32944994:32947820:1
+TCACTTGTTTGTCTTTTTTTGACAAATGTCTATTCAAATCCTTTGACCATTTTTTAATTG
+CATTATTTGTTTTCTTACAATTGAGTTGTTTCAGTTCCTTATTATTTTAGATATTAATCC
+CTTATCAGATGTATGGTTTGCAAATATTTTCTCCCATTCTGTAGGTTGTCTCTTAACTGT
+GTAGATTATTTCCTTGGCTGTGCAGAAGCTTTTTAGTTTGATACAATCCCATTTGTCTAT
+TATTACTTTTGTTGCCTGTGCTTTTGGGTTTATATTTAAAAATTCAGGCCTGGGTACCGT
+GGCTCATGCCTCTAATCCTAACACTTCAGGAGGCCAAGGCAGGAGGATCTCTTGAGGCCA
+GGAGTTTGAGACCATCCTGGGCAACATAGCAAGGCCTCGTCTTTAAAAAAAATTAGCTGG
+GTATAGTGGTGCGTGCCTGTATTCCTTATTACTTGGGAAACTAAGGCAGGAGGATCCCTT
+GAGCCCAGGAGTATGAGGCTGCAGTACAGCTATGCTCCTGCCACTGCACTCCAGCCTGGG
+CAACAGAGCAAGACCCTGTCTCTGAAAATAAATAAATAAATAAATTTTTAAAAATCTTTA
+AATAGATTTTATGTTTCCAAGTCATTAAAGAACATGAGATGTCTTTCCATTTGTTCAGAT
+AACATTTATAATTTTAATTGAGCTTTTATAACTTTAAATAGGTCTTATATCTTATTAATT
+TTACTGTCAAGGTGAAACTATTTTGATTTCTGAAATTTGCTTTAAAGTAGTACTACAGTA
+GGTAAGGTGGAGAGGCAGGATGAAACAAGAAGGGCAGAATATTGACGATTGTTGAAGCTG
+GTTATGGGTACTATTCTCTGGGTTTTTGTGGATGGTTTGGTATTTTGAAATTATACTCCC
+TGCTCTGTCGCCTGCCACCGCTCCCTGAGCCCGAGTGGTTCACCGTACCATGAAGACAGA
+TGGCAGATGCCAGGAACTCGAGCCTCCAATCCCAGATGCT'
+
+# KEAP1 - ignore
+
+# UBXN7 - ignore
+
+##################
+
+library("Biostrings")
+# https://stackoverflow.com/questions/21263636/read-fasta-into-a-dataframe-and-extract-subsequences-of-fasta-file
+
+# Genback to fasta https://www.bioinformatics.org/sms2/genbank_fasta.html
+# https://fasta.bioch.virginia.edu/fasta_www2/
+# https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&PAGE_TYPE=BlastDocs&DOC_TYPE=BlastHelp
+
+# https://www.google.com/search?ei=kywNXe-fJKem_QbZ9pTwDQ&q=retrieve+ensembl+db+core+in+r&oq=retrieve+ensembl+db+core+in+r&gs_l=psy-ab.3..0i71l3.577.1214..1345...0.0..0.0.0.......0....1..gws-wiz.0NWfXxwsXUw
+# https://bioconductor.org/packages/release/bioc/html/ensembldb.html
+
+# Other method for matching
+# https://www.google.com/search?q=match+gene+name+to+sequence+r&oq=match+gene+name+to+sequence+r&aqs=chrome..69i57j33l5.5769j0j1&sourceid=chrome&ie=UTF-8
+# https://www.bioconductor.org/packages/release/workflows/vignettes/annotation/inst/doc/Annotation_Resources.html
+# library(rentrez)
+# library(seqinr)
+# COI <- entrez_fetch(db = "nucleotide", id = 167843256, file_format = "fasta")
+# coi.fa <- read.fasta(file = textConnection(COI), as.string = T)
+
+# https://www.nature.com/articles/nmeth.3799
+# file://localhost/Users/kathryntsai/Zotero/storage/AC35NIIW/nrg.2017.html
+
+# Links 6/17/19
+# https://www.ncbi.nlm.nih.gov/nuccore?term=ENSG00000000419
+# https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gene&term=ENSG00000000419
+# https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?id=ENSG00000000419&db=gene
+# https://www.ncbi.nlm.nih.gov/gene/8813
+# https://www.ncbi.nlm.nih.gov/nuccore/NC_000020.11?report=fasta 
+# https://github.com/gschofl/reutils/issues/1 - Repeat
+# https://www.ncbi.nlm.nih.gov/books/NBK25499/ - Repeat
+
+# Links 6/17/19 #2
+# https://github.com/immunogenomics/IMPACT/blob/master/Features/Tcell_features/readme.txt.gz
+# https://www.ncbi.nlm.nih.gov/gene/?term=2519
+# https://www.ncbi.nlm.nih.gov/assembly/GCF_000001405.25/
+# https://www.ncbi.nlm.nih.gov/nuccore?LinkName=assembly_nuccore_insdc&from_uid=37871
+# https://www.ncbi.nlm.nih.gov/nuccore?LinkName=assembly_nuccore_refseq&from_uid=37871
+# https://www.ncbi.nlm.nih.gov/nuccore/NC_000006.12?report=fasta&from=143494812&to=143511720&strand=true
+# https://www.ncbi.nlm.nih.gov/nuccore/NC_000006.12?report=fasta&from=143494812&to=143511720&strand=true
+

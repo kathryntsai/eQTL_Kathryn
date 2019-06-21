@@ -9,4 +9,4 @@
 # https://bioconductor.org/packages/release/bioc/html/STRINGdb.html
 # http://regulatorycircuits.org/index.html
 
-#SNP and transgene touch each other in HiCchr21:44483233 OR CTCF is near both of them
+#SNP and transgene touch each other in HiC OR CTCF is near both of them

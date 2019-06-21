@@ -79,7 +79,31 @@ quads_interesting_bed_file <- data.table(paste0("chr",quads_interesting$SNPChr),
                                          0)
 write.table(quads_interesting_bed_file, "hypothesis6_output/quads_interesting_bed_file.txt", col.names = F, row.names=F, quote=F, sep='\t')
 
-# Extracting 3 sequences from chr1
+# Version 1
+# Position file = quads_interesting_bed_file.txt
+# Genome = hg19
+# Output Directory = output/
+#   Will find motif(s) in /Users/kathryntsai/homer/data/knownTFs/vertebrates/known.motifs
+# Found mset for "human", will check against vertebrates motifs
+# Peak/BED file conversion summary:
+#   BED/Header formatted lines: 72
+# peakfile formatted lines: 0
+# 
+# Peak File Statistics:
+#   Total Peaks: 72
+# Redundant Peak IDs: 15
+# Peaks lacking information: 0 (need at least 5 columns per peak)
+# Peaks with misformatted coordinates: 0 (should be integer)
+# Peaks with misformatted strand: 0 (should be either +/- or 0/1)
+# 
+# Redunant Peaks found: Remove or rename these or some programs may have trouble...
+# 
+# 15 duplicate peak IDs out of 72 total peaks
+# Background files for 200 bp fragments found.
+# Custom genome sequence directory: /Users/kathryntsai/homer/.//data/genomes/hg19//
+#   
+#   Extracting sequences from directory: /Users/kathryntsai/homer/.//data/genomes/hg19//
+#   Extracting 3 sequences from chr1
 # Extracting 3 sequences from chr2
 # Extracting 4 sequences from chr3
 # Extracting 1 sequences from chr4
@@ -92,6 +116,73 @@ write.table(quads_interesting_bed_file, "hypothesis6_output/quads_interesting_be
 # Extracting 4 sequences from chr17
 # Extracting 3 sequences from chr20
 # Extracting 1 sequences from chr21
+# 
+# 
+# Reading input files...
+# 72 total sequences read
+# 428 motifs loaded
+# Finding instances of 428 motif(s)
+# |0%                                    50%                                  100%|
+#   =================================================================================
+#   Cleaning up tmp files...
+
+
+# Version 2
+# Position file = quads_interesting_bed_file.txt
+# Genome = hg19
+# Output Directory = output/
+#   Will find motif(s) in /Users/kathryntsai/homer/data/knownTFs/vertebrates/known.motifs
+# Found mset for "human", will check against vertebrates motifs
+# Peak/BED file conversion summary:
+#   BED/Header formatted lines: 257
+# peakfile formatted lines: 0
+# 
+# Peak File Statistics:
+#   Total Peaks: 257
+# Redundant Peak IDs: 3
+# Peaks lacking information: 0 (need at least 5 columns per peak)
+# Peaks with misformatted coordinates: 0 (should be integer)
+# Peaks with misformatted strand: 0 (should be either +/- or 0/1)
+# 
+# Redunant Peaks found: Remove or rename these or some programs may have trouble...
+# 
+# 3 duplicate peak IDs out of 257 total peaks
+# Background files for 200 bp fragments found.
+# Custom genome sequence directory: /Users/kathryntsai/homer/.//data/genomes/hg19//
+#   
+#   Extracting sequences from directory: /Users/kathryntsai/homer/.//data/genomes/hg19//
+#   Extracting 32 sequences from chr1
+# Extracting 17 sequences from chr2
+# Extracting 14 sequences from chr3
+# Extracting 9 sequences from chr4
+# Extracting 14 sequences from chr5
+# Extracting 12 sequences from chr6
+# Extracting 13 sequences from chr7
+# Extracting 8 sequences from chr8
+# Extracting 11 sequences from chr9
+# Extracting 11 sequences from chr10
+# Extracting 14 sequences from chr11
+# Extracting 21 sequences from chr12
+# Extracting 2 sequences from chr13
+# Extracting 7 sequences from chr14
+# Extracting 5 sequences from chr15
+# Extracting 11 sequences from chr16
+# Extracting 16 sequences from chr17
+# Extracting 5 sequences from chr18
+# Extracting 15 sequences from chr19
+# Extracting 10 sequences from chr20
+# Extracting 1 sequences from chr21
+# Extracting 9 sequences from chr22
+# 
+# 
+# Reading input files...
+# 257 total sequences read
+# 428 motifs loaded
+# Finding instances of 428 motif(s)
+# |0%                                    50%                                  100%|
+#   =================================================================================
+#   Cleaning up tmp files...
+# 
 
 # works: findMotifsGenome.pl quads_interesting_bed_file.txt hg19 output/ -find ~/homer/data/knownTFs/vertebrates/known.motifs > quads_interesting.csv
 # doesn't work: findMotifsGenome.pl ~/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/eQTLPart1_2/hypothesis6_output/quads_interesting_bed_file.txt hg19 output/ -find ~/homer/data/knownTFs/vertebrates/known.motifs > quads_interesting.txt

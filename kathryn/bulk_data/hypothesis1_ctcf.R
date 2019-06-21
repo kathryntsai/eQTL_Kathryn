@@ -12,9 +12,9 @@
 # of resaonbly close ones (100 bp??): 1 snp 1 gene 1 trans eQTL pair, see where SNp matches in both columns. is the trans gene on the different opposite chromosome
 # anti-pair: part of pair that's not the snp, ask if position is close to gene releavnt to snp
 
-# Can't use these because they're HG38: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSM3612258
-# https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSM3612257
-# Would like to find dataset: hic peripheral blood hg19
+# Can't use these because they're HG38: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSM3612258 
+# https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSM3612257 - main one i was going to use
+# Would like to find dataset: hic peripheral blood hg19 - https://www.ncbi.nlm.nih.gov/gds/?term=Hi-C+peripheral+blood
 # But eQTLGen (http://www.eqtlgen.org/publications.html) uses data from https://www.chicp.org/chicp/ -- try to download information
 # https://www.ncbi.nlm.nih.gov/gds?LinkName=geoprofiles_gds&from_uid=54443598
 

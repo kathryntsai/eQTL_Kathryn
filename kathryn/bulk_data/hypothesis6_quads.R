@@ -1,3 +1,7 @@
+# what's going on with homer??
+# ==========================================================
+# HYPOTHESIS 6: Quads Analysis
+# ==========================================================
 franke_cis_data_modified <- franke_cis_data[,c("SNP", "Gene", "Zscore", "SNPChr", "SNPPos")] 
 colnames(franke_cis_data_modified) = c("SNP", "cisGene", "cisZscore", "cisSNPChr", "cisSNPPos")
 franke_trans_data_modified <- franke_trans_data[,c("SNP", "Gene", "Zscore", "SNPChr", "SNPPos")] 
@@ -58,6 +62,7 @@ write.table(snps_interesting_TFmatch, "q2_1_written/snps_interesting_TFmatch.txt
 snps_interesting_TFmatch <- fread("q2_1_written/snps_interesting_TFmatch.txt")
 colnames(snps_interesting_TFmatch)[1] <- "SNP1"
 colnames(snps_interesting_TFmatch)[10] <- "cisGene_commonname"
+# Table of Quads for Bed File
 z <- merge(snps_interesting_TFmatch, franke_cis_data, by.x="transGene", by.y="Gene") # 1749034 x 7
 colnames(z)[12] <- "SNP2"
 
@@ -98,22 +103,25 @@ length(unique_TFs) # 320 unique TFs
 unique_SNPs <- unique(sub("*\\-.*", "", quads_interesting_analysis$'PositionID')) # 57 total SNPs
 length(unique_SNPs) # 57 unique SNPs
 
+# Rename Homer Output PositionID to SNP2, Abbreviate column
 colnames(quads_interesting_analysis)[1] <- "SNP2"
 quads_interesting_analysis$SNP2_Abbreviated <- sub("*\\-.*", "", quads_interesting_analysis$'SNP2')
 
+# Select and reorganize columns from original Z file
 zz <- z[,c("SNP1", "cisGene", "SNP2", "transGene", "cisZscore", "cisSNPChr", "cisSNPPos", "transZscore", "transSNPChr", "transSNPPos", "Zscore", "SNPChr", "SNPPos")] # 646241 x 13
 colnames(zz) <- c("SNP1", "cisGene", "SNP2", "transGene", "cisZscore", "cisSNPChr", "cisSNPPos", "transZscore", "transSNPChr", "transSNPPos", "Zscore", "SNPChr", "SNPPos")
-#zzz <- inner_join(quads_interesting_analysis, zz, by.x = "SNP2", by.y = "SNP2") # Why does 2913 x 6, 646241 x 13...yield 1627 x 18?
+zzz <- merge(quads_interesting_analysis, zz, by.x = "SNP2_Abbreviated", by.y = "SNP2") # Why does 2913 x 6, 646241 x 13...yield 1627 x 18? Because SNP2 isn't right, it should be the abbreviated one!
+# Merge information from homer output and original Z file
 zzz <- zz[match(quads_interesting_analysis$SNP2_Abbreviated, zz$SNP2)] # 2913x13
 zzzz <- zzz[!is.na(zzz$SNP1)] # 609 x 13
 
-write.table(zzz, "SNP2_Offset_Sequence_Motif.name_Strand_MotifScore_SNP1_cisGene_transGene_Positions_1627_rows.txt", row.names = F, col.names = T)
-write.table(quads_interesting_analysis, "quads_interesting_analysis_analyzed_2913_rows.txt", row.names = F, col.names = T)
-
-write.table(z, "hypothesis6_output/z.csv", row.names = F, col.names = T, quote=F, sep = "\t")
-write.table(zz, "hypothesis6_output/zz.csv", row.names = F, col.names = T, quote=F, sep = "\t")
-write.table(zzz, "hypothesis6_output/zzz.csv", row.names = F, col.names = T, quote=F, sep = "\t")
-write.table(zzzz, "hypothesis6_output/zzzz.csv", row.names = F, col.names = T, quote=F, sep = "\t")
+# write.table(zzz, "SNP2_Offset_Sequence_Motif.name_Strand_MotifScore_SNP1_cisGene_transGene_Positions_1627_rows.txt", row.names = F, col.names = T)
+# write.table(quads_interesting_analysis, "quads_interesting_analysis_analyzed_2913_rows.txt", row.names = F, col.names = T)
+# 
+# write.table(z, "hypothesis6_output/z.csv", row.names = F, col.names = T, quote=F, sep = "\t")
+# write.table(zz, "hypothesis6_output/zz.csv", row.names = F, col.names = T, quote=F, sep = "\t")
+# write.table(zzz, "hypothesis6_output/zzz.csv", row.names = F, col.names = T, quote=F, sep = "\t")
+# write.table(zzzz, "hypothesis6_output/zzzz.csv", row.names = F, col.names = T, quote=F, sep = "\t")
 
 # unique_SNPs from quads_interesting_analysis # 57 unique SNPs
 # [1] "rs1024467"       "rs1000778"       "chr3:46757116"   "rs1001007"       "chr21:44483233"  "rs1005455"      
@@ -169,3 +177,5 @@ snps_interesting_TFmatch <- snps_interesting[which(!is.na(matches)),]
 snps_interesting_TFmatch <- cbind(snps_interesting_TFmatch, common_cisgenename_interesting[which(!is.na(matches))])
 #snps_interesting_TFmatch <- snps_interesting_TFmatch[,c(1,2,4,3)]
 write.table(snps_interesting_TFmatch, "q2_1_written/snps_interesting_TFmatch.txt", row.names = F, col.names = T)
+
+read.csv("hypothesis6/allgenes.txt")

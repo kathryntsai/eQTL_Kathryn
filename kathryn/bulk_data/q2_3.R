@@ -1,4 +1,4 @@
-# UNFINISHED
+# UNFINISHED: Can't retrieve info for FASTA sequence by NCBI, need to do this manually
 # ==========================================================
 # QUESTION 2_3
 # ==========================================================

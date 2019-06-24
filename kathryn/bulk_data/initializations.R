@@ -14,3 +14,4 @@ franke_cis_data <- fread("input_data/cis-eQTL_significant_20181017.txt", header 
 franke_trans_data <- fread("input_data/trans-eQTL_significant_20181017.txt", header = TRUE, sep = "\t", dec = ".")
 
 library(fastmatch)
+library(seqinr)

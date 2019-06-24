@@ -18,9 +18,4 @@
 # But eQTLGen (http://www.eqtlgen.org/publications.html) uses data from https://www.chicp.org/chicp/ -- try to download information
 # https://www.ncbi.nlm.nih.gov/gds?LinkName=geoprofiles_gds&from_uid=54443598
 
-# actually, just convert it from Hg38 to Hg19 using 
-
 # Can StringDB/CTCF mediate Hi-C relations?
-
-
-read.tsv

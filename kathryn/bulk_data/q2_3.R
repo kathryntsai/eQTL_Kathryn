@@ -1,4 +1,4 @@
-# UNFINISHED: Can't retrieve info for FASTA sequence by NCBI, need to do this manually
+# UNFINISHED: Attempt Bioconductor packages to retrieve fasta promoter sequences, along with 
 # ==========================================================
 # QUESTION 2_3
 # ==========================================================

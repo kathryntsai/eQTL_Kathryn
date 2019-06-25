@@ -2,13 +2,6 @@
 # QUESTION 2_3_Redo
 # ==========================================================
 
-a <- franke_cis_data[which(GeneChr==1), c('Gene', 'GeneSymbol', 'GeneChr', 'GenePos')]
-a <- a[!duplicated(a),]
-
-a_gene_snp <- franke_cis_data[which(GeneChr==1), c('Gene', 'GeneSymbol', 'GeneChr', 'GenePos', 'SNP', 'SNPChr', 'SNPPos', 'AssessedAllele', 'OtherAllele')]
-# check
-# a_gene <- a_gene_snp[!duplicated(a_gene_snp$Gene),]
-
 # ==========================================================
 # Create Chr1 Information
 # ==========================================================
@@ -198,9 +191,14 @@ chr1_29 <- readRDS("q2_3_output/chr1_29.rds")
 full_chr <- paste(chr1_1, chr1_2, chr1_3, chr1_4, chr1_5, chr1_6, chr1_7, chr1_8, chr1_9, chr1_10, chr1_11, chr1_12, chr1_13, chr1_14, chr1_15, chr1_16, chr1_17, chr1_18, chr1_19, chr1_20, chr1_21, chr1_22, chr1_23, chr1_24, chr1_25, chr1_26, chr1_27, chr1_28, chr1_29, sep = "", collapse = "")
 saveRDS(full_chr, "q2_3_output/full_chr.rds")
 
+# ==========================================================
+# Load full chr
+# ==========================================================
+
 # paste("saveRDS(chr1_", 1:29, ", 'q2_3_output/chr1_", 1:29, ".rds')", sep = "", collapse="  ")
 full_chr <- readRDS("q2_3_output/full_chr.rds")
 
+# some random calculations to figure things out
 # > nchar(gsub(', |\"|\n', "", paste(chr1[1:x[1]],collapse="")))
 # [1] 8594853
 # > nchar(full_chr)
@@ -218,17 +216,44 @@ full_chr <- readRDS("q2_3_output/full_chr.rds")
 # > substr(chr1_1, 1, 10)
 # [1] "c(NNNNNNNN"
 
-# replace all parentheses
-full_chr_mod <- gsub('', "", full_chr)
+# replace all parentheses - not sure if this will work in previous gsub creations
+full_chr_mod <- gsub('c\\(|//)', "", full_chr)
 
 # ==========================================================
 # a_gene_snp
 # ==========================================================
 
+# a <- franke_cis_data[which(GeneChr==1), c('Gene', 'GeneSymbol', 'GeneChr', 'GenePos')]
+# a <- a[!duplicated(a),]
+
+a_gene_snp <- franke_cis_data[which(GeneChr==1), c('Gene', 'GeneSymbol', 'GeneChr', 'GenePos', 'SNP', 'SNPChr', 'SNPPos', 'AssessedAllele', 'OtherAllele')]
+# check
+# a_gene <- a_gene_snp[!duplicated(a_gene_snp$Gene),]
+
 a_gene_snp$SNPWindowStart <- a_gene_snp$SNPPos-20
 a_gene_snp$SNPWindowEnd <- a_gene_snp$SNPPos+20
 
-a_gene_snp$fasta_seq_og <- str_sub(full_chr, a_gene_snp$SNPWindowStart, a_gene_snp$SNPWindowEnd+1)
-# rs10082323 tctttaatctcataacaaccgtccattgtatgtacatatgt
+a_gene_snp$fasta_seq_og <- toupper(str_sub(full_chr_mod, a_gene_snp$SNPWindowStart, a_gene_snp$SNPWindowEnd+1))
+# rs10082323 tggaaattgagccttggagAgattaaatgcatggggcatgcc
+a_gene_snp$fasta_seq_mod <- a_gene_snp$fasta_seq_og
+substr(a_gene_snp$fasta_seq_mod, 20, 20) <- a_gene_snp$OtherAllele
+# rs10082323 tggaaattgagccttggagGgattaaatgcatggggcatgcc
 
-# there's a lot of chars here
+# the 1 at the end should be the + or - strand...fix this
+# doesn't really work
+# write.fasta(a_gene_snp$fasta_seq_mod, paste("chromosome:GRCh37:",a_gene_snp$SNPChr, ":", a_gene_snp$SNPWindowStart, ":", a_gene_snp$SNPWindowEnd,":1", sep=""), "q2_3_output/fasta_master1.fa", open = "w", nbchar = 60, as.string = F)
+
+write.fasta(a_gene_snp$fasta_seq_mod[1], paste("chromosome:GRCh37:",a_gene_snp$SNPChr[1], ":", a_gene_snp$SNPWindowStart[1], ":", a_gene_snp$SNPWindowEnd[1],":1", sep=""), "q2_3_output/fasta_master1.fa", open = "w", nbchar = 60, as.string = F)
+for (i in 2:nrow(a_gene_snp)){
+  write.fasta(a_gene_snp$fasta_seq_mod[i], paste("chromosome:GRCh37:",a_gene_snp$SNPChr[i], ":", a_gene_snp$SNPWindowStart[i], ":", a_gene_snp$SNPWindowEnd[i],":1", sep=""), "q2_3_output/fasta_master1.fa", open = "a", nbchar = 60, as.string = F)
+}
+
+# ==========================================================
+# create homer output
+# ==========================================================
+
+# findMotifs.pl /Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/q2_3_output/fasta_master1.fa fasta /Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/q2_3_output/ > output.txt
+
+# ==========================================================
+# analyze homer output
+# ==========================================================

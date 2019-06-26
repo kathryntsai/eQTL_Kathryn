@@ -1,0 +1,1 @@
+cmd = /Users/kathryntsai/OneDrive - Villanova University/College/2018-2019/Summer 2019/TFs_eQTLs_Research/GitHub/eQTL_Kathryn/kathryn/bulk_data/q2_3_output/fasta_file1.fa fasta analysis_output/

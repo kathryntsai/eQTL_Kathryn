@@ -1,0 +1,1 @@
+cmd = /Users/kathryntsai/OneDrive - Villanova University/College/2018-2019/Summer 2019/TFs_eQTLs_Research/RProjects/Project2/q2_3_output/fasta_master1.fa fasta /Users/kathryntsai/OneDrive - Villanova University/College/2018-2019/Summer 2019/TFs_eQTLs_Research/RProjects/Project2/q2_3_output/ -find /Users/kathryntsai/homer/data/knownTFs/vertebrates/known.motifs

@@ -265,3 +265,64 @@ for (i in 2:nrow(a_gene_snp)){
 # ==========================================================
 # analyze homer output
 # ==========================================================
+
+ref <- fread("q2_3_input/homer_master_ref.txt", sep='\t', header=T)
+colnames(ref) <- c("ref_FASTA_ID", "ref_Offset", "Sequence", "Motif Name", "ref_Strand", "ref_MotifScore")
+alt <- fread("q2_3_input/homer_master_alt.txt", sep='\t', header=T)
+colnames(alt) <- c("alt_FASTA_ID", "alt_Offset", "Sequence", "Motif Name", "alt_Strand", "alt_MotifScore")
+
+# > nrow(ref)
+# [1] 6193641
+# > nrow(alt)
+# [1] 6084453
+
+ref_alt_common <- merge(ref, alt, by=c("Sequence", "Motif Name"))
+
+# > nrow(ref_uniqueTFs <-ref[!duplicated(ref$"Motif Name"),])
+# [1] 426
+# > nrow(alt_uniqueTFs <- alt[!duplicated(alt$"Motif Name"),])
+# [1] 426
+
+# not by sequence!
+#in_ref_not_alt <- anti_join(ref, alt, by=c("Sequence", "Motif Name"))
+#in_ref_not_alt <- ref[!(ref$"Motif Name" %in% alt$"Motif Name" & ref$"Sequence" %in% alt$"Sequence"),]
+#in_alt_not_ref <- anti_join(alt, ref, by=c("Sequence", "Motif Name"))
+#in_ref_not_alt <- alt[!(alt$"Motif Name" %in% ref$"Motif Name"),]
+
+# ~20,000 each
+
+in_ref_not_alt <- anti_join(ref, alt, by="Motif Name")
+in_alt_not_ref <- anti_join(alt, ref, by="Motif Name")
+
+# 0
+# 0 
+
+colnames(ref) <- c("FASTA_ID", "ref_Offset", "Sequence", "Motif Name", "ref_Strand", "ref_MotifScore")
+colnames(alt) <- c("FASTA_ID", "alt_Offset", "Sequence", "Motif Name", "alt_Strand", "alt_MotifScore")
+ref$FASTA_ID_Abb <- substr(ref$FASTA_ID, 1, regexpr("\\-", ref$FASTA_ID)-1) # didn't work: gsub(" \\-.*", "", ref$FASTA_ID)
+alt$FASTA_ID_Abb <- substr(alt$FASTA_ID, 1, regexpr("\\-", alt$FASTA_ID)-1) # didn't work: gsub(" \\-.*", "", alt$FASTA_ID)
+in_ref_not_alt <- anti_join(ref, alt, by=c("FASTA_ID_Abb", "Motif Name"))
+in_alt_not_ref <- anti_join(alt, ref, by=c("FASTA_ID_Abb", "Motif Name"))
+
+# nrow(in_alt_not_ref)
+# [1] 530699
+# > nrow(in_ref_not_alt)
+# [1] 588670
+
+in_ref_not_alt_unique <- in_ref_not_alt[!duplicated(in_ref_not_alt$FASTA_ID_Abb),] 
+in_alt_not_ref_unique <- in_alt_not_ref[!duplicated(in_alt_not_ref$FASTA_ID_Abb),] 
+
+# > nrow(x)
+# [1] 73345
+# > nrow(y)
+# [1] 69674
+
+# not necessary
+a_gene_snp_new <- data.table(a_gene_snp[,"SNP"], paste("chromosome:GRCh37:",a_gene_snp$SNPChr,":", a_gene_snp$SNPWindowStart,":", a_gene_snp$SNPWindowEnd,":1",sep=""))
+in_ref_not_alt_unique_SNP <- merge(a_gene_snp_new, in_ref_not_alt_unique, by.x="V2", by.y="FASTA_ID_Abb") # inner_join doesn't work?
+in_alt_not_ref_unique_SNP <- merge(a_gene_snp_new, in_alt_not_ref_unique, by.x="V2", by.y="FASTA_ID_Abb") # inner_join doesn't work?
+
+# > nrow(in_ref_not_alt_unique_SNP)
+# [1] 281009
+# > nrow(in_alt_not_ref_unique_SNP)
+# [1] 266234

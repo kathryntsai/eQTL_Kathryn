@@ -1,5 +1,5 @@
-**/kathryn/bulk_data/* linguist-vendored
-*/kathryn/bulk_data/* linguist-vendored
-src/kathryn/bulk_data/* linguist-vectored
+**/kathryn/bulk_data/q2_3_input/** linguist-vendored
+*/kathryn/bulk_data/q2_3_input/** linguist-vendored
+src/kathryn/bulk_data/q2_3_input/** linguist-vectored
 
 *.html linguist-language=R

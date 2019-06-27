@@ -233,11 +233,14 @@ a_gene_snp <- franke_cis_data[which(GeneChr==1), c('Gene', 'GeneSymbol', 'GeneCh
 a_gene_snp$SNPWindowStart <- a_gene_snp$SNPPos-20
 a_gene_snp$SNPWindowEnd <- a_gene_snp$SNPPos+20
 
+library(stringr)
 a_gene_snp$fasta_seq_og <- toupper(str_sub(full_chr_mod, a_gene_snp$SNPWindowStart, a_gene_snp$SNPWindowEnd+1))
 # rs10082323 tggaaattgagccttggagAgattaaatgcatggggcatgcc
 a_gene_snp$fasta_seq_mod <- a_gene_snp$fasta_seq_og
 substr(a_gene_snp$fasta_seq_mod, 20, 20) <- a_gene_snp$OtherAllele
 # rs10082323 tggaaattgagccttggagGgattaaatgcatggggcatgcc
+
+fwrite(a_gene_snp, "q2_3_output/a_gene_snp.txt", sep="\t")
 
 # the 1 at the end should be the + or - strand...fix this
 # doesn't really work
@@ -276,7 +279,8 @@ colnames(alt) <- c("alt_FASTA_ID", "alt_Offset", "Sequence", "Motif Name", "alt_
 # > nrow(alt)
 # [1] 6084453
 
-ref_alt_common <- merge(ref, alt, by=c("Sequence", "Motif Name"))
+#ref_alt_common <- merge(ref, alt, by=c("Sequence", "Motif Name"))
+#fwrite(ref_alt_common, "q2_3_output/ref_alt_common.txt", sep="\t")
 
 # > nrow(ref_uniqueTFs <-ref[!duplicated(ref$"Motif Name"),])
 # [1] 426
@@ -291,26 +295,30 @@ ref_alt_common <- merge(ref, alt, by=c("Sequence", "Motif Name"))
 
 # ~20,000 each
 
-in_ref_not_alt <- anti_join(ref, alt, by="Motif Name")
-in_alt_not_ref <- anti_join(alt, ref, by="Motif Name")
+# in_ref_not_alt <- anti_join(ref, alt, by="Motif Name")
+# in_alt_not_ref <- anti_join(alt, ref, by="Motif Name")
 
 # 0
 # 0 
 
-colnames(ref) <- c("FASTA_ID", "ref_Offset", "Sequence", "Motif Name", "ref_Strand", "ref_MotifScore")
-colnames(alt) <- c("FASTA_ID", "alt_Offset", "Sequence", "Motif Name", "alt_Strand", "alt_MotifScore")
 ref$FASTA_ID_Abb <- substr(ref$FASTA_ID, 1, regexpr("\\-", ref$FASTA_ID)-1) # didn't work: gsub(" \\-.*", "", ref$FASTA_ID)
 alt$FASTA_ID_Abb <- substr(alt$FASTA_ID, 1, regexpr("\\-", alt$FASTA_ID)-1) # didn't work: gsub(" \\-.*", "", alt$FASTA_ID)
+colnames(ref) <- c("FASTA_ID", "ref_Offset", "Sequence", "Motif Name", "ref_Strand", "ref_MotifScore", "FASTA_ID_Abb")
+colnames(alt) <- c("FASTA_ID", "alt_Offset", "Sequence", "Motif Name", "alt_Strand", "alt_MotifScore", "FASTA_ID_Abb")
 in_ref_not_alt <- anti_join(ref, alt, by=c("FASTA_ID_Abb", "Motif Name"))
 in_alt_not_ref <- anti_join(alt, ref, by=c("FASTA_ID_Abb", "Motif Name"))
+# fwrite(in_ref_not_alt, "q2_3_output/in_ref_not_alt_by_motif_name_fastaid.txt", sep="\t")
+# fwrite(in_alt_not_ref, "q2_3_output/in_alt_not_ref_by_motif_name_fastaid.txt", sep="\t")
 
 # nrow(in_alt_not_ref)
 # [1] 530699
 # > nrow(in_ref_not_alt)
-# [1] 588670
+# [1] 193,010 -> 588670
 
 in_ref_not_alt_unique <- in_ref_not_alt[!duplicated(in_ref_not_alt$FASTA_ID_Abb),] 
 in_alt_not_ref_unique <- in_alt_not_ref[!duplicated(in_alt_not_ref$FASTA_ID_Abb),] 
+# fwrite(in_ref_not_alt_unique, "q2_3_output/in_ref_not_alt_unique.txt", sep="\t")
+# fwrite(in_alt_not_ref_unique, "q2_3_output/in_alt_not_ref_unique.txt", sep="\t")
 
 # > nrow(x)
 # [1] 73345
@@ -318,11 +326,44 @@ in_alt_not_ref_unique <- in_alt_not_ref[!duplicated(in_alt_not_ref$FASTA_ID_Abb)
 # [1] 69674
 
 # not necessary
+a_gene_snp <- fread("a_gene_snp.txt", sep="\t", headers=T)
 a_gene_snp_new <- data.table(a_gene_snp[,"SNP"], paste("chromosome:GRCh37:",a_gene_snp$SNPChr,":", a_gene_snp$SNPWindowStart,":", a_gene_snp$SNPWindowEnd,":1",sep=""))
-in_ref_not_alt_unique_SNP <- merge(a_gene_snp_new, in_ref_not_alt_unique, by.x="V2", by.y="FASTA_ID_Abb") # inner_join doesn't work?
-in_alt_not_ref_unique_SNP <- merge(a_gene_snp_new, in_alt_not_ref_unique, by.x="V2", by.y="FASTA_ID_Abb") # inner_join doesn't work?
+colnames(a_gene_snp_new)[2] <- "SNPWindow"
+in_ref_not_alt_unique_SNP <- merge(a_gene_snp_new, in_ref_not_alt_unique, by.x="SNPWindow", by.y="FASTA_ID_Abb", all.y=T) # inner_join doesn't work?
+in_alt_not_ref_unique_SNP <- merge(a_gene_snp_new, in_alt_not_ref_unique, by.x="SNPWindow", by.y="FASTA_ID_Abb", all.y=T) # inner_join doesn't work?
+fwrite(in_ref_not_alt_unique_SNP, "q2_3_output/in_ref_not_alt_unique_SNP.txt", sep="\t")
+fwrite(in_alt_not_ref_unique_SNP, "q2_3_output/in_alt_not_ref_unique_SNP.txt", sep="\t")
 
 # > nrow(in_ref_not_alt_unique_SNP)
 # [1] 281009
 # > nrow(in_alt_not_ref_unique_SNP)
 # [1] 266234
+
+# dim(in_ref_not_alt_unique_SNP[!duplicated(in_ref_not_alt_unique_SNP),])
+# [1] 73345     8
+# dim(in_alt_not_ref_unique_SNP[!duplicated(in_alt_not_ref_unique_SNP),])
+# [1] 69674     8
+
+# ==========================================================
+# read homer output
+# ==========================================================
+
+in_ref_not_alt_unique_SNP <- fread("q2_3_output/in_ref_not_alt_unique_SNP.txt")
+in_alt_not_ref_unique_SNP <- fread("q2_3_output/in_ref_not_alt_unique_SNP.txt")
+
+x1 <- in_ref_not_alt_unique_SNP[!duplicated(in_ref_not_alt_unique_SNP),]
+x2 <- in_alt_not_ref_unique_SNP[!duplicated(in_alt_not_ref_unique_SNP),]
+
+# can you pull out a couple examples of TFs (maybe 1 or 2) from these 73K and
+# identify which part of the motif is affected by the SNP? I bet it
+# will be the part of a motif where there is a very heavy weight on one
+# particular nucleotide and messing that up results in failure to identify the
+# motif with the alternative allele. also, could you show one or two examples of
+# TFs from the 69K set, where searching the reference genome fails to identify a
+# motif but searching with the alternative allele finds it? Similarly, I bet the
+# SNPs occur in the super important core part of the motif with high
+# probabilities (from the PWM) for that nucleotide. Do you have experience
+# making sequence logos? they’re fun plots to show the
+# important of each nucleotide in a motif
+
+

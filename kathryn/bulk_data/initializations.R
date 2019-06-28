@@ -16,3 +16,4 @@ franke_trans_data <- fread("input_data/trans-eQTL_significant_20181017.txt", hea
 library(fastmatch)
 library(seqinr)
 library(tidyverse)
+library(stringr)

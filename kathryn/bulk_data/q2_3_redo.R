@@ -233,7 +233,6 @@ a_gene_snp <- franke_cis_data[which(GeneChr==1), c('Gene', 'GeneSymbol', 'GeneCh
 a_gene_snp$SNPWindowStart <- a_gene_snp$SNPPos-20
 a_gene_snp$SNPWindowEnd <- a_gene_snp$SNPPos+20
 
-library(stringr)
 a_gene_snp$fasta_seq_og <- toupper(str_sub(full_chr_mod, a_gene_snp$SNPWindowStart, a_gene_snp$SNPWindowEnd+1))
 # rs10082323 tggaaattgagccttggagAgattaaatgcatggggcatgcc
 a_gene_snp$fasta_seq_mod <- a_gene_snp$fasta_seq_og
@@ -270,9 +269,9 @@ for (i in 2:nrow(a_gene_snp)){
 # ==========================================================
 
 ref <- fread("q2_3_input/homer_master_ref.txt", sep='\t', header=T)
-colnames(ref) <- c("ref_FASTA_ID", "ref_Offset", "Sequence", "Motif Name", "ref_Strand", "ref_MotifScore")
+colnames(ref) <- c("FASTA_ID", "ref_Offset", "Sequence", "Motif Name", "ref_Strand", "ref_MotifScore")
 alt <- fread("q2_3_input/homer_master_alt.txt", sep='\t', header=T)
-colnames(alt) <- c("alt_FASTA_ID", "alt_Offset", "Sequence", "Motif Name", "alt_Strand", "alt_MotifScore")
+colnames(alt) <- c("FASTA_ID", "alt_Offset", "Sequence", "Motif Name", "alt_Strand", "alt_MotifScore")
 
 # > nrow(ref)
 # [1] 6193641
@@ -326,7 +325,7 @@ in_alt_not_ref_unique <- in_alt_not_ref[!duplicated(in_alt_not_ref$FASTA_ID_Abb)
 # [1] 69674
 
 # not necessary
-a_gene_snp <- fread("a_gene_snp.txt", sep="\t", headers=T)
+a_gene_snp <- fread("q2_3_output/a_gene_snp.txt", sep="\t")
 a_gene_snp_new <- data.table(a_gene_snp[,"SNP"], paste("chromosome:GRCh37:",a_gene_snp$SNPChr,":", a_gene_snp$SNPWindowStart,":", a_gene_snp$SNPWindowEnd,":1",sep=""))
 colnames(a_gene_snp_new)[2] <- "SNPWindow"
 in_ref_not_alt_unique_SNP <- merge(a_gene_snp_new, in_ref_not_alt_unique, by.x="SNPWindow", by.y="FASTA_ID_Abb", all.y=T) # inner_join doesn't work?
@@ -351,8 +350,8 @@ fwrite(in_alt_not_ref_unique_SNP, "q2_3_output/in_alt_not_ref_unique_SNP.txt", s
 in_ref_not_alt_unique_SNP <- fread("q2_3_output/in_ref_not_alt_unique_SNP.txt")
 in_alt_not_ref_unique_SNP <- fread("q2_3_output/in_ref_not_alt_unique_SNP.txt")
 
-x1 <- in_ref_not_alt_unique_SNP[!duplicated(in_ref_not_alt_unique_SNP),]
-x2 <- in_alt_not_ref_unique_SNP[!duplicated(in_alt_not_ref_unique_SNP),]
+x1 <- in_ref_not_alt_unique_SNP[!duplicated(in_ref_not_alt_unique_SNP),] # 73345
+x2 <- in_alt_not_ref_unique_SNP[!duplicated(in_alt_not_ref_unique_SNP),] # 69674
 
 # can you pull out a couple examples of TFs (maybe 1 or 2) from these 73K and
 # identify which part of the motif is affected by the SNP? I bet it

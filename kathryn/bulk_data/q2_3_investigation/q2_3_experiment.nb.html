@@ -189,12 +189,22 @@ $(document).ready(function () {
 <p>Similarly, I bet the SNPs occur in the super important core part of the motif with high probabilities (from the PWM) for that nucleotide. Do you have experience making sequence logos? they’re fun plots to show the important of each nucleotide in a motif?</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxubGlicmFyeShzZXFMb2dvKVxuXG5gYGBcbmBgYCJ9 -->
-<p><code>r</code>r library(seqLogo)</p>
-<pre><code></code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc291cmNlKFwiaHR0cHM6Ly9iaW9jb25kdWN0b3Iub3JnL2Jpb2NMaXRlLlJcIilcbmBgYCJ9 -->
+<pre class="r"><code>source(&quot;https://bioconductor.org/biocLite.R&quot;)</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoicGFja2FnZSDigJhzZXFMb2dv4oCZIHdhcyBidWlsdCB1bmRlciBSIHZlcnNpb24gMy41LjFMb2FkaW5nIHJlcXVpcmVkIHBhY2thZ2U6IGdyaWRcbiJ9 -->
-<pre><code>package ‘seqLogo’ was built under R version 3.5.1Loading required package: grid</code></pre>
+<!-- rnb-output-begin eyJkYXRhIjoiJ0Jpb2NJbnN0YWxsZXInIGFuZCAnYmlvY0xpdGUoKScgYXJlIGRlcHJlY2F0ZWQsIHVzZSB0aGUgJ0Jpb2NNYW5hZ2VyJyBDUkFOIHBhY2thZ2VcbiAgaW5zdGVhZC5CaW9jb25kdWN0b3IgdmVyc2lvbiAzLjggKEJpb2NJbnN0YWxsZXIgMS4zMi4xKSwgP2Jpb2NMaXRlIGZvciBoZWxwXG4ifQ== -->
+<pre><code>'BiocInstaller' and 'biocLite()' are deprecated, use the 'BiocManager' CRAN package
+  instead.Bioconductor version 3.8 (BiocInstaller 1.32.1), ?biocLite for help</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYmlvY0xpdGUoXCJzZXFMb2dvXCIpXG5gYGAifQ== -->
+<pre class="r"><code>biocLite(&quot;seqLogo&quot;)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiJ2Jpb2NMaXRlJyBpcyBkZXByZWNhdGVkLlxuVXNlICdCaW9jTWFuYWdlcjo6aW5zdGFsbCcgaW5zdGVhZC5cblNlZSBoZWxwKFwiRGVwcmVjYXRlZFwiKUJpb0NfbWlycm9yOiBodHRwczovL2Jpb2NvbmR1Y3Rvci5vcmdcblVzaW5nIEJpb2NvbmR1Y3RvciAzLjggKEJpb2NJbnN0YWxsZXIgMS4zMi4xKSwgUiAzLjUuMCAoMjAxOC0wNC0yMykuXG5JbnN0YWxsaW5nIHBhY2thZ2Uocykg4oCYc2VxTG9nb+KAmVxuIn0= -->
+<pre><code>'biocLite' is deprecated.
+Use 'BiocManager::install' instead.
+See help(&quot;Deprecated&quot;)BioC_mirror: https://bioconductor.org
+Using Bioconductor 3.8 (BiocInstaller 1.32.1), R 3.5.0 (2018-04-23).
+Installing package(s) ‘seqLogo’</code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
@@ -207,44 +217,85 @@ $(document).ready(function () {
 <pre><code>|--------------------------------------------------|
 |==================================================|</code></pre>
 <!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaW5fYWx0X25vdF9yZWZfdW5pcXVlX1NOUCA8LSBmcmVhZChcIi9Vc2Vycy9rYXRocnludHNhaS9PbmVEcml2ZVxcIC1cXCBWaWxsYW5vdmFcXCBVbml2ZXJzaXR5L0NvbGxlZ2UvMjAxOC0yMDE5L1N1bW1lclxcIDIwMTkvVEZzX2VRVExzX1Jlc2VhcmNoL1JQcm9qZWN0cy9Qcm9qZWN0Mi9xMl8zX291dHB1dC9pbl9hbHRfbm90X3JlZl91bmlxdWVfU05QLnR4dFwiKVxuYGBgIn0= -->
-<pre class="r"><code>in_alt_not_ref_unique_SNP &lt;- fread(&quot;/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/q2_3_output/in_alt_not_ref_unique_SNP.txt&quot;)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoifC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tfFxufD09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09fFxuIn0= -->
-<pre><code>|--------------------------------------------------|
-|==================================================|</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxueDEgPC0gaW5fcmVmX25vdF9hbHRfdW5pcXVlX1NOUFshZHVwbGljYXRlZChpbl9yZWZfbm90X2FsdF91bmlxdWVfU05QKSxdICMgNzMzNDVcbngyIDwtIGluX2FsdF9ub3RfcmVmX3VuaXF1ZV9TTlBbIWR1cGxpY2F0ZWQoaW5fYWx0X25vdF9yZWZfdW5pcXVlX1NOUCksXSAjIDY5Njc0XG5gYGAifQ== -->
-<pre class="r"><code>x1 &lt;- in_ref_not_alt_unique_SNP[!duplicated(in_ref_not_alt_unique_SNP),] # 73345
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaW5fYWx0X25vdF9yZWZfdW5pcXVlX1NOUCA8LSBmcmVhZChcIi9Vc2Vycy9rYXRocnludHNhaS9PbmVEcml2ZVxcIC1cXCBWaWxsYW5vdmFcXCBVbml2ZXJzaXR5L0NvbGxlZ2UvMjAxOC0yMDE5L1N1bW1lclxcIDIwMTkvVEZzX2VRVExzX1Jlc2VhcmNoL1JQcm9qZWN0cy9Qcm9qZWN0Mi9xMl8zX291dHB1dC9pbl9hbHRfbm90X3JlZl91bmlxdWVfU05QLnR4dFwiKVxueDEgPC0gaW5fcmVmX25vdF9hbHRfdW5pcXVlX1NOUFshZHVwbGljYXRlZChpbl9yZWZfbm90X2FsdF91bmlxdWVfU05QKSxdICMgNzMzNDVcbngyIDwtIGluX2FsdF9ub3RfcmVmX3VuaXF1ZV9TTlBbIWR1cGxpY2F0ZWQoaW5fYWx0X25vdF9yZWZfdW5pcXVlX1NOUCksXSAjIDY5Njc0XG5gYGAifQ== -->
+<pre class="r"><code>in_alt_not_ref_unique_SNP &lt;- fread(&quot;/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/q2_3_output/in_alt_not_ref_unique_SNP.txt&quot;)
+x1 &lt;- in_ref_not_alt_unique_SNP[!duplicated(in_ref_not_alt_unique_SNP),] # 73345
 x2 &lt;- in_alt_not_ref_unique_SNP[!duplicated(in_alt_not_ref_unique_SNP),] # 69674</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
+<p>Using only motifs on positive strands, sort motifs by Motif Score</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxueDFfcyA8LSB4MVshZHVwbGljYXRlZCh4MSRcXE1vdGlmIE5hbWVcXCksIF1cbngyX3MgPC0geDJbIWR1cGxpY2F0ZWQoeDIkXFxNb3RpZiBOYW1lXFwpLCBdXG54MV9zWzQ6NSwgYyhcXEZBU1RBX0lEX0FiYlxcLCBcXHJlZl9PZmZzZXRcXCwgXFxNb3RpZiBOYW1lXFwsIFxcU2VxdWVuY2VcXCldXG5gYGBcbmBgYHJcbngyX3NbNDo1LCBjKFxcRkFTVEFfSURfQWJiXFwsIFxcYWx0X09mZnNldFxcLCBcXE1vdGlmIE5hbWVcXCwgXFxTZXF1ZW5jZVxcKV1cbmBgYFxuYGBgIn0= -->
-<p><code>r</code>r x1_s &lt;- x1[!duplicated(x1$Name), ] x2_s &lt;- x2[!duplicated(x2$Name), ] x1_s[4:5, c(_ID_Abb, _Offset, Name, )] <code></code>r x2_s[4:5, c(_ID_Abb, _Offset, Name, )]</p>
-<pre><code></code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxueDFfcyA8LSB4MVshZHVwbGljYXRlZCh4MSRcIk1vdGlmIE5hbWVcIiksIF1cbngyX3MgPC0geDJbIWR1cGxpY2F0ZWQoeDIkXCJNb3RpZiBOYW1lXCIpLCBdXG56IDwtIGlubmVyX2pvaW4oeDFfc1t4MV9zJFwicmVmX1N0cmFuZFwiID09IFwiK1wiLF0sIHgyX3NbeDJfcyRcImFsdF9TdHJhbmRcIiA9PSBcIitcIixdLCBieT1cIk1vdGlmIE5hbWVcIilcbmhlYWQoeltvcmRlcih6JFwicmVmX01vdGlmU2NvcmVcIiwgZGVjcmVhc2luZz1GKSwgYyhcIk1vdGlmIE5hbWVcIiwgXCJyZWZfTW90aWZTY29yZVwiLCBcImFsdF9Nb3RpZlNjb3JlXCIpXSlcbmBgYCJ9 -->
+<pre class="r"><code>x1_s &lt;- x1[!duplicated(x1$&quot;Motif Name&quot;), ]
+x2_s &lt;- x2[!duplicated(x2$&quot;Motif Name&quot;), ]
+z &lt;- inner_join(x1_s[x1_s$&quot;ref_Strand&quot; == &quot;+&quot;,], x2_s[x2_s$&quot;alt_Strand&quot; == &quot;+&quot;,], by=&quot;Motif Name&quot;)
+head(z[order(z$&quot;ref_MotifScore&quot;, decreasing=F), c(&quot;Motif Name&quot;, &quot;ref_MotifScore&quot;, &quot;alt_MotifScore&quot;)])</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImRhdGEudGFibGUiLCJkYXRhLmZyYW1lIl0sIm5jb2wiOjQsIm5yb3ciOjJ9LCJyZGYiOiJINHNJQUFBQUFBQUFBMzFTVFUvQ1FCQmRDMVdwSHpIUkgrQVJFZ0g1Yk9HMldhU1lJSkN5QjI1a3dhMFFTN2UyTlhyMFYzc0VwMlhYU0E4MjJlbnJtemZ6WmlkMWVyTzZNVE1RUWhySzZSQnpBUE1haENPVVI0WGsvWWxRN2pwaDRWeWx3bjJpdEZ5RllpTWlzZUZkMnlHcmh0bXRkV3RXbzlXeGFtMkY2dmVBL2kxbzNadFd4K3EwSmVvMEFJSDRJbkhhN1hiZmNMWVo1enNjTkl1THdYQlFxdUtuWVptNkxHaVd5ZXB4VXA3eXQ2STlmV2kyeklaVnFnN0FLWlExWm44OHc3VXVkb3A5RWI2dU9IdStHem1sNm5CRThLU01uWVB5dW1uVm02cjgwTnF3TVNiWUp0UW1rcmtobU5xVUVJd3BCWnBTU05ITURuV2ZiWGdrVytVbGVkN0hVNHJuajcwNVhpeFUrNUM3ODdIclJqeFd6Sk9JMSs3dENCcEk1aFNtZk9mK2ttZE5saDZMbElraWpXY1dzNG9iSnVXSDhrSW9QaXBxcm5UYlh4RGt0cmNaOFlrSTRyWHdRYW9sdjRLZWNUa0tNOFRaQzQvbkVkc0VYdHJlU0ZQNzUwSmk3US9PNysyMG5XeWp5emJIM0g5Wisrcml1c2NXM0pNZmx6QitPbjBsQ05mKzc3YUFqU3F4aUpuU0dVdmhLU2E5RjlyK0FLODVqNVAwQWdBQSJ9 -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImRhdGEuZnJhbWUiXSwibmNvbCI6MywibnJvdyI6Nn0sInJkZiI6Ikg0c0lBQUFBQUFBQUExMVRUVzhTUVJnZXZtcTZEZGpTYUQyWXhvdkprampBTG1TaEpvWUZCS25oUzZCSlBUVUxIV0IxZDRjT28rWHN2N0RHaTBZVEUyUFNnNGt4UGVqZGp4K2dpVGN2L1FHZVJHZTNPNVJsa21kMjhyenp2UFBNTysrMmJ1L0t3cTRBQVBDRFFJak5BYllNK3Rua0EwR3diSDhuQUFUVzJjS09yRElzdVlGYmpXTG5KZ01jRHpHaFlyT3hjNk9DVFlTN2VCSkwxSnRGeUdJS0xBNjNtN0NORHNRNzdWSTZ0U1Vwc1lTOWk3aEpOdXF0c3NnUVN6UUpOakZGeEJPV1d2MkpJbFk2bFZpaXBsdEtWNEkyRWEva1BYa1ZPWnRPZS9QS2RjM0NBL0hja0ZscVE0ZnpLQ1VwSXk4b2xUS2U0SlJZeHVUaEVHbjdzY1NPM0doRGh6eVhsbUN0a3k5QU9aT1V2T3Brb1phdlNtSzNVbVdXcS9walJHREIxQXpKYzJwcUs2c2t1UTZBaUYzVVR5dlJweGVUbTI5emYrNjkySHg1WDFIRHhBeit2dkpOalhaT2p6Yk1IMnIwT1BucjJjOEg2cVgwaCt6bnRYY3pYZVQ1NnZIMEZPYit2bm4vT25kMFZ3MS83T1N1UG5xaVJsLzVyMVA0ZmFhN2ZQS0ZqYThMcnh1eU5CT04zWmNOdUtSUXcxVHZYNnV6a010RUNPcnZPV3k3aDhtTTFRdzZ6M3BUTHhOOEdPZnB3MDdqQUJCbE9HRElNS3d4NUp6T1cvRFVNN1F4OThSSllWK2pXcnhQYkU4QVRCY2tGL0NJNnRoaUl2KzZlOUs4MkdlWFdYQ0lzekVmWEJrZ3VqZld6SkhoT09YYmZLNXJuNXVQcndOblIvdi9MZndPUzhnYTZCWXZUUWdSZ25sVGhBeXRpNHhaS2ZHaFU1WDRpT2dXNWRkajdEaE9NZFg0UHFHSERjNDRGd2JULzFvTWsxMnRBd0FBIn0= -->
 <div data-pagedtable="false">
 <script data-pagedtable-source type="application/json">
-{"columns":[{"label":["FASTA_ID_Abb"],"name":[1],"type":["chr"],"align":["left"]},{"label":["ref_Offset"],"name":[2],"type":["int"],"align":["right"]},{"label":["Motif Name"],"name":[3],"type":["chr"],"align":["left"]},{"label":["Sequence"],"name":[4],"type":["chr"],"align":["left"]}],"data":[{"1":"chromosome:GRCh37:1:183598161:183598201:1","2":"-10","3":"Ap4(bHLH)/AML-Tfap4-ChIP-Seq(GSE45738)/Homer","4":"GAACAGCTGC"},{"1":"chromosome:GRCh37:1:150789896:150789936:1","2":"-2","3":"FOXA1:AR(Forkhead,NR)/LNCAP-AR-ChIP-Seq(GSE27824)/Homer","4":"CATGTCCAATTCTGTTTGCT"}],"options":{"columns":{"min":{},"max":[10],"total":[4]},"rows":{"min":[10],"max":[10],"total":[2]},"pages":{}}}
-  </script>
-</div>
-<!-- rnb-frame-end -->
-<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImRhdGEudGFibGUiLCJkYXRhLmZyYW1lIl0sIm5jb2wiOjQsIm5yb3ciOjJ9LCJyZGYiOiJINHNJQUFBQUFBQUFBNFZTVFUvQ1FCQmRDbFdwWWt6MEIzaUVoRzhxUlc2YklvV0VyNVFldUpFRnRrSnN1N1d0MGFQLzJoczRMYnRHR2hNMzZlemJ0Mi9telU1cTloWk5aYUVnaENTVWxTRm1BZVlrQ0JtVVEvbDQvMEFvZXh1ejhOMGt3dU5GYWIwTm1NdEM1dEt1WWVyYmx0WnRkQnVkVnJ1cHRlc3RnVlJBL3lXMEg3VjZYU0FWRUlnTHNkUGhjUGo2dzdtTWZiVzRHb3dHcFJvZWp5cVdUWHkxb20rSHM4cWN2aGFOK1pQNm9MVTZwZG9BbkFLZW8vV25DOXpvWXJQWVo4SExscEpOZVdLV2FxT0pqbWNWYko2a043Vk9VeFhwcDlhS29XTWRHN3BsV0p5NXN5dzRpQVhJQUVscWhySkhYQnJ5VWpsT1h2WHgzTUxMWVcrSlZ5dFJuampSY21yYklZMEVNMmJSenI2ZlFBSE9YRUNYYjlSYjA3VEoyaUdoTUJHa3NpRVJxZHBCbkg0cXp3ZnN2U3I2U3FiOUNRRW12b2R0bnhLZk16L2FNUStrVXZ3cnlDbVhUSkFpTHA5cHRBeUo2enRKZVNXNU9xNEN4OUl2bkR2YVNRZGVSdVpsenFqM3ZQUEV3MldIcktqREQ5ZlFmdEo5MVE5MjNzKzBnQTJyRVl1STBDbHI1Z2dtZVJmYWZ3TUN1cUtpOUFJQUFBPT0ifQ== -->
-<div data-pagedtable="false">
-<script data-pagedtable-source type="application/json">
-{"columns":[{"label":["FASTA_ID_Abb"],"name":[1],"type":["chr"],"align":["left"]},{"label":["alt_Offset"],"name":[2],"type":["int"],"align":["right"]},{"label":["Motif Name"],"name":[3],"type":["chr"],"align":["left"]},{"label":["Sequence"],"name":[4],"type":["chr"],"align":["left"]}],"data":[{"1":"chromosome:GRCh37:1:183627603:183627643:1","2":"-9","3":"Ap4(bHLH)/AML-Tfap4-ChIP-Seq(GSE45738)/Homer","4":"GCACAGCTGT"},{"1":"chromosome:GRCh37:1:183669700:183669740:1","2":"4","3":"FOXA1:AR(Forkhead,NR)/LNCAP-AR-ChIP-Seq(GSE27824)/Homer","4":"TTTGTTTTTTTTTGTTGGCA"}],"options":{"columns":{"min":{},"max":[10],"total":[4]},"rows":{"min":[10],"max":[10],"total":[2]},"pages":{}}}
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["Motif Name"],"name":[1],"type":["chr"],"align":["left"]},{"label":["ref_MotifScore"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["alt_MotifScore"],"name":[3],"type":["dbl"],"align":["right"]}],"data":[{"1":"OCT:OCT-short(POU,Homeobox)/NPC-OCT6-ChIP-Seq(GSE43916)/Homer","2":"-3.384081","3":"-3.826692","_rn_":"18"},{"1":"NRF(NRF)/Promoter/Homer","2":"1.457430","3":"1.853933","_rn_":"113"},{"1":"Rfx6(HTH)/Min6b1-Rfx6.HA-ChIP-Seq(GSE62844)/Homer","2":"3.680872","3":"3.715981","_rn_":"55"},{"1":"Nanog(Homeobox)/mES-Nanog-ChIP-Seq(GSE11724)/Homer","2":"4.582930","3":"4.661141","_rn_":"17"},{"1":"Foxo3(Forkhead)/U2OS-Foxo3-ChIP-Seq(E-MTAB-2701)/Homer","2":"4.673038","3":"4.673038","_rn_":"63"},{"1":"BMAL1(bHLH)/Liver-Bmal1-ChIP-Seq(GSE39860)/Homer","2":"5.301484","3":"5.684375","_rn_":"2"}],"options":{"columns":{"min":{},"max":[10],"total":[3]},"rows":{"min":[10],"max":[10],"total":[6]},"pages":{}}}
   </script>
 </div>
 <!-- rnb-frame-end -->
 <!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuYXA0IDwtIHJlYWQudGFibGUoXFxxMl8zX2ludmVzdGlnYXRpb24vYXA0Lm1vdGlmXFwsIHNlcD1cXFxcdFxcLCBza2lwPTEsIGhlYWRlcj1GLCBzdHJpbmdzQXNGYWN0b3JzPUZBTFNFKVxuZm94YTEgPC0gcmVhZC50YWJsZShcXHEyXzNfaW52ZXN0aWdhdGlvbi9mb3hhMS5sbmNhcC5tb3RpZlxcLCBza2lwPTEsIHNlcD1cXFxcdFxcLCBoZWFkZXI9Riwgc3RyaW5nc0FzRmFjdG9ycz1GQUxTRSlcbmBgYFxuYGBgIn0= -->
-<p><code>r</code>r ap4 &lt;- read.table(2_3_investigation/ap4.motif, sep=\t, skip=1, header=F, stringsAsFactors=FALSE) foxa1 &lt;- read.table(2_3_investigation/foxa1.lncap.motif, skip=1, sep=\t, header=F, stringsAsFactors=FALSE)</p>
-<pre><code></code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudCh4MV9zW3gxX3MkXCJNb3RpZiBOYW1lXCI9PVwiRk9YQTEoRm9ya2hlYWQpL0xOQ0FQLUZPWEExLUNoSVAtU2VxKEdTRTI3ODI0KS9Ib21lclwiLCBjKFwiU05QV2luZG93XCIsIFwicmVmX09mZnNldFwiLCBcIk1vdGlmIE5hbWVcIiwgXCJyZWZfU3RyYW5kXCIsIFwiU2VxdWVuY2VcIildKVxuYGBgIn0= -->
+<pre class="r"><code>t(x1_s[x1_s$&quot;Motif Name&quot;==&quot;FOXA1(Forkhead)/LNCAP-FOXA1-ChIP-Seq(GSE27824)/Homer&quot;, c(&quot;SNPWindow&quot;, &quot;ref_Offset&quot;, &quot;Motif Name&quot;, &quot;ref_Strand&quot;, &quot;Sequence&quot;)])</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiICAgICAgICAgICBbLDFdICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcblNOUFdpbmRvdyAgXCJjaHJvbW9zb21lOkdSQ2gzNzoxOjEwMDIwMTIyNDoxMDAyMDEyNjQ6MVwiICAgICAgICAgICBcbnJlZl9PZmZzZXQgXCItN1wiICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbk1vdGlmIE5hbWUgXCJGT1hBMShGb3JraGVhZCkvTE5DQVAtRk9YQTEtQ2hJUC1TZXEoR1NFMjc4MjQpL0hvbWVyXCJcbnJlZl9TdHJhbmQgXCIrXCIgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcblNlcXVlbmNlICAgXCJUVFRHVEFBQUNBXCIgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiJ9 -->
+<pre><code>           [,1]                                                  
+SNPWindow  &quot;chromosome:GRCh37:1:100201224:100201264:1&quot;           
+ref_Offset &quot;-7&quot;                                                  
+Motif Name &quot;FOXA1(Forkhead)/LNCAP-FOXA1-ChIP-Seq(GSE27824)/Homer&quot;
+ref_Strand &quot;+&quot;                                                   
+Sequence   &quot;TTTGTAAACA&quot;                                          </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudCh4MV9zW3gxX3MkXCJNb3RpZiBOYW1lXCI9PVwiQXA0KGJITEgpL0FNTC1UZmFwNC1DaElQLVNlcShHU0U0NTczOCkvSG9tZXJcIiwgYyhcIlNOUFdpbmRvd1wiLCBcInJlZl9PZmZzZXRcIiwgXCJNb3RpZiBOYW1lXCIsIFwicmVmX1N0cmFuZFwiLCBcIlNlcXVlbmNlXCIpXSlcbmBgYCJ9 -->
+<pre class="r"><code>t(x1_s[x1_s$&quot;Motif Name&quot;==&quot;Ap4(bHLH)/AML-Tfap4-ChIP-Seq(GSE45738)/Homer&quot;, c(&quot;SNPWindow&quot;, &quot;ref_Offset&quot;, &quot;Motif Name&quot;, &quot;ref_Strand&quot;, &quot;Sequence&quot;)])</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiICAgICAgICAgICBbLDFdICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG5TTlBXaW5kb3cgIFwiY2hyb21vc29tZTpHUkNoMzc6MToxMDAyMzU0MDY6MTAwMjM1NDQ2OjFcIiAgIFxucmVmX09mZnNldCBcIi01XCIgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbk1vdGlmIE5hbWUgXCJBcDQoYkhMSCkvQU1MLVRmYXA0LUNoSVAtU2VxKEdTRTQ1NzM4KS9Ib21lclwiXG5yZWZfU3RyYW5kIFwiK1wiICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuU2VxdWVuY2UgICBcIkNUVENBR0NUR0FcIiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiJ9 -->
+<pre><code>           [,1]                                          
+SNPWindow  &quot;chromosome:GRCh37:1:100235406:100235446:1&quot;   
+ref_Offset &quot;-5&quot;                                          
+Motif Name &quot;Ap4(bHLH)/AML-Tfap4-ChIP-Seq(GSE45738)/Homer&quot;
+ref_Strand &quot;+&quot;                                           
+Sequence   &quot;CTTCAGCTGA&quot;                                  </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudCh4Ml9zW3gyX3MkXCJNb3RpZiBOYW1lXCI9PVwiRk9YQTEoRm9ya2hlYWQpL0xOQ0FQLUZPWEExLUNoSVAtU2VxKEdTRTI3ODI0KS9Ib21lclwiLCBjKFwiU05QV2luZG93XCIsIFwiYWx0X09mZnNldFwiLCBcIk1vdGlmIE5hbWVcIiwgXCJhbHRfU3RyYW5kXCIsIFwiU2VxdWVuY2VcIildKVxuYGBgIn0= -->
+<pre class="r"><code>t(x2_s[x2_s$&quot;Motif Name&quot;==&quot;FOXA1(Forkhead)/LNCAP-FOXA1-ChIP-Seq(GSE27824)/Homer&quot;, c(&quot;SNPWindow&quot;, &quot;alt_Offset&quot;, &quot;Motif Name&quot;, &quot;alt_Strand&quot;, &quot;Sequence&quot;)])</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiICAgICAgICAgICBbLDFdICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcblNOUFdpbmRvdyAgXCJjaHJvbW9zb21lOkdSQ2gzNzoxOjEwMDIyNDU4NjoxMDAyMjQ2MjY6MVwiICAgICAgICAgICBcbmFsdF9PZmZzZXQgXCIxXCIgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbk1vdGlmIE5hbWUgXCJGT1hBMShGb3JraGVhZCkvTE5DQVAtRk9YQTEtQ2hJUC1TZXEoR1NFMjc4MjQpL0hvbWVyXCJcbmFsdF9TdHJhbmQgXCItXCIgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcblNlcXVlbmNlICAgXCJUR1RUVEFDQ0FBXCIgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiJ9 -->
+<pre><code>           [,1]                                                  
+SNPWindow  &quot;chromosome:GRCh37:1:100224586:100224626:1&quot;           
+alt_Offset &quot;1&quot;                                                   
+Motif Name &quot;FOXA1(Forkhead)/LNCAP-FOXA1-ChIP-Seq(GSE27824)/Homer&quot;
+alt_Strand &quot;-&quot;                                                   
+Sequence   &quot;TGTTTACCAA&quot;                                          </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudCh4Ml9zW3gyX3MkXCJNb3RpZiBOYW1lXCI9PVwiQXA0KGJITEgpL0FNTC1UZmFwNC1DaElQLVNlcShHU0U0NTczOCkvSG9tZXJcIiwgYyhcIlNOUFdpbmRvd1wiLCBcImFsdF9PZmZzZXRcIiwgXCJNb3RpZiBOYW1lXCIsIFwiYWx0X1N0cmFuZFwiLCBcIlNlcXVlbmNlXCIpXSlcbmBgYCJ9 -->
+<pre class="r"><code>t(x2_s[x2_s$&quot;Motif Name&quot;==&quot;Ap4(bHLH)/AML-Tfap4-ChIP-Seq(GSE45738)/Homer&quot;, c(&quot;SNPWindow&quot;, &quot;alt_Offset&quot;, &quot;Motif Name&quot;, &quot;alt_Strand&quot;, &quot;Sequence&quot;)])</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiICAgICAgICAgICBbLDFdICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG5TTlBXaW5kb3cgIFwiY2hyb21vc29tZTpHUkNoMzc6MToxMDAyMTQ3MDU6MTAwMjE0NzQ1OjFcIiAgIFxuYWx0X09mZnNldCBcIi0xMFwiICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbk1vdGlmIE5hbWUgXCJBcDQoYkhMSCkvQU1MLVRmYXA0LUNoSVAtU2VxKEdTRTQ1NzM4KS9Ib21lclwiXG5hbHRfU3RyYW5kIFwiK1wiICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuU2VxdWVuY2UgICBcIkNDVENBR0NUR0NcIiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiJ9 -->
+<pre><code>           [,1]                                          
+SNPWindow  &quot;chromosome:GRCh37:1:100214705:100214745:1&quot;   
+alt_Offset &quot;-10&quot;                                         
+Motif Name &quot;Ap4(bHLH)/AML-Tfap4-ChIP-Seq(GSE45738)/Homer&quot;
+alt_Strand &quot;+&quot;                                           
+Sequence   &quot;CCTCAGCTGC&quot;                                  </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>What’s the difference between FOXA1:AR(Forkhead,NR)/LNCAP-AR-ChIP-Seq(GSE27824)/Homer and FOXA1(Forkhead,NR)/LNCAP-AR-ChIP-Seq(GSE27824)/Homer</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYXA0IDwtIHJlYWQudGFibGUoXCJhcDQubW90aWZcIiwgc2VwPVwiXFx0XCIsIHNraXA9MSwgaGVhZGVyPUYsIHN0cmluZ3NBc0ZhY3RvcnM9RkFMU0UpXG5mb3hhMSA8LSByZWFkLnRhYmxlKFwiZm94YTEubG5jYXAubW90aWZcIiwgc2tpcD0xLCBzZXA9XCJcXHRcIiwgaGVhZGVyPUYsIHN0cmluZ3NBc0ZhY3RvcnM9RkFMU0UpXG5gYGAifQ== -->
+<pre class="r"><code>ap4 &lt;- read.table(&quot;ap4.motif&quot;, sep=&quot;\t&quot;, skip=1, header=F, stringsAsFactors=FALSE)
+foxa1 &lt;- read.table(&quot;foxa1.lncap.motif&quot;, skip=1, sep=&quot;\t&quot;, header=F, stringsAsFactors=FALSE)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
@@ -274,9 +325,33 @@ dev.off()</code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
+<p>[,1]<br />
+SNPWindow “chromosome:GRCh37:1:100201224:100201264:1”<br />
+ref_Offset “-7”<br />
+Motif Name “FOXA1(Forkhead)/LNCAP-FOXA1-ChIP-Seq(GSE27824)/Homer” ref_Strand “+”<br />
+Sequence “TTTGTAAACA”<br />
+[,1]<br />
+SNPWindow “chromosome:GRCh37:1:100235406:100235446:1”<br />
+ref_Offset “-5”<br />
+Motif Name “Ap4(bHLH)/AML-Tfap4-ChIP-Seq(GSE45738)/Homer” ref_Strand “+”<br />
+Sequence “CTTCAGCTGA”<br />
+[,1]<br />
+SNPWindow “chromosome:GRCh37:1:100224586:100224626:1”<br />
+alt_Offset “1”<br />
+Motif Name “FOXA1(Forkhead)/LNCAP-FOXA1-ChIP-Seq(GSE27824)/Homer” alt_Strand “-”<br />
+Sequence “TGTTTACCAA”<br />
+[,1]<br />
+SNPWindow “chromosome:GRCh37:1:100214705:100214745:1”<br />
+alt_Offset “-10”<br />
+Motif Name “Ap4(bHLH)/AML-Tfap4-ChIP-Seq(GSE45738)/Homer” alt_Strand “+”<br />
+Sequence “CCTCAGCTGC”</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiUmVhZCBIb21lciBPdXRwdXQgQW5hbHlzaXMiCm91dHB1dDogaHRtbF9ub3RlYm9vawotLS0KClRoaXMgaXMgYW4gW1IgTWFya2Rvd25dKGh0dHA6Ly9ybWFya2Rvd24ucnN0dWRpby5jb20pIE5vdGVib29rLiBXaGVuIHlvdSBleGVjdXRlIGNvZGUgd2l0aGluIHRoZSBub3RlYm9vaywgdGhlIHJlc3VsdHMgYXBwZWFyIGJlbmVhdGggdGhlIGNvZGUuIAoKVHJ5IGV4ZWN1dGluZyB0aGlzIGNodW5rIGJ5IGNsaWNraW5nIHRoZSAqUnVuKiBidXR0b24gd2l0aGluIHRoZSBjaHVuayBvciBieSBwbGFjaW5nIHlvdXIgY3Vyc29yIGluc2lkZSBpdCBhbmQgcHJlc3NpbmcgKkNtZCtTaGlmdCtFbnRlciouIAoKYGBge3Igc2V0dXAsIGluY2x1ZGU9RkFMU0V9CnBsb3QoY2FycykKYGBgCgpBZGQgYSBuZXcgY2h1bmsgYnkgY2xpY2tpbmcgdGhlICpJbnNlcnQgQ2h1bmsqIGJ1dHRvbiBvbiB0aGUgdG9vbGJhciBvciBieSBwcmVzc2luZyAqQ21kK09wdGlvbitJKi4KCldoZW4geW91IHNhdmUgdGhlIG5vdGVib29rLCBhbiBIVE1MIGZpbGUgY29udGFpbmluZyB0aGUgY29kZSBhbmQgb3V0cHV0IHdpbGwgYmUgc2F2ZWQgYWxvbmdzaWRlIGl0IChjbGljayB0aGUgKlByZXZpZXcqIGJ1dHRvbiBvciBwcmVzcyAqQ21kK1NoaWZ0K0sqIHRvIHByZXZpZXcgdGhlIEhUTUwgZmlsZSkuIAoKVGhlIHByZXZpZXcgc2hvd3MgeW91IGEgcmVuZGVyZWQgSFRNTCBjb3B5IG9mIHRoZSBjb250ZW50cyBvZiB0aGUgZWRpdG9yLiBDb25zZXF1ZW50bHksIHVubGlrZSAqS25pdCosICpQcmV2aWV3KiBkb2VzIG5vdCBydW4gYW55IFIgY29kZSBjaHVua3MuIEluc3RlYWQsIHRoZSBvdXRwdXQgb2YgdGhlIGNodW5rIHdoZW4gaXQgd2FzIGxhc3QgcnVuIGluIHRoZSBlZGl0b3IgaXMgZGlzcGxheWVkLgoKLS0tCgpDYW4geW91IHB1bGwgb3V0IGEgY291cGxlIGV4YW1wbGVzIG9mIFRGcyAobWF5YmUgMSBvciAyKSBmcm9tIHRoZXNlIDczSyBhbmQgaWRlbnRpZnkgd2hpY2ggcGFydCBvZiB0aGUgbW90aWYgaXMgYWZmZWN0ZWQgYnkgdGhlIFNOUD8gSSBiZXQgaXQgd2lsbCBiZSB0aGUgcGFydCBvZiBhIG1vdGlmIHdoZXJlIHRoZXJlIGlzIGEgdmVyeSBoZWF2eSB3ZWlnaHQgb24gb25lIHBhcnRpY3VsYXIgbnVjbGVvdGlkZSBhbmQgbWVzc2luZyB0aGF0IHVwIHJlc3VsdHMgaW4gZmFpbHVyZSB0byBpZGVudGlmeSB0aGUgbW90aWYgd2l0aCB0aGUgYWx0ZXJuYXRpdmUgYWxsZWxlLiAKCmFsc28sIGNvdWxkIHlvdSBzaG93IG9uZSBvciB0d28gZXhhbXBsZXMgb2YgVEZzIGZyb20gdGhlIDY5SyBzZXQsIHdoZXJlIHNlYXJjaGluZyB0aGUgcmVmZXJlbmNlIGdlbm9tZSBmYWlscyB0byBpZGVudGlmeSBhIG1vdGlmIGJ1dCBzZWFyY2hpbmcgd2l0aCB0aGUgYWx0ZXJuYXRpdmUgYWxsZWxlIGZpbmRzIGl0PyAKClNpbWlsYXJseSwgSSBiZXQgdGhlIFNOUHMgb2NjdXIgaW4gdGhlIHN1cGVyIGltcG9ydGFudCBjb3JlIHBhcnQgb2YgdGhlIG1vdGlmIHdpdGggaGlnaCBwcm9iYWJpbGl0aWVzIChmcm9tIHRoZSBQV00pIGZvciB0aGF0IG51Y2xlb3RpZGUuIERvIHlvdSBoYXZlIGV4cGVyaWVuY2UgbWFraW5nIHNlcXVlbmNlIGxvZ29zPyB0aGV54oCZcmUgZnVuIHBsb3RzIHRvIHNob3cgdGhlIGltcG9ydGFudCBvZiBlYWNoIG51Y2xlb3RpZGUgaW4gYSBtb3RpZj8KCmBgYHtyIGxvYWRfbGlicmFyaWVzfQpzb3VyY2UoImh0dHBzOi8vYmlvY29uZHVjdG9yLm9yZy9iaW9jTGl0ZS5SIikKYmlvY0xpdGUoInNlcUxvZ28iKQoKbGlicmFyeShzZXFMb2dvKSAjbWFrZVBXTQpsaWJyYXJ5KHN0cmluZ3IpICMgcmVhZC5mYXN0YSwgd3JpdGUuZmFzdGEKYGBgCgpgYGB7ciBsb2FkX2RhdGF9Cgppbl9yZWZfbm90X2FsdF91bmlxdWVfU05QIDwtIGZyZWFkKCIvVXNlcnMva2F0aHJ5bnRzYWkvT25lRHJpdmVcIC1cIFZpbGxhbm92YVwgVW5pdmVyc2l0eS9Db2xsZWdlLzIwMTgtMjAxOS9TdW1tZXJcIDIwMTkvVEZzX2VRVExzX1Jlc2VhcmNoL1JQcm9qZWN0cy9Qcm9qZWN0Mi9xMl8zX291dHB1dC9pbl9yZWZfbm90X2FsdF91bmlxdWVfU05QLnR4dCIpCmluX2FsdF9ub3RfcmVmX3VuaXF1ZV9TTlAgPC0gZnJlYWQoIi9Vc2Vycy9rYXRocnludHNhaS9PbmVEcml2ZVwgLVwgVmlsbGFub3ZhXCBVbml2ZXJzaXR5L0NvbGxlZ2UvMjAxOC0yMDE5L1N1bW1lclwgMjAxOS9URnNfZVFUTHNfUmVzZWFyY2gvUlByb2plY3RzL1Byb2plY3QyL3EyXzNfb3V0cHV0L2luX2FsdF9ub3RfcmVmX3VuaXF1ZV9TTlAudHh0IikKCngxIDwtIGluX3JlZl9ub3RfYWx0X3VuaXF1ZV9TTlBbIWR1cGxpY2F0ZWQoaW5fcmVmX25vdF9hbHRfdW5pcXVlX1NOUCksXSAjIDczMzQ1CngyIDwtIGluX2FsdF9ub3RfcmVmX3VuaXF1ZV9TTlBbIWR1cGxpY2F0ZWQoaW5fYWx0X25vdF9yZWZfdW5pcXVlX1NOUCksXSAjIDY5Njc0CgpgYGAKCmBgYHtyIGdldF9zYW1wbGVzfQoKeDFfcyA8LSB4MVshZHVwbGljYXRlZCh4MSQiTW90aWYgTmFtZSIpLCBdCngyX3MgPC0geDJbIWR1cGxpY2F0ZWQoeDIkIk1vdGlmIE5hbWUiKSwgXQoKeDFfc1s0OjUsIGMoIkZBU1RBX0lEX0FiYiIsICJyZWZfT2Zmc2V0IiwgIk1vdGlmIE5hbWUiLCAiU2VxdWVuY2UiKV0KeDJfc1s0OjUsIGMoIkZBU1RBX0lEX0FiYiIsICJhbHRfT2Zmc2V0IiwgIk1vdGlmIE5hbWUiLCAiU2VxdWVuY2UiKV0KCmBgYApgYGB7ciBnZXRfbW90aWZzX2Zyb21faG9tZXJ9CgphcDQgPC0gcmVhZC50YWJsZSgicTJfM19pbnZlc3RpZ2F0aW9uL2FwNC5tb3RpZiIsIHNlcD0iXHQiLCBza2lwPTEsIGhlYWRlcj1GLCBzdHJpbmdzQXNGYWN0b3JzPUZBTFNFKQpmb3hhMSA8LSByZWFkLnRhYmxlKCJxMl8zX2ludmVzdGlnYXRpb24vZm94YTEubG5jYXAubW90aWYiLCBza2lwPTEsIHNlcD0iXHQiLCBoZWFkZXI9Riwgc3RyaW5nc0FzRmFjdG9ycz1GQUxTRSkKCmBgYAoKYGBge3IgbWFrZV9QV019CgpwZSA8LSBtYWtlUFdNKHQoYXA0KSkKcGRmKCJBUDRfYml0c3Njb3JlLnBkZiIpCnNlcUxvZ28ocGUsaWMuc2NhbGU9VCkKZGV2Lm9mZigpCgpwZSA8LSBtYWtlUFdNKHQoZm94YTEpKQpwZGYoIkZveGExX2JpdHNzY29yZS5wZGYiKQpzZXFMb2dvKHBlLGljLnNjYWxlPVQpCmRldi5vZmYoKQoKYGBgCgo=</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiUmVhZCBIb21lciBPdXRwdXQgQW5hbHlzaXMiCm91dHB1dDogaHRtbF9ub3RlYm9vawotLS0KClRoaXMgaXMgYW4gW1IgTWFya2Rvd25dKGh0dHA6Ly9ybWFya2Rvd24ucnN0dWRpby5jb20pIE5vdGVib29rLiBXaGVuIHlvdSBleGVjdXRlIGNvZGUgd2l0aGluIHRoZSBub3RlYm9vaywgdGhlIHJlc3VsdHMgYXBwZWFyIGJlbmVhdGggdGhlIGNvZGUuIAoKVHJ5IGV4ZWN1dGluZyB0aGlzIGNodW5rIGJ5IGNsaWNraW5nIHRoZSAqUnVuKiBidXR0b24gd2l0aGluIHRoZSBjaHVuayBvciBieSBwbGFjaW5nIHlvdXIgY3Vyc29yIGluc2lkZSBpdCBhbmQgcHJlc3NpbmcgKkNtZCtTaGlmdCtFbnRlciouIAoKYGBge3Igc2V0dXAsIGluY2x1ZGU9RkFMU0V9CnBsb3QoY2FycykKYGBgCgpBZGQgYSBuZXcgY2h1bmsgYnkgY2xpY2tpbmcgdGhlICpJbnNlcnQgQ2h1bmsqIGJ1dHRvbiBvbiB0aGUgdG9vbGJhciBvciBieSBwcmVzc2luZyAqQ21kK09wdGlvbitJKi4KCldoZW4geW91IHNhdmUgdGhlIG5vdGVib29rLCBhbiBIVE1MIGZpbGUgY29udGFpbmluZyB0aGUgY29kZSBhbmQgb3V0cHV0IHdpbGwgYmUgc2F2ZWQgYWxvbmdzaWRlIGl0IChjbGljayB0aGUgKlByZXZpZXcqIGJ1dHRvbiBvciBwcmVzcyAqQ21kK1NoaWZ0K0sqIHRvIHByZXZpZXcgdGhlIEhUTUwgZmlsZSkuIAoKVGhlIHByZXZpZXcgc2hvd3MgeW91IGEgcmVuZGVyZWQgSFRNTCBjb3B5IG9mIHRoZSBjb250ZW50cyBvZiB0aGUgZWRpdG9yLiBDb25zZXF1ZW50bHksIHVubGlrZSAqS25pdCosICpQcmV2aWV3KiBkb2VzIG5vdCBydW4gYW55IFIgY29kZSBjaHVua3MuIEluc3RlYWQsIHRoZSBvdXRwdXQgb2YgdGhlIGNodW5rIHdoZW4gaXQgd2FzIGxhc3QgcnVuIGluIHRoZSBlZGl0b3IgaXMgZGlzcGxheWVkLgoKLS0tCgpDYW4geW91IHB1bGwgb3V0IGEgY291cGxlIGV4YW1wbGVzIG9mIFRGcyAobWF5YmUgMSBvciAyKSBmcm9tIHRoZXNlIDczSyBhbmQgaWRlbnRpZnkgd2hpY2ggcGFydCBvZiB0aGUgbW90aWYgaXMgYWZmZWN0ZWQgYnkgdGhlIFNOUD8gSSBiZXQgaXQgd2lsbCBiZSB0aGUgcGFydCBvZiBhIG1vdGlmIHdoZXJlIHRoZXJlIGlzIGEgdmVyeSBoZWF2eSB3ZWlnaHQgb24gb25lIHBhcnRpY3VsYXIgbnVjbGVvdGlkZSBhbmQgbWVzc2luZyB0aGF0IHVwIHJlc3VsdHMgaW4gZmFpbHVyZSB0byBpZGVudGlmeSB0aGUgbW90aWYgd2l0aCB0aGUgYWx0ZXJuYXRpdmUgYWxsZWxlLiAKCmFsc28sIGNvdWxkIHlvdSBzaG93IG9uZSBvciB0d28gZXhhbXBsZXMgb2YgVEZzIGZyb20gdGhlIDY5SyBzZXQsIHdoZXJlIHNlYXJjaGluZyB0aGUgcmVmZXJlbmNlIGdlbm9tZSBmYWlscyB0byBpZGVudGlmeSBhIG1vdGlmIGJ1dCBzZWFyY2hpbmcgd2l0aCB0aGUgYWx0ZXJuYXRpdmUgYWxsZWxlIGZpbmRzIGl0PyAKClNpbWlsYXJseSwgSSBiZXQgdGhlIFNOUHMgb2NjdXIgaW4gdGhlIHN1cGVyIGltcG9ydGFudCBjb3JlIHBhcnQgb2YgdGhlIG1vdGlmIHdpdGggaGlnaCBwcm9iYWJpbGl0aWVzIChmcm9tIHRoZSBQV00pIGZvciB0aGF0IG51Y2xlb3RpZGUuIERvIHlvdSBoYXZlIGV4cGVyaWVuY2UgbWFraW5nIHNlcXVlbmNlIGxvZ29zPyB0aGV54oCZcmUgZnVuIHBsb3RzIHRvIHNob3cgdGhlIGltcG9ydGFudCBvZiBlYWNoIG51Y2xlb3RpZGUgaW4gYSBtb3RpZj8KCmBgYHtyIGxvYWRfbGlicmFyaWVzfQpzb3VyY2UoImh0dHBzOi8vYmlvY29uZHVjdG9yLm9yZy9iaW9jTGl0ZS5SIikKYmlvY0xpdGUoInNlcUxvZ28iKQoKbGlicmFyeShzZXFMb2dvKSAjbWFrZVBXTQpsaWJyYXJ5KHN0cmluZ3IpICMgcmVhZC5mYXN0YSwgd3JpdGUuZmFzdGEKYGBgCgpgYGB7ciBsb2FkX2RhdGF9Cgppbl9yZWZfbm90X2FsdF91bmlxdWVfU05QIDwtIGZyZWFkKCIvVXNlcnMva2F0aHJ5bnRzYWkvT25lRHJpdmVcIC1cIFZpbGxhbm92YVwgVW5pdmVyc2l0eS9Db2xsZWdlLzIwMTgtMjAxOS9TdW1tZXJcIDIwMTkvVEZzX2VRVExzX1Jlc2VhcmNoL1JQcm9qZWN0cy9Qcm9qZWN0Mi9xMl8zX291dHB1dC9pbl9yZWZfbm90X2FsdF91bmlxdWVfU05QLnR4dCIpCmluX2FsdF9ub3RfcmVmX3VuaXF1ZV9TTlAgPC0gZnJlYWQoIi9Vc2Vycy9rYXRocnludHNhaS9PbmVEcml2ZVwgLVwgVmlsbGFub3ZhXCBVbml2ZXJzaXR5L0NvbGxlZ2UvMjAxOC0yMDE5L1N1bW1lclwgMjAxOS9URnNfZVFUTHNfUmVzZWFyY2gvUlByb2plY3RzL1Byb2plY3QyL3EyXzNfb3V0cHV0L2luX2FsdF9ub3RfcmVmX3VuaXF1ZV9TTlAudHh0IikKCngxIDwtIGluX3JlZl9ub3RfYWx0X3VuaXF1ZV9TTlBbIWR1cGxpY2F0ZWQoaW5fcmVmX25vdF9hbHRfdW5pcXVlX1NOUCksXSAjIDczMzQ1CngyIDwtIGluX2FsdF9ub3RfcmVmX3VuaXF1ZV9TTlBbIWR1cGxpY2F0ZWQoaW5fYWx0X25vdF9yZWZfdW5pcXVlX1NOUCksXSAjIDY5Njc0CgpgYGAKClVzaW5nIG9ubHkgbW90aWZzIG9uIHBvc2l0aXZlIHN0cmFuZHMsIHNvcnQgbW90aWZzIGJ5IE1vdGlmIFNjb3JlCmBgYHtyIGdldF9zYW1wbGVzfQoKeDFfcyA8LSB4MVshZHVwbGljYXRlZCh4MSQiTW90aWYgTmFtZSIpLCBdCngyX3MgPC0geDJbIWR1cGxpY2F0ZWQoeDIkIk1vdGlmIE5hbWUiKSwgXQoKeiA8LSBpbm5lcl9qb2luKHgxX3NbeDFfcyQicmVmX1N0cmFuZCIgPT0gIisiLF0sIHgyX3NbeDJfcyQiYWx0X1N0cmFuZCIgPT0gIisiLF0sIGJ5PSJNb3RpZiBOYW1lIikKaGVhZCh6W29yZGVyKHokInJlZl9Nb3RpZlNjb3JlIiwgZGVjcmVhc2luZz1GKSwgYygiTW90aWYgTmFtZSIsICJyZWZfTW90aWZTY29yZSIsICJhbHRfTW90aWZTY29yZSIpXSkKCmBgYAoKCmBgYHtyfQp0KHgxX3NbeDFfcyQiTW90aWYgTmFtZSI9PSJGT1hBMTpBUihGb3JraGVhZCxOUikvTE5DQVAtQVItQ2hJUC1TZXEoR1NFMjc4MjQpL0hvbWVyIiwgYygiU05QV2luZG93IiwgInJlZl9PZmZzZXQiLCAiTW90aWYgTmFtZSIsICJyZWZfU3RyYW5kIiwgIlNlcXVlbmNlIildKQp0KHgxX3NbeDFfcyQiTW90aWYgTmFtZSI9PSJBcDQoYkhMSCkvQU1MLVRmYXA0LUNoSVAtU2VxKEdTRTQ1NzM4KS9Ib21lciIsIGMoIlNOUFdpbmRvdyIsICJyZWZfT2Zmc2V0IiwgIk1vdGlmIE5hbWUiLCAicmVmX1N0cmFuZCIsICJTZXF1ZW5jZSIpXSkKCnQoeDJfc1t4Ml9zJCJNb3RpZiBOYW1lIj09IkZPWEExOkFSKEZvcmtoZWFkLE5SKS9MTkNBUC1BUi1DaElQLVNlcShHU0UyNzgyNCkvSG9tZXIiLCBjKCJTTlBXaW5kb3ciLCAiYWx0X09mZnNldCIsICJNb3RpZiBOYW1lIiwgImFsdF9TdHJhbmQiLCAiU2VxdWVuY2UiKV0pCnQoeDJfc1t4Ml9zJCJNb3RpZiBOYW1lIj09IkFwNChiSExIKS9BTUwtVGZhcDQtQ2hJUC1TZXEoR1NFNDU3MzgpL0hvbWVyIiwgYygiU05QV2luZG93IiwgImFsdF9PZmZzZXQiLCAiTW90aWYgTmFtZSIsICJhbHRfU3RyYW5kIiwgIlNlcXVlbmNlIildKQpgYGAKCldoYXQncyB0aGUgZGlmZmVyZW5jZSBiZXR3ZWVuIEZPWEExOkFSKEZvcmtoZWFkLE5SKS9MTkNBUC1BUi1DaElQLVNlcShHU0UyNzgyNCkvSG9tZXIgYW5kIEZPWEExKEZvcmtoZWFkLE5SKS9MTkNBUC1BUi1DaElQLVNlcShHU0UyNzgyNCkvSG9tZXIKCmBgYHtyIGdldF9tb3RpZnNfZnJvbV9ob21lcn0KCmFwNCA8LSByZWFkLnRhYmxlKCJhcDQubW90aWYiLCBzZXA9Ilx0Iiwgc2tpcD0xLCBoZWFkZXI9Riwgc3RyaW5nc0FzRmFjdG9ycz1GQUxTRSkKZm94YTEgPC0gcmVhZC50YWJsZSgiZm94YTEubG5jYXAubW90aWYiLCBza2lwPTEsIHNlcD0iXHQiLCBoZWFkZXI9Riwgc3RyaW5nc0FzRmFjdG9ycz1GQUxTRSkKCmBgYAoKYGBge3IgbWFrZV9QV019CgpwZSA8LSBtYWtlUFdNKHQoYXA0KSkKcGRmKCJBUDRfYml0c3Njb3JlLnBkZiIpCnNlcUxvZ28ocGUsaWMuc2NhbGU9VCkKZGV2Lm9mZigpCgpwZSA8LSBtYWtlUFdNKHQoZm94YTEpKQpwZGYoIkZveGExX2JpdHNzY29yZS5wZGYiKQpzZXFMb2dvKHBlLGljLnNjYWxlPVQpCmRldi5vZmYoKQoKYGBgCiAgWywxXSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgClNOUFdpbmRvdyAgImNocm9tb3NvbWU6R1JDaDM3OjE6MTAwMjAxMjI0OjEwMDIwMTI2NDoxIiAgICAgICAgICAgCnJlZl9PZmZzZXQgIi03IiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCk1vdGlmIE5hbWUgIkZPWEExKEZvcmtoZWFkKS9MTkNBUC1GT1hBMS1DaElQLVNlcShHU0UyNzgyNCkvSG9tZXIiCnJlZl9TdHJhbmQgIisiICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgClNlcXVlbmNlICAgIlRUVEdUQUFBQ0EiICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgWywxXSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIApTTlBXaW5kb3cgICJjaHJvbW9zb21lOkdSQ2gzNzoxOjEwMDIzNTQwNjoxMDAyMzU0NDY6MSIgICAKcmVmX09mZnNldCAiLTUiICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCk1vdGlmIE5hbWUgIkFwNChiSExIKS9BTUwtVGZhcDQtQ2hJUC1TZXEoR1NFNDU3MzgpL0hvbWVyIgpyZWZfU3RyYW5kICIrIiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKU2VxdWVuY2UgICAiQ1RUQ0FHQ1RHQSIgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgWywxXSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgClNOUFdpbmRvdyAgImNocm9tb3NvbWU6R1JDaDM3OjE6MTAwMjI0NTg2OjEwMDIyNDYyNjoxIiAgICAgICAgICAgCmFsdF9PZmZzZXQgIjEiICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCk1vdGlmIE5hbWUgIkZPWEExKEZvcmtoZWFkKS9MTkNBUC1GT1hBMS1DaElQLVNlcShHU0UyNzgyNCkvSG9tZXIiCmFsdF9TdHJhbmQgIi0iICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgClNlcXVlbmNlICAgIlRHVFRUQUNDQUEiICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgWywxXSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIApTTlBXaW5kb3cgICJjaHJvbW9zb21lOkdSQ2gzNzoxOjEwMDIxNDcwNToxMDAyMTQ3NDU6MSIgICAKYWx0X09mZnNldCAiLTEwIiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCk1vdGlmIE5hbWUgIkFwNChiSExIKS9BTUwtVGZhcDQtQ2hJUC1TZXEoR1NFNDU3MzgpL0hvbWVyIgphbHRfU3RyYW5kICIrIiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKU2VxdWVuY2UgICAiQ0NUQ0FHQ1RHQyIgCgpgYGB7cn0KCmBgYAoK</div>
 
 
 

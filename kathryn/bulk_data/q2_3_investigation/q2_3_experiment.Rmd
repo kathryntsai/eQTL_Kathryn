@@ -43,19 +43,32 @@ x2 <- in_alt_not_ref_unique_SNP[!duplicated(in_alt_not_ref_unique_SNP),] # 69674
 
 ```
 
+Using only motifs on positive strands, sort motifs by Motif Score
 ```{r get_samples}
 
 x1_s <- x1[!duplicated(x1$"Motif Name"), ]
 x2_s <- x2[!duplicated(x2$"Motif Name"), ]
 
-x1_s[4:5, c("FASTA_ID_Abb", "ref_Offset", "Motif Name", "Sequence")]
-x2_s[4:5, c("FASTA_ID_Abb", "alt_Offset", "Motif Name", "Sequence")]
+z <- inner_join(x1_s[x1_s$"ref_Strand" == "+",], x2_s[x2_s$"alt_Strand" == "+",], by="Motif Name")
+head(z[order(z$"ref_MotifScore", decreasing=F), c("Motif Name", "ref_MotifScore", "alt_MotifScore")])
 
 ```
+
+
+```{r}
+t(x1_s[x1_s$"Motif Name"=="FOXA1:AR(Forkhead,NR)/LNCAP-AR-ChIP-Seq(GSE27824)/Homer", c("SNPWindow", "ref_Offset", "Motif Name", "ref_Strand", "Sequence")])
+t(x1_s[x1_s$"Motif Name"=="Ap4(bHLH)/AML-Tfap4-ChIP-Seq(GSE45738)/Homer", c("SNPWindow", "ref_Offset", "Motif Name", "ref_Strand", "Sequence")])
+
+t(x2_s[x2_s$"Motif Name"=="FOXA1:AR(Forkhead,NR)/LNCAP-AR-ChIP-Seq(GSE27824)/Homer", c("SNPWindow", "alt_Offset", "Motif Name", "alt_Strand", "Sequence")])
+t(x2_s[x2_s$"Motif Name"=="Ap4(bHLH)/AML-Tfap4-ChIP-Seq(GSE45738)/Homer", c("SNPWindow", "alt_Offset", "Motif Name", "alt_Strand", "Sequence")])
+```
+
+What's the difference between FOXA1:AR(Forkhead,NR)/LNCAP-AR-ChIP-Seq(GSE27824)/Homer and FOXA1(Forkhead,NR)/LNCAP-AR-ChIP-Seq(GSE27824)/Homer
+
 ```{r get_motifs_from_homer}
 
-ap4 <- read.table("q2_3_investigation/ap4.motif", sep="\t", skip=1, header=F, stringsAsFactors=FALSE)
-foxa1 <- read.table("q2_3_investigation/foxa1.lncap.motif", skip=1, sep="\t", header=F, stringsAsFactors=FALSE)
+ap4 <- read.table("ap4.motif", sep="\t", skip=1, header=F, stringsAsFactors=FALSE)
+foxa1 <- read.table("foxa1.lncap.motif", skip=1, sep="\t", header=F, stringsAsFactors=FALSE)
 
 ```
 
@@ -70,6 +83,34 @@ pe <- makePWM(t(foxa1))
 pdf("Foxa1_bitsscore.pdf")
 seqLogo(pe,ic.scale=T)
 dev.off()
+
+```
+  [,1]                                                  
+SNPWindow  "chromosome:GRCh37:1:100201224:100201264:1"           
+ref_Offset "-7"                                                  
+Motif Name "FOXA1(Forkhead)/LNCAP-FOXA1-ChIP-Seq(GSE27824)/Homer"
+ref_Strand "+"                                                   
+Sequence   "TTTGTAAACA"                                          
+           [,1]                                          
+SNPWindow  "chromosome:GRCh37:1:100235406:100235446:1"   
+ref_Offset "-5"                                          
+Motif Name "Ap4(bHLH)/AML-Tfap4-ChIP-Seq(GSE45738)/Homer"
+ref_Strand "+"                                           
+Sequence   "CTTCAGCTGA"                                  
+           [,1]                                                  
+SNPWindow  "chromosome:GRCh37:1:100224586:100224626:1"           
+alt_Offset "1"                                                   
+Motif Name "FOXA1(Forkhead)/LNCAP-FOXA1-ChIP-Seq(GSE27824)/Homer"
+alt_Strand "-"                                                   
+Sequence   "TGTTTACCAA"                                          
+           [,1]                                          
+SNPWindow  "chromosome:GRCh37:1:100214705:100214745:1"   
+alt_Offset "-10"                                         
+Motif Name "Ap4(bHLH)/AML-Tfap4-ChIP-Seq(GSE45738)/Homer"
+alt_Strand "+"                                           
+Sequence   "CCTCAGCTGC" 
+
+```{r}
 
 ```
 

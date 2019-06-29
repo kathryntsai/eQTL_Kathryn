@@ -31,6 +31,9 @@ BiocManager::install("seqLogo")
 
 library(seqLogo) # makePWM
 library(stringr) # read.fasta, write.fasta
+library(data.table)
+library(dplyr)
+library(glue)
 ```
 
 ```{r load_data}
@@ -41,7 +44,7 @@ in_alt_not_ref_unique_SNP <- fread("/Users/kathryntsai/OneDrive\ -\ Villanova\ U
 x1 <- in_ref_not_alt_unique_SNP[!duplicated(in_ref_not_alt_unique_SNP),] # 73345
 x2 <- in_alt_not_ref_unique_SNP[!duplicated(in_alt_not_ref_unique_SNP),] # 69674
 
-a_gene_snp <- fread("q2_3_output/a_gene_snp.txt")
+a_gene_snp <- fread("/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/q2_3_output/a_gene_snp.txt")
 
 ```
 
@@ -68,14 +71,30 @@ anti_join(table1, table2, by="id")
 ref_test_group_transposed <- t(x1_s[x1_s$"Motif Name" %in% z_test_group$"Motif Name",c("SNPWindow", "ref_Offset", "Motif Name", "Sequence")])
 alt_test_group_transposed <- t(x2_s[x2_s$"Motif Name" %in% z_test_group$"Motif Name",c("SNPWindow", "alt_Offset", "Motif Name", "Sequence")])
 
+ref_test_group_transposed
+alt_test_group_transposed
+```
+
+```{r test_group_data}
 ref_test_group <- x1_s[x1_s$"Motif Name" %in% z_test_group$"Motif Name",c("SNPWindow", "ref_Offset", "Motif Name", "Sequence")]
 alt_test_group <- x2_s[x2_s$"Motif Name" %in% z_test_group$"Motif Name",c("SNPWindow", "alt_Offset", "Motif Name", "Sequence")]
 
+# Note: ref_test_group[1,"Motif Name"] != ref_test_group$`Motif Name`[1]
 ```
+
+
+Motifs that will not adhere to pipeline: ap2gamma, batf3-irf8, cebp-cebp, cebp-ap1, cMyc.lncap, ctcf-mys, ets-distal, ets-ebox, ets-runx, ews-erg, ews-fli1, fox-ebox, gata3.dr4/dr8/ir3/ir4, gfy-staf, gre-raw, jun-ap1, jun-cre, nf1-fox, nf1-half, nfat-ap1, nkx2.1, nkx2.2, nkx2.5, oct-oct, oct-oct.short, oct.ir, oct.ir1, oct4-sox2, oct4-sox17, p53-myc, pax3-fkh4, pax5-short, pax7-long, pax7-longest,pu1-irf, pu1-irf8, rpbj1-ebox, stat3.il23, stat6.2, tbox-smad
+
+```{r get_headers_from_homer}
+
+if (read.table("/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/q2_3_investigation/motifs/ronin.motif", sep="\t", header=F,nrow=1)[,2]
+
+```
+
 
 ```{r get_motifs_from_homer}
 
-pax7 <- read.table("motifs/pax7-longest.motif", sep="\t", skip=1, header=F, stringsAsFactors=FALSE)
+pax7 <- read.table("/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/q2_3_investigation/motifs/pax7-longest.motif", sep="\t", skip=1, header=F, stringsAsFactors=FALSE)
 foxa1 <- read.table("motifs/foxa1.lncap.motif", skip=1, sep="\t", header=F, stringsAsFactors=FALSE)
 ronin <- read.table("motifs/ronin.motif", skip=1, sep="\t", header=F, stringsAsFactors=FALSE)
 

@@ -3,19 +3,19 @@ title: "Read Homer Output Analysis"
 output: html_notebook
 ---
 
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+<!-- This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code.  -->
 
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+<!-- Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*.  -->
 
 ```{r setup, include=FALSE}
 plot(cars)
 ```
 
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+<!-- Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*. -->
 
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+<!-- When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file).  -->
 
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+<!-- The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed. -->
 
 ---
 
@@ -24,6 +24,8 @@ Can you pull out a couple examples of TFs (maybe 1 or 2) from these 73K and iden
 also, could you show one or two examples of TFs from the 69K set, where searching the reference genome fails to identify a motif but searching with the alternative allele finds it? 
 
 Similarly, I bet the SNPs occur in the super important core part of the motif with high probabilities (from the PWM) for that nucleotide. Do you have experience making sequence logos? they’re fun plots to show the important of each nucleotide in a motif?
+
+Limitations: only looks at positive strand
 
 ```{r load_libraries}
 source("https://bioconductor.org/biocLite.R")
@@ -34,6 +36,7 @@ library(stringr) # read.fasta, write.fasta
 library(data.table)
 library(dplyr)
 library(glue)
+library(matrixStats)
 ```
 
 ```{r load_data}
@@ -43,8 +46,11 @@ in_alt_not_ref_unique_SNP <- fread("/Users/kathryntsai/OneDrive\ -\ Villanova\ U
 
 x1 <- in_ref_not_alt_unique_SNP[!duplicated(in_ref_not_alt_unique_SNP),] # 73345
 x2 <- in_alt_not_ref_unique_SNP[!duplicated(in_alt_not_ref_unique_SNP),] # 69674
+#in_ref_not_alt_unique_SNP$ref_Offset <- in_ref_not_alt_unique_SNP$ref_Offset + 21
+#in_alt_not_ref_unique_SNP$alt_Offset <- in_alt_not_ref_unique_SNP$alt_Offset + 21
 
 a_gene_snp <- fread("/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/q2_3_output/a_gene_snp.txt")
+a_gene_snp$SNPWindow <- paste("chromosome:GRCh37:",a_gene_snp$SNPChr, ":", a_gene_snp$SNPWindowStart, ":", a_gene_snp$SNPWindowEnd,":1", sep="")
 
 ```
 
@@ -55,7 +61,9 @@ x1_s <- x1[!duplicated(x1$"Motif Name"), ]
 x2_s <- x2[!duplicated(x2$"Motif Name"), ]
 
 z <- inner_join(x1_s[x1_s$"ref_Strand" == "+",], x2_s[x2_s$"alt_Strand" == "+",], by="Motif Name")
-z_test_group <- tail(z[order(z$"ref_MotifScore", decreasing=F), c("Motif Name", "ref_MotifScore", "alt_MotifScore")], n=11L)
+z_test_group <- tail(z[order(z$"ref_MotifScore", decreasing=F),], n=11L)
+#z_test_group$alt_Offset <- z_test_group$alt_Offset + 21
+#z_test_group$ref_Offset <- z_test_group$ref_Offset + 21
 
 ```
 
@@ -76,33 +84,55 @@ alt_test_group_transposed
 ```
 
 ```{r test_group_data}
-ref_test_group <- x1_s[x1_s$"Motif Name" %in% z_test_group$"Motif Name",c("SNPWindow", "ref_Offset", "Motif Name", "Sequence")]
-alt_test_group <- x2_s[x2_s$"Motif Name" %in% z_test_group$"Motif Name",c("SNPWindow", "alt_Offset", "Motif Name", "Sequence")]
+ref_test_group <- x1_s[x1_s$"Motif Name" %in% z_test_group$"Motif Name"]
+alt_test_group <- x2_s[x2_s$"Motif Name" %in% z_test_group$"Motif Name"]
 
 # Note: ref_test_group[1,"Motif Name"] != ref_test_group$`Motif Name`[1]
 ```
 
+```{r create_motifs_table}
 
-Motifs that will not adhere to pipeline: ap2gamma, batf3-irf8, cebp-cebp, cebp-ap1, cMyc.lncap, ctcf-mys, ets-distal, ets-ebox, ets-runx, ews-erg, ews-fli1, fox-ebox, gata3.dr4/dr8/ir3/ir4, gfy-staf, gre-raw, jun-ap1, jun-cre, nf1-fox, nf1-half, nfat-ap1, nkx2.1, nkx2.2, nkx2.5, oct-oct, oct-oct.short, oct.ir, oct.ir1, oct4-sox2, oct4-sox17, p53-myc, pax3-fkh4, pax5-short, pax7-long, pax7-longest,pu1-irf, pu1-irf8, rpbj1-ebox, stat3.il23, stat6.2, tbox-smad
+# used forklift to rename all the motifs
 
-```{r get_headers_from_homer}
+motifs_table <- data.frame(read.table("/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/q2_3_investigation/motifs/motif1.motif", sep="\t", header=F,nrow=1)[,2])
+colnames(motifs_table) <- "Motif Name"
 
-if (read.table("/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/q2_3_investigation/motifs/ronin.motif", sep="\t", header=F,nrow=1)[,2]
+for (i in 2:412){
+  z <- read.table(paste("/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/q2_3_investigation/motifs/motif", i, ".motif", sep=""), sep="\t", header=F,nrow=1)[,2]
+  z <- data.frame(z)
+  colnames(z) <- "Motif Name"
+  motifs_table <- rbind(motifs_table, z)
+}
+
+motifs_table <- cbind(motifs_table, 1:412)
+colnames(motifs_table)[2] <- "Num"
 
 ```
 
+```{r match_motifs_with_test_groups}
 
-```{r get_motifs_from_homer}
-
-pax7 <- read.table("/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/q2_3_investigation/motifs/pax7-longest.motif", sep="\t", skip=1, header=F, stringsAsFactors=FALSE)
-foxa1 <- read.table("motifs/foxa1.lncap.motif", skip=1, sep="\t", header=F, stringsAsFactors=FALSE)
-ronin <- read.table("motifs/ronin.motif", skip=1, sep="\t", header=F, stringsAsFactors=FALSE)
-
+ref_test_group_file <- left_join(ref_test_group, motifs_table)
+alt_test_group_file <- left_join(alt_test_group, motifs_table)
+     
 ```
 
-```{r make_PWM}
+Currently only with ref_test_group_file[i,]
 
-pe <- makePWM(t(pax7))
+```{r make_PWM_and_get_motif_sequence}
+
+i=1
+impt <- read.table(paste("/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/q2_3_investigation/motifs/motif", ref_test_group_file[i,"Num"], ".motif", sep=""), sep="\t", skip=1, header=F, stringsAsFactors=FALSE)
+colnames(impt) <- c("A", "C", "G", "T")
+pe <- makePWM(t(impt))
+
+max_TF_motifs <- data.frame(cbind(data.frame(rowMaxs(as.matrix(impt), cols=T)), 1:nrow(impt), colnames(impt)[apply(impt,1,which.max)]))
+colnames(max_TF_motifs) <- c("Num", "Index", "Base")
+#tf_motif: CTGGGTGTGGCC #paste(max_TF_motifs$Base, collapse="", sep="")
+```
+
+```{r make_seqLogos, include=F}
+
+pe <- makePWM(t(read.table(paste("/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/q2_3_investigation/motifs/motif", ref_test_group_file[i,"Num"], ".motif", sep=""), sep="\t", skip=1, header=F, stringsAsFactors=FALSE)))
 pdf("Pax7_longest_bitsscore.pdf")
 seqLogo(pe,ic.scale=T)
 dev.off()
@@ -119,9 +149,17 @@ seqLogo(pe,ic.scale=T)
 dev.off()
 
 ```
-```{r compare_TFs_and_sequence}
 
-ref_pax7 <- (x1_s[x1_s$"Motif Name"=="Pax7(Paired,Homeobox),longest/Myoblast-Pax7-ChIP-Seq(GSE25064)/Homer", c("SNPWindow", "ref_Offset", "Motif Name", "ref_Strand", "Sequence")])
+```{r compare_TFs_and_sequence, include=F}
+
+ref <- (x1_s[x1_s$"Motif Name"==ref_test_group_file[i,"Motif Name"], c("SNPWindow", "ref_Offset", "Motif Name", "ref_Strand", "Sequence")])
+
+```
+
+```{r, include=F}
+
+ref_with_fasta <- merge(ref_pax7, a_gene_snp, by = c("SNPWindow"))
+
 alt_pax7 <- (x2_s[x2_s$"Motif Name"=="Pax7(Paired,Homeobox),longest/Myoblast-Pax7-ChIP-Seq(GSE25064)/Homer", c("SNPWindow", "alt_Offset", "Motif Name", "alt_Strand", "Sequence")])
 
 ref_ronin <- (x1_s[x1_s$"Motif Name"=="Ronin(THAP)/ES-Thap11-ChIP-Seq(GSE51522)/Homer", c("SNPWindow", "ref_Offset", "Motif Name", "ref_Strand", "Sequence")])
@@ -140,29 +178,37 @@ ref_foxa1 <- merge(ref_foxa1, a_gene_snp, by = c("SNPWindow"))
 alt_foxa1 <- merge(alt_foxa1, a_gene_snp, by = c("SNPWindow"))
 ```
 
-pax7_motif: xTAATTAxxTAATTAxxxxx
-ref_sequence: AAAATTTTCAAATTGTAAAA, offset=-5
-ref_pax7_fasta_seq_mod: TATAAAGTTTCTTCTAAAAATTTTCAAATTGTAAAATGTACA
 
-alt_sequence: AAAATTAAAAAATTAAAATA, offset=-5
-alt_pax7_fasta_seq_mod: TATAAAGTTTCTTCTAAAAGTTTTCAAATTGTAAAATGTACA <!--ACTCCATTTCAAAAACAAAATTAAAAAATTAAAATAAAAAAG-->
+<!-- pax7_motif: xTAATTAxxTAATTAxxxxx -->
+<!-- ref_sequence: AAAATTTTCAAATTGTAAAA, offset=-5 -->
+<!-- ref_pax7_fasta_seq_mod: TATAAAGTTTCTTCTAAAAATTTTCAAATTGTAAAATGTACA -->
 
-ronin_motif: GACTACAACTCCCAGAAGGC
-ref_sequence: GACTCCAGCTCCCGGCAGGC, offset=-21
-ref_ronin_fasta_seq_mod: GACTCCAGCTCCCGGCAGGCCTCGCGCGGCCCGGGGCCAGCG
+<!-- alt_sequence: AAAATTAAAAAATTAAAATA, offset=-5 -->
+<!-- alt_pax7_fasta_seq_mod: TATAAAGTTTCTTCTAAAAGTTTTCAAATTGTAAAATGTACA <!--ACTCCATTTCAAAAACAAAATTAAAAAATTAAAATAAAAAAG--> -->
 
-alt_sequence: GACTACGAGTCCCACAATAA, offset=-8
-alt_ronin_fasta_seq_mod: GACTCCAGCTCCCGGCAGGTCTCGCGCGGCCCGGGGCCAGCG
+<!-- ronin_motif: GACTACAACTCCCAGAAGGC -->
+<!-- ref_sequence: GACTCCAGCTCCCGGCAGGC, offset=-21 -->
+<!-- ref_ronin_fasta_seq_mod: GACTCCAGCTCCCGGCAGGCCTCGCGCGGCCCGGGGCCAGCG -->
 
-foxa1_motif: AAAGTAAACA
-ref_sequence: AAAAAACAAAACAAAACAAA, offset=-21
-ref_foxa1_fasta_seq_mod: AAAAAACAAAACAAAACAAAACAAAACAAAACAAAAAACTAA
+<!-- alt_sequence: GACTACGAGTCCCACAATAA, offset=-8 -->
+<!-- alt_ronin_fasta_seq_mod: GACTCCAGCTCCCGGCAGGTCTCGCGCGGCCCGGGGCCAGCG -->
 
-alt_sequence: GGCAAACTTATAAGTACACA, offset=-8
-alt_foxa1_fasta_seq_mod: AAAAAACAAAACAAAACAACACAAAACAAAACAAAAAACTAA
+<!-- foxa1_motif: AAAGTAAACA -->
+<!-- ref_sequence: AAAAAACAAAACAAAACAAA, offset=-21 -->
+<!-- ref_foxa1_fasta_seq_mod: AAAAAACAAAACAAAACAAAACAAAACAAAACAAAAAACTAA -->
 
+<!-- alt_sequence: GGCAAACTTATAAGTACACA, offset=-8 -->
+<!-- alt_foxa1_fasta_seq_mod: AAAAAACAAAACAAAACAACACAAAACAAAACAAAAAACTAA -->
 
-```{r}
+ref_test_group already has the ref_sequence
+tf_motif:                       CTGGGTGTGGCC
+ref_test_group[1,"Sequence"] = TAGGGTGTGGTT
+
+```{r get_fasta_seq}
+
+ref_test_group_with_fasta <- merge(ref_test_group, a_gene_snp, by = c("SNPWindow"))
+ref_test_group_with_fasta$ref_Offset <- ref_test_group_with_fasta$ref_Offset+21
+#ref fasta id og: ACAAAAATTAGTAGGGTGTGGTTATGTGAGCTTGTAGTCCCA, 11
 
 ```
 

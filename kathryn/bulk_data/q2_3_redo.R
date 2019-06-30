@@ -218,6 +218,7 @@ full_chr <- readRDS("q2_3_output/full_chr.rds")
 
 # replace all parentheses - not sure if this will work in previous gsub creations
 full_chr_mod <- gsub('c\\(|//)', "", full_chr)
+# write.table(full_chr_mod,file="chr1mod.txt")
 
 # ==========================================================
 # a_gene_snp

@@ -110,27 +110,188 @@ colnames(motifs_table)[2] <- "Num"
 
 ```
 
-```{r match_motifs_with_test_groups}
+```{r match_motifs_with_test_groups_ref}
  
 ref_test_group_file <- left_join(ref_test_group, motifs_table) # 11 x 9
-alt_test_group_file <- left_join(alt_test_group, motifs_table) # 11 x 9
-     
+ref_test_group_file$ref_Offset <- ref_test_group_file$ref_Offset + 21
+
+ref_test_group_with_fasta <- merge(ref_test_group, a_gene_snp, by = c("SNPWindow", "SNP")) # also by 'SNP'
+ref_test_group_with_fasta$ref_Offset <- ref_test_group_with_fasta$ref_Offset+21
+ref_test_group_with_fasta <- ref_test_group_with_fasta[which(str_sub(ref_test_group_with_fasta$fasta_seq_og, 21, 21) == ref_test_group_with_fasta$OtherAllele), ] # 37x20, only necessary if you didn't use old a_gene_snp file for homer input
+ref_test_group_with_fasta$SNPPosInFasta <- 0.001 
+counter_of_excluded_data <- 0
+
 ```
 
-Currently only with ref_test_group_file[i,]
-
-```{r make_PWM_and_get_motif_sequence_for_1_motif}
+```{r get_max_pwm_info_ref}
 
 i=1
-impt <- read.table(paste("/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/q2_3_investigation/motifs/motif", ref_test_group_file[i,"Num"], ".motif", sep=""), sep="\t", skip=1, header=F, stringsAsFactors=FALSE)
-colnames(impt) <- c("A", "C", "G", "T")
-pe <- makePWM(t(impt))
 
+## make_PWM_and_get_motif_sequence_for_1_motif
+impt_table <- read.table(paste("/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/q2_3_investigation/motifs/motif", ref_test_group_file[i,"Num"], ".motif", sep=""), sep="\t", skip=1, header=F, stringsAsFactors=FALSE)
+colnames(impt_table) <- c("A", "C", "G", "T")
+# pe <- makePWM(t(impt))
 max_TF_motifs <- data.frame(cbind(data.frame(rowMaxs(as.matrix(impt), cols=T)), 1:nrow(impt), colnames(impt)[apply(impt,1,which.max)]))
 colnames(max_TF_motifs) <- c("Num", "Index", "Base")
-
 tf_motif <- paste(max_TF_motifs$Base, collapse="", sep="")  # CATGCATATGCATAT
+
+## get_fasta_seq_and_get_rid_of_matches_that_do_not_work: Where does the SNP hit the TF? for alt_test_group: I think eQTLGen is zero-indexed.
+
+## see_where_TF_hits_fasta_seq
+motif_w_fasta_seq_info <- ref_test_group_with_fasta[which(ref_test_group_with_fasta$"Motif Name" == ref_test_group_file[i,"Motif Name"]),]
+motif_w_fasta_seq_info <- motif_w_fasta_seq_info[1,] # only need first row for fasta seq
+
+# it works: substr(ref_test_group_with_fasta$fasta_seq_og[1], ref_test_group_with_fasta$ref_Offset[1]+1, ref_test_group_with_fasta$ref_Offset[1]+1)
+
+## does_TF_hit_SNP_if_so_get_position
+# plot(max_TF_motifs$Num)
+if (motif_w_fasta_seq_info$ref_Offset >= (21 - nchar(tf_motif)))
+{
+    ref_test_group_file$SNPPosInFasta[i] <- 21 - ref_test_group_file$ref_Offset[i]
+    all_snp_pwms_ref <- max_TF_motifs[21 - ref_test_group_file$ref_Offset[i], ] # make this rbind later
+    all_snp_pwms_ref <- cbind(all_snp_pwms_ref, i) # make this cbind later
+} else {
+    counter_of_excluded_data = counter_of_excluded_data + 1
+}
+
+# nchar("CATGTATACATATGT") = 15
+# TF: substr("ACATGGCACATGTATACATATGTAACAAACCTGCACATTGTG", 9, 9+15-1) = (fasta_sequence_og, ref_offset+1, ref_offset+nchar(tf_motif)-1)
+# SNP: substr("ACATGGCA*C*ATGTATACATA*T*GTAACAAACCTGCACATTGTG", 21, 21)
+#                       9             21
+# position of SNP in fasta sequence: 21
+# if offset >= 21 - (nchar(tf_motif))
+#   position of SNP in TF: 21 - 9 + 1 = 21 - (ref_Offset + 1) + 1 = 21 - ref_Offset = 21 - 8
+
+
+for (i in 2:nrow(ref_test_group_file)){
+  impt_table <- read.table(paste("/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/q2_3_investigation/motifs/motif", ref_test_group_file[i,"Num"], ".motif", sep=""), sep="\t", skip=1, header=F, stringsAsFactors=FALSE)
+  colnames(impt_table) <- c("A", "C", "G", "T")
+  max_TF_motifs <- data.frame(cbind(data.frame(rowMaxs(as.matrix(impt), cols=T)), 1:nrow(impt), colnames(impt)[apply(impt,1,which.max)]))
+  colnames(max_TF_motifs) <- c("Num", "Index", "Base")
+  tf_motif <- paste(max_TF_motifs$Base, collapse="", sep="")  # CATGCATATGCATAT
+  
+  ## get_fasta_seq_and_get_rid_of_matches_that_do_not_work: Where does the SNP hit the TF? for ref_test_group: I think eQTLGen is zero-indexed.
+  
+  ## see_where_TF_hits_fasta_seq
+  motif_w_fasta_seq_info <- ref_test_group_file[which(ref_test_group_file$"Motif Name" == ref_test_group_file[i,"Motif Name"]),]
+  motif_w_fasta_seq_info <- motif_w_fasta_seq_info[1,] # only need first row for fasta seq
+  
+  # it works: substr(ref_test_group_with_fasta$fasta_seq_og[1], ref_test_group_with_fasta$ref_Offset[1]+1, ref_test_group_with_fasta$ref_Offset[1]+1)
+  
+  ## does_TF_hit_SNP_if_so_get_position
+  # plot(max_TF_motifs$Num)
+  if (motif_w_fasta_seq_info$ref_Offset >= (21 - nchar(tf_motif)))
+  {
+      ref_test_group_file$SNPPosInFasta[i] <- 21 - ref_test_group_file$ref_Offset[i]
+      all_snp_pwms_ref <- rbind(all_snp_pwms_ref, data.frame(max_TF_motifs[21 - ref_test_group_file$ref_Offset[i], ], i))
+  } else {
+    counter_of_excluded_data = counter_of_excluded_data + 1
+  }
+  
+}
 ```
+
+```{r visualize_likelihood_ref}
+
+# hist(all_snp_pwms$Num) # all_snp_pwms %>% count(Num)
+
+# mean = blue dashed line, density plot = red transparent
+
+ggplot(all_snp_pwms, aes(x=Num)) + 
+  geom_histogram(color="black", fill="blue") +
+  #geom_text(aes(label=Base), hjust=2, vjust=1) + 
+  #geom_point(data = max_TF_motifs[21 - ref_test_group_with_fasta$ref_Offset[1],], x=Index, y = Num) +
+  theme_stata() +
+  geom_density(alpha=.2, fill="#FF6666") +
+  geom_vline(aes(xintercept=mean(Num)),
+            color="blue", linetype="dashed", size=1) + 
+  ggtitle("Likelihood of All Motifs - Reference Allele")
+
+```
+
+For alt
+
+```{r match_motifs_with_test_groups_alt}
+
+alt_test_group_file <- left_join(alt_test_group, motifs_table) # 11 x 9
+alt_test_group_file$alt_Offset <- alt_test_group_file$alt_Offset + 21
+
+alt_test_group_with_fasta <- merge(alt_test_group, a_gene_snp, by = c("SNPWindow", "SNP")) # also by 'SNP'
+alt_test_group_with_fasta$alt_Offset <- alt_test_group_with_fasta$alt_Offset+21
+alt_test_group_with_fasta <- alt_test_group_with_fasta[which(str_sub(alt_test_group_with_fasta$fasta_seq_og, 21, 21) == alt_test_group_with_fasta$OtherAllele), ] # 37x20, only necessary if you didn't use old a_gene_snp file for homer input
+alt_test_group_with_fasta$SNPPosInFasta <- 0.001 
+counter_of_excluded_data <- 0
+
+```
+
+```{r get_max_pwm_info_alt}
+
+i=1
+
+## make_PWM_and_get_motif_sequence_for_1_motif
+impt_table <- read.table(paste("/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/q2_3_investigation/motifs/motif", alt_test_group_file[i,"Num"], ".motif", sep=""), sep="\t", skip=1, header=F, stringsAsFactors=FALSE)
+colnames(impt_table) <- c("A", "C", "G", "T")
+# pe <- makePWM(t(impt))
+max_TF_motifs <- data.frame(cbind(data.frame(rowMaxs(as.matrix(impt), cols=T)), 1:nrow(impt), colnames(impt)[apply(impt,1,which.max)]))
+colnames(max_TF_motifs) <- c("Num", "Index", "Base")
+tf_motif <- paste(max_TF_motifs$Base, collapse="", sep="")  # CATGCATATGCATAT
+
+## get_fasta_seq_and_get_rid_of_matches_that_do_not_work: Where does the SNP hit the TF? for alt_test_group: I think eQTLGen is zero-indexed.
+
+## see_where_TF_hits_fasta_seq
+motif_w_fasta_seq_info <- alt_test_group_with_fasta[which(alt_test_group_with_fasta$"Motif Name" == alt_test_group_file[i,"Motif Name"]),]
+motif_w_fasta_seq_info <- motif_w_fasta_seq_info[1,] # only need first row for fasta seq
+
+# it works: substr(alt_test_group_with_fasta$fasta_seq_og[1], alt_test_group_with_fasta$alt_Offset[1]+1, alt_test_group_with_fasta$alt_Offset[1]+1)
+
+## does_TF_hit_SNP_if_so_get_position
+# plot(max_TF_motifs$Num)
+if (motif_w_fasta_seq_info$alt_Offset >= (21 - nchar(tf_motif)))
+{
+    alt_test_group_file$SNPPosInFasta[i] <- 21 - alt_test_group_file$alt_Offset[i]
+    all_snp_pwms_alt <- max_TF_motifs[21 - alt_test_group_file$alt_Offset[i], ] # make this rbind later
+    all_snp_pwms_alt <- cbind(all_snp_pwms_alt, i) # make this cbind later
+} else {
+    counter_of_excluded_data = counter_of_excluded_data + 1
+}
+
+# nchar("CATGTATACATATGT") = 15
+# TF: substr("ACATGGCACATGTATACATATGTAACAAACCTGCACATTGTG", 9, 9+15-1) = (fasta_sequence_og, alt_offset+1, alt_offset+nchar(tf_motif)-1)
+# SNP: substr("ACATGGCA*C*ATGTATACATA*T*GTAACAAACCTGCACATTGTG", 21, 21)
+#                       9             21
+# position of SNP in fasta sequence: 21
+# if offset >= 21 - (nchar(tf_motif))
+#   position of SNP in TF: 21 - 9 + 1 = 21 - (alt_Offset + 1) + 1 = 21 - alt_Offset = 21 - 8
+
+
+for (i in 2:nrow(alt_test_group_file)){
+  impt_table <- read.table(paste("/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/q2_3_investigation/motifs/motif", alt_test_group_file[i,"Num"], ".motif", sep=""), sep="\t", skip=1, header=F, stringsAsFactors=FALSE)
+  colnames(impt_table) <- c("A", "C", "G", "T")
+  max_TF_motifs <- data.frame(cbind(data.frame(rowMaxs(as.matrix(impt), cols=T)), 1:nrow(impt), colnames(impt)[apply(impt,1,which.max)]))
+  colnames(max_TF_motifs) <- c("Num", "Index", "Base")
+  tf_motif <- paste(max_TF_motifs$Base, collapse="", sep="")  # CATGCATATGCATAT
+  
+  ## get_fasta_seq_and_get_rid_of_matches_that_do_not_work: Where does the SNP hit the TF? for alt_test_group: I think eQTLGen is zero-indexed.
+  
+  ## see_where_TF_hits_fasta_seq
+  motif_w_fasta_seq_info <- alt_test_group_file[which(alt_test_group_file$"Motif Name" == alt_test_group_file[i,"Motif Name"]),]
+  motif_w_fasta_seq_info <- motif_w_fasta_seq_info[1,] # only need first row for fasta seq
+  
+  # it works: substr(alt_test_group_with_fasta$fasta_seq_og[1], alt_test_group_with_fasta$alt_Offset[1]+1, alt_test_group_with_fasta$alt_Offset[1]+1)
+  
+  ## does_TF_hit_SNP_if_so_get_position
+  # plot(max_TF_motifs$Num)
+  if (motif_w_fasta_seq_info$alt_Offset >= (21 - nchar(tf_motif)))
+  {
+      alt_test_group_file$SNPPosInFasta[i] <- 21 - alt_test_group_file$alt_Offset[i]
+      all_snp_pwms_alt <- rbind(all_snp_pwms_alt, data.frame(max_TF_motifs[21 - alt_test_group_file$alt_Offset[i], ], i))
+  } else {
+    counter_of_excluded_data = counter_of_excluded_data + 1
+  }
+  
+}
+```
+
 
 ```{r make_seqLogos, include=F}
 
@@ -180,91 +341,38 @@ ref_foxa1 <- merge(ref_foxa1, a_gene_snp, by = c("SNPWindow"))
 alt_foxa1 <- merge(alt_foxa1, a_gene_snp, by = c("SNPWindow"))
 ```
 
+<!-- ggplot2: -->
+<!-- https://www.google.com/search?ei=HCkaXa-VH8ev5wLY2ZToBQ&q=plot+r+label+points&oq=plot+r+label+points&gs_l=psy-ab.3..0j0i22i30l4.1980.5905..6176...0.0..0.397.1828.8j5j0j1......0....1..gws-wiz.......0i71j35i39j0i67j0i20i263.ZsFovZZdwdI -->
+<!-- https://www.r-bloggers.com/adding-labels-to-points-in-a-scatter-plot-in-r/ -->
+<!-- https://rpubs.com/RatherBit/188960 -->
+<!-- https://www.google.com/search?q=ggplot2+scatter+plot+label+points&oq=ggplot2+scatter+plot+label+points&aqs=chrome.0.0j33l3.5449j0j1&sourceid=chrome&ie=UTF-8 -->
+<!-- https://stackoverflow.com/questions/15624656/label-points-in-geom-point -->
+<!-- http://www.sthda.com/english/wiki/ggplot2-themes-and-background-colors-the-3-elements -->
+<!-- https://www.google.com/search?q=create+line+graph+in+ggplot2&oq=create+line+graph+in+ggplot2&aqs=chrome..69i57j0l2.4168j0j1&sourceid=chrome&ie=UTF-8 -->
+<!-- http://www.sthda.com/english/wiki/ggplot2-line-plot-quick-start-guide-r-software-and-data-visualization -->
+<!-- https://www.google.com/search?q=change+color+of+one+dot+r&oq=change+color+of+one+dot+r&aqs=chrome..69i57j33l5.2916j0j1&sourceid=chrome&ie=UTF-8 -->
+<!-- https://www.google.com/search?ei=jkwaXeOhCKfG5gKP9qyABA&q=change+color+of+one+dot+r+ggplot&oq=change+color+of+one+dot+r+ggplot&gs_l=psy-ab.3..33i299j33i160.760.1518..1588...0.0..0.388.1318.2-1j3......0....1..gws-wiz.......0i71.VWvkbLhqHNE -->
 
-<!-- pax7_motif: xTAATTAxxTAATTAxxxxx -->
-<!-- ref_sequence: AAAATTTTCAAATTGTAAAA, offset=-5 -->
-<!-- ref_pax7_fasta_seq_mod: TATAAAGTTTCTTCTAAAAATTTTCAAATTGTAAAATGTACA -->
+```{r visualize_likelihood_alt}
 
-<!-- alt_sequence: AAAATTAAAAAATTAAAATA, offset=-5 -->
-<!-- alt_pax7_fasta_seq_mod: TATAAAGTTTCTTCTAAAAGTTTTCAAATTGTAAAATGTACA <!--ACTCCATTTCAAAAACAAAATTAAAAAATTAAAATAAAAAAG--> -->
+# hist(all_snp_pwms$Num) # all_snp_pwms %>% count(Num)
 
-<!-- ronin_motif: GACTACAACTCCCAGAAGGC -->
-<!-- ref_sequence: GACTCCAGCTCCCGGCAGGC, offset=-21 -->
-<!-- ref_ronin_fasta_seq_mod: GACTCCAGCTCCCGGCAGGCCTCGCGCGGCCCGGGGCCAGCG -->
+# mean = blue dashed line, density plot = red transparent
 
-<!-- alt_sequence: GACTACGAGTCCCACAATAA, offset=-8 -->
-<!-- alt_ronin_fasta_seq_mod: GACTCCAGCTCCCGGCAGGTCTCGCGCGGCCCGGGGCCAGCG -->
-
-<!-- foxa1_motif: AAAGTAAACA -->
-<!-- ref_sequence: AAAAAACAAAACAAAACAAA, offset=-21 -->
-<!-- ref_foxa1_fasta_seq_mod: AAAAAACAAAACAAAACAAAACAAAACAAAACAAAAAACTAA -->
-
-<!-- alt_sequence: GGCAAACTTATAAGTACACA, offset=-8 -->
-<!-- alt_foxa1_fasta_seq_mod: AAAAAACAAAACAAAACAACACAAAACAAAACAAAAAACTAA -->
-
-ref_test_group already has the ref_sequence
-tf_motif by homer                        =   CATGCATATGCATAT
-tf_motif by ref_test_group[1,"Sequence"] =   CATGTATACATATGT
-
-```{r get_fasta_seq_and_get_rid_of_matches_that_do_not_work}
-
-ref_test_group_with_fasta <- merge(ref_test_group, a_gene_snp, by = c("SNPWindow", "SNP")) # also by 'SNP'
-ref_test_group_with_fasta$ref_Offset <- ref_test_group_with_fasta$ref_Offset+21
-#ref fasta id og: ACAAAAATTAGTAGGGTGTGGTTATGTGAGCTTGTAGTCCCA, 11
-
-ref_test_group_with_fasta <- ref_test_group_with_fasta[which(str_sub(ref_test_group_with_fasta$fasta_seq_og, 21, 21) == ref_test_group_with_fasta$OtherAllele), ] # 37x20
-# ref_test_group_with_fasta <- ref_test_group_with_fasta[!duplicated(a_gene_snp_new$SNP),] # 269,450 x 14 non duplicated
+ggplot(all_snp_pwms, aes(x=Num)) + 
+  geom_histogram(color="black", fill="blue") +
+  #geom_text(aes(label=Base), hjust=2, vjust=1) + 
+  #geom_point(data = max_TF_motifs[21 - ref_test_group_with_fasta$ref_Offset[1],], x=Index, y = Num) +
+  theme_stata() +
+  geom_density(alpha=.2, fill="#FF6666") +
+  geom_vline(aes(xintercept=mean(Num)),
+            color="blue", linetype="dashed", size=1) + 
+  ggtitle("Likelihood of All Motifs - Alternative Allele")
 
 ```
 
-Where does the SNP hit the TF? for ref_test_group[1,]
-Narrow down to ref_test_group_file[i, ]
 
-I think eQTLGen is zero-indexed...?
-
-```{r see_where_TF_hits_fasta_seq}
-
-ref_test_group_with_fasta[which(ref_test_group_with_fasta$"Motif Name" == ref_test_group_file[i,"Motif Name"]),]
-
-substr(ref_test_group_with_fasta$fasta_seq_og[1], ref_test_group_with_fasta$ref_Offset[1]+1, ref_test_group_with_fasta$ref_Offset[1]+1)
-# it works
-
-```
-
-ggplot2:
-https://www.google.com/search?ei=HCkaXa-VH8ev5wLY2ZToBQ&q=plot+r+label+points&oq=plot+r+label+points&gs_l=psy-ab.3..0j0i22i30l4.1980.5905..6176...0.0..0.397.1828.8j5j0j1......0....1..gws-wiz.......0i71j35i39j0i67j0i20i263.ZsFovZZdwdI
-https://www.r-bloggers.com/adding-labels-to-points-in-a-scatter-plot-in-r/
-https://rpubs.com/RatherBit/188960
-https://www.google.com/search?q=ggplot2+scatter+plot+label+points&oq=ggplot2+scatter+plot+label+points&aqs=chrome.0.0j33l3.5449j0j1&sourceid=chrome&ie=UTF-8
-https://stackoverflow.com/questions/15624656/label-points-in-geom-point
-http://www.sthda.com/english/wiki/ggplot2-themes-and-background-colors-the-3-elements
-https://www.google.com/search?q=create+line+graph+in+ggplot2&oq=create+line+graph+in+ggplot2&aqs=chrome..69i57j0l2.4168j0j1&sourceid=chrome&ie=UTF-8
-http://www.sthda.com/english/wiki/ggplot2-line-plot-quick-start-guide-r-software-and-data-visualization
-https://www.google.com/search?q=change+color+of+one+dot+r&oq=change+color+of+one+dot+r&aqs=chrome..69i57j33l5.2916j0j1&sourceid=chrome&ie=UTF-8
-https://www.google.com/search?ei=jkwaXeOhCKfG5gKP9qyABA&q=change+color+of+one+dot+r+ggplot&oq=change+color+of+one+dot+r+ggplot&gs_l=psy-ab.3..33i299j33i160.760.1518..1588...0.0..0.388.1318.2-1j3......0....1..gws-wiz.......0i71.VWvkbLhqHNE
-
-nchar("CATGTATACATATGT") = 15
-TF: substr("ACATGGCACATGTATACATATGTAACAAACCTGCACATTGTG", 9, 9+15-1) = (fasta_sequence_og, ref_offset+1, ref_offset+nchar(tf_motif)-1)
-SNP: substr("ACATGGCA*C*ATGTATACATA*T*GTAACAAACCTGCACATTGTG", 21, 21)
-                      9             21
-position of SNP in fasta sequence: 21
-if offset >= 21 - (nchar(tf_motif))
-  position of SNP in TF: 21 - 9 + 1 = 21 - (ref_Offset + 1) + 1 = 21 - ref_Offset = 21 - 8
-
-
-```{r does_TF_hit_SNP_if_so_get_position}
-
-# plot(max_TF_motifs$Num)
-if (ref_test_group_with_fasta$ref_Offset[i] >= 21 - nchar(tf_motif))
-{
-    ref_test_group_with_fasta$SNPPosInFasta[i] <- 21 - ref_test_group_with_fasta$ref_Offset[i]
-    impt_base <- max_TF_motifs[21 - ref_test_group_with_fasta$ref_Offset[i], ]
-}
-
-
-```
-
-```{r plot_data, include=F}
+```{r plot_tf_data, include=F}
 ggplot(max_TF_motifs, aes(x=Index, y=Num, label=Base)) + 
   geom_line() + 
   geom_point() +
@@ -287,9 +395,50 @@ ggplot(max_TF_motifs, aes(x=Index, y=Num, label=Base)) +
 
 ```
 
-```{r plot_mass_data}
+```{r pipeline_backup, include=F}
 
-ggplot(impt_base, x=impt_base$Num, y=impt_base$Index)
+## make_PWM_and_get_motif_sequence_for_1_motif
+i=1
+impt_table <- read.table(paste("/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/q2_3_investigation/motifs/motif", ref_test_group_file[i,"Num"], ".motif", sep=""), sep="\t", skip=1, header=F, stringsAsFactors=FALSE)
+colnames(impt_table) <- c("A", "C", "G", "T")
+# pe <- makePWM(t(impt))
+max_TF_motifs <- data.frame(cbind(data.frame(rowMaxs(as.matrix(impt), cols=T)), 1:nrow(impt), colnames(impt)[apply(impt,1,which.max)]))
+colnames(max_TF_motifs) <- c("Num", "Index", "Base")
+tf_motif <- paste(max_TF_motifs$Base, collapse="", sep="")  # CATGCATATGCATAT
+
+## get_fasta_seq_and_get_rid_of_matches_that_do_not_work: Where does the SNP hit the TF? for ref_test_group: I think eQTLGen is zero-indexed.
+
+## see_where_TF_hits_fasta_seq
+motif_w_fasta_seq_info <- ref_test_group_with_fasta[which(ref_test_group_with_fasta$"Motif Name" == ref_test_group_file[i,"Motif Name"]),]
+motif_w_fasta_seq_info <- motif_w_fasta_seq_info[1,] # only need first row for fasta seq
+
+# substr(ref_test_group_with_fasta$fasta_seq_og[1], ref_test_group_with_fasta$ref_Offset[1]+1, ref_test_group_with_fasta$ref_Offset[1]+1)
+# it works
+
+## does_TF_hit_SNP_if_so_get_position
+# plot(max_TF_motifs$Num)
+if (motif_w_fasta_seq_info >= (21 - nchar(tf_motif)))
+{
+    ref_test_group_with_fasta$SNPPosInFasta[i] <- 21 - ref_test_group_with_fasta$ref_Offset[i]
+    all_snp_pwms <- max_TF_motifs[21 - ref_test_group_with_fasta$ref_Offset[i], ] # make this rbind
+}
+
+# nchar("CATGTATACATATGT") = 15
+# TF: substr("ACATGGCACATGTATACATATGTAACAAACCTGCACATTGTG", 9, 9+15-1) = (fasta_sequence_og, ref_offset+1, ref_offset+nchar(tf_motif)-1)
+# SNP: substr("ACATGGCA*C*ATGTATACATA*T*GTAACAAACCTGCACATTGTG", 21, 21)
+#                       9             21
+# position of SNP in fasta sequence: 21
+# if offset >= 21 - (nchar(tf_motif))
+#   position of SNP in TF: 21 - 9 + 1 = 21 - (ref_Offset + 1) + 1 = 21 - ref_Offset = 21 - 8
+
+
+for (i in 2:nrow(ref_test_group_file)){
+  impt_row <- read.table(paste("/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/q2_3_investigation/motifs/motif", ref_test_group_file[i ,"Num"], ".motif", sep=""), sep="\t", skip=1, header=F, stringsAsFactors=FALSE)
+  impt_row <- data.table(impt_row)
+  colnames(impt_row) <- c("A", "C", "G", "T")
+  impt_table <- rbind(impt_table, impt_row)
+}
+```
 
 ```
 

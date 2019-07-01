@@ -241,20 +241,35 @@ http://www.sthda.com/english/wiki/ggplot2-themes-and-background-colors-the-3-ele
 https://www.google.com/search?q=create+line+graph+in+ggplot2&oq=create+line+graph+in+ggplot2&aqs=chrome..69i57j0l2.4168j0j1&sourceid=chrome&ie=UTF-8
 http://www.sthda.com/english/wiki/ggplot2-line-plot-quick-start-guide-r-software-and-data-visualization
 https://www.google.com/search?q=change+color+of+one+dot+r&oq=change+color+of+one+dot+r&aqs=chrome..69i57j33l5.2916j0j1&sourceid=chrome&ie=UTF-8
+https://www.google.com/search?ei=jkwaXeOhCKfG5gKP9qyABA&q=change+color+of+one+dot+r+ggplot&oq=change+color+of+one+dot+r+ggplot&gs_l=psy-ab.3..33i299j33i160.760.1518..1588...0.0..0.388.1318.2-1j3......0....1..gws-wiz.......0i71.VWvkbLhqHNE
+
+nchar("CATGTATACATATGT") = 15
+TF: substr("ACATGGCACATGTATACATATGTAACAAACCTGCACATTGTG", 9, 9+15-1) = (fasta_sequence_og, ref_offset+1, ref_offset+nchar(tf_motif)-1)
+SNP: substr("ACATGGCA*C*ATGTATACATA*T*GTAACAAACCTGCACATTGTG", 21, 21)
+                      9             21
+position of SNP in fasta sequence: 21
+if offset >= 21 - (nchar(tf_motif))
+  position of SNP in TF: 21 - 9 + 1 = 21 - (ref_Offset + 1) + 1 = 21 - ref_Offset = 21 - 8
 
 
-```{r does_TF_hit_SNP}
+```{r does_TF_hit_SNP_if_so_get_position}
 
 # plot(max_TF_motifs$Num)
-# if (ref_test_group_with_fasta$ref_Offset[1] >= 21 - nchar(tf_motif))
-# {
-#   
-# }
+if (ref_test_group_with_fasta$ref_Offset[i] >= 21 - nchar(tf_motif))
+{
+    ref_test_group_with_fasta$SNPPosInFasta[i] <- 21 - ref_test_group_with_fasta$ref_Offset[i]
+    impt_base <- max_TF_motifs[21 - ref_test_group_with_fasta$ref_Offset[i], ]
+}
 
+
+```
+
+```{r plot_data, include=F}
 ggplot(max_TF_motifs, aes(x=Index, y=Num, label=Base)) + 
   geom_line() + 
   geom_point() +
   geom_text(aes(label=Base), hjust=2, vjust=1) + 
+  #geom_point(data = max_TF_motifs[21 - ref_test_group_with_fasta$ref_Offset[1],], x=Index, y = Num) +
   theme_stata() +
   ggtitle("Homer TF Motif")
   # + theme(
@@ -269,5 +284,12 @@ ggplot(max_TF_motifs, aes(x=Index, y=Num, label=Base)) +
   #                                   linetype = 'solid',
   #                                   colour = "white")
   # )
+
+```
+
+```{r plot_mass_data}
+
+ggplot(impt_base, x=impt_base$Num, y=impt_base$Index)
+
 ```
 

@@ -198,142 +198,9 @@ saveRDS(full_chr, "q2_3_output/full_chr.rds")
 # paste("saveRDS(chr1_", 1:29, ", 'q2_3_output/chr1_", 1:29, ".rds')", sep = "", collapse="  ")
 full_chr <- readRDS("q2_3_output/full_chr.rds")
 
-# some random calculations to figure things out
-# > nchar(gsub(', |\"|\n', "", paste(chr1[1:x[1]],collapse="")))
-# [1] 8594853
-# > nchar(full_chr)
-# [1] 249250708
-# > 249250708/8594853
-# [1] 29
-# > nchar("TCATGCCCCGAGAGCTGAGTGCAAGGGAGAGGCAGCGCTGTCTGTGCTTC")*171897
-# [1] 8594850
-# > 171897*50*29
-# [1] 249250650
-# > 249250708-249250650
-# [1] 58
-# > substr(full_chr, 1, 10)
-# [1] "c(NNNNNNNN"
-# > substr(chr1_1, 1, 10)
-# [1] "c(NNNNNNNN"
-
 # replace all parentheses - not sure if this will work in previous gsub creations
 full_chr_mod <- gsub('c\\(|\\)', "", full_chr)
 full_chr_mod <- gsub(')', "", full_chr_mod)
-# write.table(full_chr_mod,file="chr1mod.txt")
-
-# str_sub(full_chr_mod, 8594750, 8594900)
-# [1] "Cgaaagtttgatgaagatgagatctacacagtcacaaagcaacctcccacaaaatggttattaattaaaaagggaaaaagagacaccgtacaatggcaaaa)cctggcagacatcacgtccagcaactggtcaaagtgaacattaccagca"
-# > gsub('//)', "", str_sub(full_chr_mod, 8594750, 8594900))
-# [1] "Cgaaagtttgatgaagatgagatctacacagtcacaaagcaacctcccacaaaatggttattaattaaaaagggaaaaagagacaccgtacaatggcaaaa)cctggcagacatcacgtccagcaactggtcaaagtgaacattaccagca"
-# > gsub(')', "", str_sub(full_chr_mod, 8594750, 8594900))
-# [1] "Cgaaagtttgatgaagatgagatctacacagtcacaaagcaacctcccacaaaatggttattaattaaaaagggaaaaagagacaccgtacaatggcaaaacctggcagacatcacgtccagcaactggtcaaagtgaacattaccagca"
-# > full_chr_mod <- gsub('c\\(|)', "", full_chr)
-# > 
-#   > a_gene_snp$fasta_seq_og <- toupper(str_sub(full_chr_mod, a_gene_snp$SNPWindowStart+11, a_gene_snp$SNPWindowEnd+1+11))
-# > # rs10082323 tggaaattgagccttggagAgattaaatgcatggggcatgcc
-#   > a_gene_snp$fasta_seq_mod <- a_gene_snp$fasta_seq_og
-# > substr(a_gene_snp$fasta_seq_mod, 20, 20) <- a_gene_snp$OtherAllele
-# > head(ref_test_group_with_fasta)
-# SNPWindow       SNP.x
-# 1: chromosome:GRCh37:1:100378631:100378671:1   rs6577147
-# 2: chromosome:GRCh37:1:100378631:100378671:1   rs6577147
-# 3: chromosome:GRCh37:1:100479240:100479280:1    rs482778
-# 4: chromosome:GRCh37:1:100479240:100479280:1    rs482778
-# 5: chromosome:GRCh37:1:100479240:100479280:1    rs482778
-# 6: chromosome:GRCh37:1:100870398:100870438:1 rs143494014
-# FASTA_ID ref_Offset
-# 1: chromosome:GRCh37:1:100378631:100378671:1-Dup1         11
-# 2: chromosome:GRCh37:1:100378631:100378671:1-Dup1         11
-# 3: chromosome:GRCh37:1:100479240:100479280:1-Dup2          6
-# 4: chromosome:GRCh37:1:100479240:100479280:1-Dup2          6
-# 5: chromosome:GRCh37:1:100479240:100479280:1-Dup2          6
-# 6: chromosome:GRCh37:1:100870398:100870438:1-Dup1          0
-# Sequence
-# 1:         TAGGGTGTGGTT
-# 2:         TAGGGTGTGGTT
-# 3:      TGTGTATATATATAC
-# 4:      TGTGTATATATATAC
-# 5:      TGTGTATATATATAC
-# 6: AAAAAACAAAACAAAACAAA
-# Motif Name ref_Strand
-# 1:      EKLF(Zf)/Erythrocyte-Klf1-ChIP-Seq(GSE20478)/Homer          +
-#   2:      EKLF(Zf)/Erythrocyte-Klf1-ChIP-Seq(GSE20478)/Homer          +
-#   3: OCT:OCT(POU,Homeobox)/NPC-OCT6-ChIP-Seq(GSE43916)/Homer          +
-#   4: OCT:OCT(POU,Homeobox)/NPC-OCT6-ChIP-Seq(GSE43916)/Homer          +
-#   5: OCT:OCT(POU,Homeobox)/NPC-OCT6-ChIP-Seq(GSE43916)/Homer          +
-#   6: FOXA1:AR(Forkhead,NR)/LNCAP-AR-ChIP-Seq(GSE27824)/Homer          +
-#   ref_MotifScore            Gene GeneSymbol GeneChr   GenePos       SNP.y
-# 1:       11.35154 ENSG00000079335     CDC14A       1 100898208   rs6577147
-# 2:       11.35154 ENSG00000156876      SASS6       1 100573815   rs6577147
-# 3:       10.43584 ENSG00000079335     CDC14A       1 100898208    rs482778
-# 4:       10.43584 ENSG00000122477     LRRC39       1 100629090    rs482778
-# 5:       10.43584 ENSG00000156875      HIAT1       1 100526293    rs482778
-# 6:       11.90027 ENSG00000079335     CDC14A       1 100898208 rs143494014
-# SNPChr    SNPPos AssessedAllele OtherAllele SNPWindowStart SNPWindowEnd
-# 1:      1 100378651              T           C      100378631    100378671
-# 2:      1 100378651              T           C      100378631    100378671
-# 3:      1 100479260              A           C      100479240    100479280
-# 4:      1 100479260              A           C      100479240    100479280
-# 5:      1 100479260              A           C      100479240    100479280
-# 6:      1 100870418              A           C      100870398    100870438
-# fasta_seq_og
-# 1: ACAAAAATTAGTAGGGTGTGGTTATGTGAGCTTGTAGTCCCA
-# 2: ACAAAAATTAGTAGGGTGTGGTTATGTGAGCTTGTAGTCCCA
-# 3: TATATGTGTGTATATATATACACACACATACCTATTTTATAT
-# 4: TATATGTGTGTATATATATACACACACATACCTATTTTATAT
-# 5: TATATGTGTGTATATATATACACACACATACCTATTTTATAT
-# 6: AAAAAACAAAACAAAACAAAACAAAACAAAACAAAAAACTAA
-# fasta_seq_mod
-# 1: ACAAAAATTAGTAGGGTGTCGTTATGTGAGCTTGTAGTCCCA
-# 2: ACAAAAATTAGTAGGGTGTCGTTATGTGAGCTTGTAGTCCCA
-# 3: TATATGTGTGTATATATATCCACACACATACCTATTTTATAT
-# 4: TATATGTGTGTATATATATCCACACACATACCTATTTTATAT
-# 5: TATATGTGTGTATATATATCCACACACATACCTATTTTATAT
-# 6: AAAAAACAAAACAAAACAACACAAAACAAAACAAAAAACTAA
-# > dim(full_chr_mod)
-# NULL
-# > length(full_chr_mod)
-# [1] 1
-# > nchar(full_chr_mod)
-# [1] 249250621
-# > full_chr_mod <- gsub('c\\(|\\)', "", full_chr)
-# > 
-#   > nchar(full_chr_mod)
-# [1] 249250621
-# > full_chr_mod <- gsub(')', "", full_chr_mod)
-# > 
-#   > nchar(full_chr_mod)
-# [1] 249250621
-# > stri_count(full_chr, regex="\\)")
-# Error in stri_count(full_chr, regex = "\\)") : 
-#   could not find function "stri_count"
-# > library(stringi)
-# Warning message:
-#   package ‘stringi’ was built under R version 3.5.2 
-# > stri_count(full_chr, regex="\\)")
-# [1] 29
-# > stri_count(full_chr, regex="\\(")
-# [1] 29
-# > stri_count(full_chr_mod, regex="\\(")
-# [1] 0
-# > stri_count(full_chr_mod, regex="(")
-# Error in stri_count_regex(str, regex, ...) : 
-#   Incorrectly nested parentheses in regexp pattern. (U_REGEX_MISMATCHED_PAREN)
-# > str_sub(full_chr_mod, 8594750, 8594900)
-# [1] "Cgaaagtttgatgaagatgagatctacacagtcacaaagcaacctcccacaaaatggttattaattaaaaagggaaaaagagacaccgtacaatggcaaaacctggcagacatcacgtccagcaactggtcaaagtgaacattaccagcaa"
-# > str_sub(full_chr_mod, 8594000, 8594500)
-# [1] "GGCTTTGTTTTCCAAAAATACATGTACTCTCAACCATCTCCAATATTTTCCATCTCAGGTAAATGTTTCTGAGAATTCAAATGTGATGGCAGATAAAAGCAAACAGGAAAAAATTTGTATCCAGCTCTAGCTGCTCATCTTCAAAAGCTACACAAAGACCACGAGCTGTGGTGAGTGGAAAAGGGAACTGTTACTCAAATGCAAGTAAATTTTAGAATGTCTCAAATTCAAATTAGTTGAAATACAGGTGTTTTAGATTGTTAACTTTTCCACTTAAGTATAAAGATTTATGTTGAGGAAAAAAATGGTCCCAAGGTCACAGAGCAAAGTGACAGAAAATTaagaaataaagacattaaaaataatgaaataaggtttcttaatgttaaagaagaatgttacacataaggaaaagggaataaactagcagaaattctgtagtactggattgaacttggagaatttcacatgaacttatgaatatacacacataaatacaaa"
-# > stri_count(full_chr, regex="c\\(|\\)")
-# [1] 58
-# > dim(strsplit(full_chr_mod, ","))
-# NULL
-# > dim(strsplit(full_chr_mod, ")"))
-# NULL
-# > dim(strsplit(full_chr, ")"))
-# NULL
-# > dim(strsplit(full_chr, "\\)"))
-# NULL
-# nchar(full_chr_mod) 249250621
 
 # ==========================================================
 # a_gene_snp
@@ -357,7 +224,6 @@ substr(a_gene_snp$fasta_seq_mod, 21, 21) <- a_gene_snp$AssessedAllele
 fwrite(a_gene_snp, "q2_3_output/a_gene_snp.txt", sep="\t")
 
 # the 1 at the end should be the + or - strand...fix this
-# doesn't really work
 # write.fasta(a_gene_snp$fasta_seq_mod, paste("chromosome:GRCh37:",a_gene_snp$SNPChr, ":", a_gene_snp$SNPWindowStart, ":", a_gene_snp$SNPWindowEnd,":1", sep=""), "q2_3_output/fasta_master1.fa", open = "w", nbchar = 60, as.string = F)
 
 write.fasta(a_gene_snp$fasta_seq_mod[1], paste("chromosome:GRCh37:",a_gene_snp$SNPChr[1], ":", a_gene_snp$SNPWindowStart[1], ":", a_gene_snp$SNPWindowEnd[1],":1", sep=""), "q2_3_output/fasta_master_alt.fa", open = "w", nbchar = 60, as.string = F)
@@ -370,7 +236,7 @@ for (i in 2:nrow(a_gene_snp)){
   write.fasta(a_gene_snp$fasta_seq_og[i], paste("chromosome:GRCh37:",a_gene_snp$SNPChr[i], ":", a_gene_snp$SNPWindowStart[i], ":", a_gene_snp$SNPWindowEnd[i],":1", sep=""), "q2_3_output/fasta_master_og.fa", open = "a", nbchar = 60, as.string = F)
 }
 
-# new fasta file!
+# new fasta file! get rid of duplicates and make sure SNPs fit
 
 a_gene_snp_new <- a_gene_snp[which(str_sub(a_gene_snp$fasta_seq_og, 21, 21) == a_gene_snp$OtherAllele), ] # 710,183 x 14
 a_gene_snp_new2 <- a_gene_snp_new[!duplicated(a_gene_snp_new$SNP),] # 269,450 x 14 non duplicated
@@ -387,102 +253,12 @@ for (i in 2:nrow(a_gene_snp_new2)){
 
 
 # test:
-z <- cbind(str_sub(a_gene_snp$fasta_seq_og, 21, 21), a_gene_snp$AssessedAllele, a_gene_snp$OtherAllele, a_gene_snp$SNP, a_gene_snp$SNPWindowStart, a_gene_snp$SNPWindowEnd, a_gene_snp$SNPPos, str_sub(full_chr_mod,a_gene_snp$SNPPos, a_gene_snp$SNPPos), a_gene_snp$fasta_seq_og)
-colnames(z) <- c("str_sub(a_gene_snp$fasta_seq_og, 21, 21)", "a_gene_snp$AssessedAllele", "a_gene_snp$OtherAllele", "a_gene_snp$SNP", "a_gene_snp$SNPWindowStart", "a_gene_snp$SNPWindowEnd", "a_gene_snp$SNPPos", "str_sub(full_chr_mod,a_gene_snp$SNPPos,a_gene_snp$SNPPos", "a_gene_snp$fasta_sequence_og")
-zz <- z[which(z[,2]==toupper(z[,7]) & toupper(z[,7])==toupper(z[,1])), ]
-colnames(zz) <- c("str_sub(a_gene_snp$fasta_seq_og, 20, 20)", "a_gene_snp$AssessedAllele", "a_gene_snp$SNP", "a_gene_snp$SNPWindowStart", "a_gene_snp$SNPWindowEnd", "a_gene_snp$SNPPos", "str_sub(full_chr_mod,a_gene_snp$SNPPos,a_gene_snp$SNPPos", "a_gene_snp$fasta_sequence_og")
-zzz <- z[which(z[,2]!=toupper(z[,7])), ]
-colnames(zzz) <- c("str_sub(a_gene_snp$fasta_seq_og, 20, 20)", "a_gene_snp$AssessedAllele", "a_gene_snp$SNP", "a_gene_snp$SNPWindowStart", "a_gene_snp$SNPWindowEnd", "a_gene_snp$SNPPos", "str_sub(full_chr_mod,a_gene_snp$SNPPos,a_gene_snp$SNPPos", "a_gene_snp$fasta_sequence_og")
-
-# http://bioinfo.cipf.es/apps-beta/bam-viewer/0.0.1/ use this to check allele stuff
-# > head(a_gene_snp)
-# Gene GeneSymbol GeneChr   GenePos        SNP SNPChr
-# 1: ENSG00000000457      SCYL3       1 169842606 rs10082323      1
-# 2: ENSG00000000457      SCYL3       1 169842606  rs1011266      1
-# 3: ENSG00000000457      SCYL3       1 169842606 rs10127867      1
-# 4: ENSG00000000457      SCYL3       1 169842606 rs10157246      1
-# 5: ENSG00000000457      SCYL3       1 169842606 rs10157266      1
-# 6: ENSG00000000457      SCYL3       1 169842606 rs10157398      1
-# SNPPos AssessedAllele OtherAllele SNPWindowStart
-# 1: 169643176              A           G      169643156
-# 2: 169647046              A           G      169647026
-# 3: 170018276              C           T      170018256
-# 4: 169756203              G           A      169756183
-# 5: 169756389              G           A      169756369
-# 6: 169756548              C           G      169756528
-# SNPWindowEnd                               fasta_seq_og
-# 1:    169643196 AGATTAAATGCATGGGGCATGCCATTTGACTAGAAACTGGAA
-# 2:    169647066 GACTATTTTTCCTTCTTGCCGATTTTTATCTGGTTTTTAAAT
-# 3:    170018296 TCTGGGATGATCGAGCTTGGTTGGGGGAGGTGGGTCTGCCAT
-# 4:    169756223 AGAACTATGCTGCTGCTGCTGCAGTGTAGCCAGGACGCACAG
-# 5:    169756409 CTTCTGTAGCCCTAATTTCCGGTTCAAACTCTGCATTCACCT
-# 6:    169756568 CAAGAATCCCCACCTCAAAAGTCACTATCTCCCTCCCTGGTA
-# fasta_seq_mod
-# 1: AGATTAAATGCATGGGGCAGGCCATTTGACTAGAAACTGGAA
-# 2: GACTATTTTTCCTTCTTGCGGATTTTTATCTGGTTTTTAAAT
-# 3: TCTGGGATGATCGAGCTTGTTTGGGGGAGGTGGGTCTGCCAT
-# 4: AGAACTATGCTGCTGCTGCAGCAGTGTAGCCAGGACGCACAG
-# 5: CTTCTGTAGCCCTAATTTCAGGTTCAAACTCTGCATTCACCT
-# 6: CAAGAATCCCCACCTCAAAGGTCACTATCTCCCTCCCTGGTA
-# > head(z)
-# [,1] [,2] [,3]         [,4]        [,5]        [,6]       
-# [1,] "T"  "A"  "rs10082323" "169643156" "169643196" "169643176"
-# [2,] "C"  "A"  "rs1011266"  "169647026" "169647066" "169647046"
-# [3,] "G"  "C"  "rs10127867" "170018256" "170018296" "170018276"
-# [4,] "T"  "G"  "rs10157246" "169756183" "169756223" "169756203"
-# [5,] "C"  "G"  "rs10157266" "169756369" "169756409" "169756389"
-# [6,] "A"  "C"  "rs10157398" "169756528" "169756568" "169756548"
-# [,7]
-# [1,] "g" 
-# [2,] "g" 
-# [3,] "t" 
-# [4,] "G" 
-# [5,] "G" 
-# [6,] "g" 
-# > View(a_gene_snp$fasta_seq_og)
-# > head(z <- cbind(str_sub(a_gene_snp$fasta_seq_og, 20, 20), a_gene_snp$AssessedAllele, a_gene_snp$SNP, a_gene_snp$SNPWindowStart, a_gene_snp$SNPWindowEnd, a_gene_snp$SNPPos, str_sub(full_chr_mod,a_gene_snp$SNPPos, a_gene_snp$SNPPos), a_gene_snp$fasta_sequence_og))
-# [,1] [,2] [,3]         [,4]        [,5]        [,6]       
-# [1,] "T"  "A"  "rs10082323" "169643156" "169643196" "169643176"
-# [2,] "C"  "A"  "rs1011266"  "169647026" "169647066" "169647046"
-# [3,] "G"  "C"  "rs10127867" "170018256" "170018296" "170018276"
-# [4,] "T"  "G"  "rs10157246" "169756183" "169756223" "169756203"
-# [5,] "C"  "G"  "rs10157266" "169756369" "169756409" "169756389"
-# [6,] "A"  "C"  "rs10157398" "169756528" "169756568" "169756548"
-# [,7]
-# [1,] "g" 
-# [2,] "g" 
-# [3,] "t" 
-# [4,] "G" 
-# [5,] "G" 
-# [6,] "g" 
-# > 
-#   > View(a_gene_snp)
-# > "AGACCCCCTGCCAGGGAGACCCCAGGCGCCTGAATGGCCACG"
-# [1] "AGACCCCCTGCCAGGGAGACCCCAGGCGCCTGAATGGCCACG"
-# > "TGCCAGGGAGACTCCAGGCGCCTGA"
-# [1] "TGCCAGGGAGACTCCAGGCGCCTGA"
-# > nchar("TGCCAGGGAGACTCCAGGCGCCTGA")
-# [1] 25
-# > substr("AGACCCCCTGCCAGGGAGACCCCAGGCGCCTGAATGGCCACG", 20, 20)
-# [1] "C"
-# > substr("AGACCCCCTGCCAGGGAGACCCCAGGCGCCTGAATGGCCACG", 20, 20)
-# [1] "C"
-# > substr("AGACCCCCTGCCAGGGAGACCCCAGGCGCCTGAATGGCCACG", 18, 22)
-# [1] "GACCC"
-# > 
-#   > substr("AGATTAAATGCATGGGGCATGCCATTTGACTAGAAACTGGAA", 20, 20)
-# [1] "T"
-# > substr("AGATTAAATGCATGGGGCATGCCATTTGACTAGAAACTGGAA", 19, 21)
-# [1] "ATG"
-# > substr("AGATTAAATGCATGGGGCATGCCATTTGACTAGAAACTGGAA", 21, 21)
-# [1] "G"
-# > substr("TTTCTTTACCAGCACTCTTAATAATCATTCTTCTGTGCATCT", 21, 21)
-# [1] "A"
-# > substr("TTTCTTTACCAGCACTCTTAATAATCATTCTTCTGTGCATCT", 20, 20)
-# [1] "A"
-# > substr('CAAGAATCCCCACCTCAAAAGTCACTATCTCCCTCCCTGGTA', 21, 21)
-# [1] "G"
-
+# z <- cbind(str_sub(a_gene_snp$fasta_seq_og, 21, 21), a_gene_snp$AssessedAllele, a_gene_snp$OtherAllele, a_gene_snp$SNP, a_gene_snp$SNPWindowStart, a_gene_snp$SNPWindowEnd, a_gene_snp$SNPPos, str_sub(full_chr_mod,a_gene_snp$SNPPos, a_gene_snp$SNPPos), a_gene_snp$fasta_seq_og)
+# colnames(z) <- c("str_sub(a_gene_snp$fasta_seq_og, 21, 21)", "a_gene_snp$AssessedAllele", "a_gene_snp$OtherAllele", "a_gene_snp$SNP", "a_gene_snp$SNPWindowStart", "a_gene_snp$SNPWindowEnd", "a_gene_snp$SNPPos", "str_sub(full_chr_mod,a_gene_snp$SNPPos,a_gene_snp$SNPPos", "a_gene_snp$fasta_sequence_og")
+# zz <- z[which(z[,2]==toupper(z[,7]) & toupper(z[,7])==toupper(z[,1])), ]
+# colnames(zz) <- c("str_sub(a_gene_snp$fasta_seq_og, 20, 20)", "a_gene_snp$AssessedAllele", "a_gene_snp$SNP", "a_gene_snp$SNPWindowStart", "a_gene_snp$SNPWindowEnd", "a_gene_snp$SNPPos", "str_sub(full_chr_mod,a_gene_snp$SNPPos,a_gene_snp$SNPPos", "a_gene_snp$fasta_sequence_og")
+# zzz <- z[which(z[,2]!=toupper(z[,7])), ]
+# colnames(zzz) <- c("str_sub(a_gene_snp$fasta_seq_og, 20, 20)", "a_gene_snp$AssessedAllele", "a_gene_snp$SNP", "a_gene_snp$SNPWindowStart", "a_gene_snp$SNPWindowEnd", "a_gene_snp$SNPPos", "str_sub(full_chr_mod,a_gene_snp$SNPPos,a_gene_snp$SNPPos", "a_gene_snp$fasta_sequence_og")
 
 # ==========================================================
 # create homer output

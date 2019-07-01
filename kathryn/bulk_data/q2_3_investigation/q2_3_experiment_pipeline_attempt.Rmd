@@ -28,8 +28,8 @@ Similarly, I bet the SNPs occur in the super important core part of the motif wi
 Limitations: only looks at positive strand
 
 ```{r load_libraries}
-source("https://bioconductor.org/biocLite.R")
-BiocManager::install("seqLogo")
+# source("https://bioconductor.org/biocLite.R")
+# BiocManager::install("seqLogo")
 
 library(seqLogo) # makePWM
 library(stringr) # read.fasta, write.fasta
@@ -41,27 +41,27 @@ library(matrixStats)
 
 ```{r load_data}
 
-in_ref_not_alt_unique_SNP <- fread("/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/q2_3_output/in_ref_not_alt_unique_SNP.txt")
-in_alt_not_ref_unique_SNP <- fread("/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/q2_3_output/in_alt_not_ref_unique_SNP.txt")
+in_ref_not_alt_unique_SNP <- fread("/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/q2_3_output/in_ref_not_alt_unique_SNP.txt") # 264905 x 8
+in_alt_not_ref_unique_SNP <- fread("/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/q2_3_output/in_alt_not_ref_unique_SNP.txt") # 269853 x 8
 
-x1 <- in_ref_not_alt_unique_SNP[!duplicated(in_ref_not_alt_unique_SNP),] # 73345
-x2 <- in_alt_not_ref_unique_SNP[!duplicated(in_alt_not_ref_unique_SNP),] # 69674
+x1 <- in_ref_not_alt_unique_SNP[!duplicated(in_ref_not_alt_unique_SNP),] # 70550 x 8
+x2 <- in_alt_not_ref_unique_SNP[!duplicated(in_alt_not_ref_unique_SNP),] # 72078 x 8
 #in_ref_not_alt_unique_SNP$ref_Offset <- in_ref_not_alt_unique_SNP$ref_Offset + 21
 #in_alt_not_ref_unique_SNP$alt_Offset <- in_alt_not_ref_unique_SNP$alt_Offset + 21
 
-a_gene_snp <- fread("/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/q2_3_output/a_gene_snp.txt")
-a_gene_snp$SNPWindow <- paste("chromosome:GRCh37:",a_gene_snp$SNPChr, ":", a_gene_snp$SNPWindowStart, ":", a_gene_snp$SNPWindowEnd,":1", sep="")
+a_gene_snp <- fread("/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/q2_3_output/a_gene_snp.txt") # 925540 x 14
+a_gene_snp$SNPWindow <- paste("chromosome:GRCh37:",a_gene_snp$SNPChr, ":", a_gene_snp$SNPWindowStart, ":", a_gene_snp$SNPWindowEnd,":1", sep="") # 925540 x 15
 
 ```
 
 Using only motifs on positive strands, sort motifs by Motif Score
 ```{r get_samples}
 
-x1_s <- x1[!duplicated(x1$"Motif Name"), ]
-x2_s <- x2[!duplicated(x2$"Motif Name"), ]
+x1_s <- x1[!duplicated(x1$"Motif Name"), ] # 423 x8
+x2_s <- x2[!duplicated(x2$"Motif Name"), ] # 422 x 8
 
-z <- inner_join(x1_s[x1_s$"ref_Strand" == "+",], x2_s[x2_s$"alt_Strand" == "+",], by="Motif Name")
-z_test_group <- tail(z[order(z$"ref_MotifScore", decreasing=F),], n=11L)
+z <- inner_join(x1_s[x1_s$"ref_Strand" == "+",], x2_s[x2_s$"alt_Strand" == "+",], by="Motif Name") # 925540 x 9
+z_test_group <- tail(z[order(z$"ref_MotifScore", decreasing=F),], n=11L) # 11 x 15
 #z_test_group$alt_Offset <- z_test_group$alt_Offset + 21
 #z_test_group$ref_Offset <- z_test_group$ref_Offset + 21
 
@@ -84,8 +84,8 @@ alt_test_group_transposed
 ```
 
 ```{r test_group_data}
-ref_test_group <- x1_s[x1_s$"Motif Name" %in% z_test_group$"Motif Name"]
-alt_test_group <- x2_s[x2_s$"Motif Name" %in% z_test_group$"Motif Name"]
+ref_test_group <- x1_s[x1_s$"Motif Name" %in% z_test_group$"Motif Name"] # 11 x 8 
+alt_test_group <- x2_s[x2_s$"Motif Name" %in% z_test_group$"Motif Name"] # 11 x 8
 
 # Note: ref_test_group[1,"Motif Name"] != ref_test_group$`Motif Name`[1]
 ```
@@ -106,19 +106,20 @@ for (i in 2:412){
 
 motifs_table <- cbind(motifs_table, 1:412)
 colnames(motifs_table)[2] <- "Num"
+# 412 x 2
 
 ```
 
 ```{r match_motifs_with_test_groups}
-
-ref_test_group_file <- left_join(ref_test_group, motifs_table)
-alt_test_group_file <- left_join(alt_test_group, motifs_table)
+ 
+ref_test_group_file <- left_join(ref_test_group, motifs_table) # 11 x 9
+alt_test_group_file <- left_join(alt_test_group, motifs_table) # 11 x 9
      
 ```
 
 Currently only with ref_test_group_file[i,]
 
-```{r make_PWM_and_get_motif_sequence}
+```{r make_PWM_and_get_motif_sequence_for_1_motif}
 
 i=1
 impt <- read.table(paste("/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/q2_3_investigation/motifs/motif", ref_test_group_file[i,"Num"], ".motif", sep=""), sep="\t", skip=1, header=F, stringsAsFactors=FALSE)
@@ -127,7 +128,8 @@ pe <- makePWM(t(impt))
 
 max_TF_motifs <- data.frame(cbind(data.frame(rowMaxs(as.matrix(impt), cols=T)), 1:nrow(impt), colnames(impt)[apply(impt,1,which.max)]))
 colnames(max_TF_motifs) <- c("Num", "Index", "Base")
-#tf_motif: CTGGGTGTGGCC #paste(max_TF_motifs$Base, collapse="", sep="")
+
+tf_motif <- paste(max_TF_motifs$Base, collapse="", sep="")  # CATGCATATGCATAT
 ```
 
 ```{r make_seqLogos, include=F}
@@ -201,15 +203,71 @@ alt_foxa1 <- merge(alt_foxa1, a_gene_snp, by = c("SNPWindow"))
 <!-- alt_foxa1_fasta_seq_mod: AAAAAACAAAACAAAACAACACAAAACAAAACAAAAAACTAA -->
 
 ref_test_group already has the ref_sequence
-tf_motif:                       CTGGGTGTGGCC
-ref_test_group[1,"Sequence"] = TAGGGTGTGGTT
+tf_motif by homer                        =   CATGCATATGCATAT
+tf_motif by ref_test_group[1,"Sequence"] =   CATGTATACATATGT
 
-```{r get_fasta_seq}
+```{r get_fasta_seq_and_get_rid_of_matches_that_do_not_work}
 
-ref_test_group_with_fasta <- merge(ref_test_group, a_gene_snp, by = c("SNPWindow"))
+ref_test_group_with_fasta <- merge(ref_test_group, a_gene_snp, by = c("SNPWindow", "SNP")) # also by 'SNP'
 ref_test_group_with_fasta$ref_Offset <- ref_test_group_with_fasta$ref_Offset+21
 #ref fasta id og: ACAAAAATTAGTAGGGTGTGGTTATGTGAGCTTGTAGTCCCA, 11
 
+ref_test_group_with_fasta <- ref_test_group_with_fasta[which(str_sub(ref_test_group_with_fasta$fasta_seq_og, 21, 21) == ref_test_group_with_fasta$OtherAllele), ] # 37x20
+# ref_test_group_with_fasta <- ref_test_group_with_fasta[!duplicated(a_gene_snp_new$SNP),] # 269,450 x 14 non duplicated
+
 ```
 
+Where does the SNP hit the TF? for ref_test_group[1,]
+Narrow down to ref_test_group_file[i, ]
+
+I think eQTLGen is zero-indexed...?
+
+```{r see_where_TF_hits_fasta_seq}
+
+ref_test_group_with_fasta[which(ref_test_group_with_fasta$"Motif Name" == ref_test_group_file[i,"Motif Name"]),]
+
+substr(ref_test_group_with_fasta$fasta_seq_og[1], ref_test_group_with_fasta$ref_Offset[1]+1, ref_test_group_with_fasta$ref_Offset[1]+1)
+# it works
+
+```
+
+ggplot2:
+https://www.google.com/search?ei=HCkaXa-VH8ev5wLY2ZToBQ&q=plot+r+label+points&oq=plot+r+label+points&gs_l=psy-ab.3..0j0i22i30l4.1980.5905..6176...0.0..0.397.1828.8j5j0j1......0....1..gws-wiz.......0i71j35i39j0i67j0i20i263.ZsFovZZdwdI
+https://www.r-bloggers.com/adding-labels-to-points-in-a-scatter-plot-in-r/
+https://rpubs.com/RatherBit/188960
+https://www.google.com/search?q=ggplot2+scatter+plot+label+points&oq=ggplot2+scatter+plot+label+points&aqs=chrome.0.0j33l3.5449j0j1&sourceid=chrome&ie=UTF-8
+https://stackoverflow.com/questions/15624656/label-points-in-geom-point
+http://www.sthda.com/english/wiki/ggplot2-themes-and-background-colors-the-3-elements
+https://www.google.com/search?q=create+line+graph+in+ggplot2&oq=create+line+graph+in+ggplot2&aqs=chrome..69i57j0l2.4168j0j1&sourceid=chrome&ie=UTF-8
+http://www.sthda.com/english/wiki/ggplot2-line-plot-quick-start-guide-r-software-and-data-visualization
+https://www.google.com/search?q=change+color+of+one+dot+r&oq=change+color+of+one+dot+r&aqs=chrome..69i57j33l5.2916j0j1&sourceid=chrome&ie=UTF-8
+
+
+```{r does_TF_hit_SNP}
+
+# plot(max_TF_motifs$Num)
+# if (ref_test_group_with_fasta$ref_Offset[1] >= 21 - nchar(tf_motif))
+# {
+#   
+# }
+
+ggplot(max_TF_motifs, aes(x=Index, y=Num, label=Base)) + 
+  geom_line() + 
+  geom_point() +
+  geom_text(aes(label=Base), hjust=2, vjust=1) + 
+  theme_stata() +
+  ggtitle("Homer TF Motif")
+  # + theme(
+  #   panel.background = element_rect(fill = "lightblue",
+  #                                   colour = "lightblue",
+  #                                   size = 0.5, 
+  #                                   linetype = "solid"),
+  #   panel.grid.major = element_line(size = 0.5, 
+  #                                   linetype = 'solid',
+  #                                   colour = "white"), 
+  #   panel.grid.minor = element_line(size = 0.25, 
+  #                                   linetype = 'solid',
+  #                                   colour = "white")
+  # )
+```
 

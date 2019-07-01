@@ -350,10 +350,9 @@ a_gene_snp$SNPWindowStart <- a_gene_snp$SNPPos-20
 a_gene_snp$SNPWindowEnd <- a_gene_snp$SNPPos+20
 
 a_gene_snp$fasta_seq_og <- toupper(str_sub(full_chr_mod, a_gene_snp$SNPWindowStart, a_gene_snp$SNPWindowEnd+1))
-# rs10082323 tggaaattgagccttggagAgattaaatgcatggggcatgcc
 a_gene_snp$fasta_seq_mod <- a_gene_snp$fasta_seq_og
-substr(a_gene_snp$fasta_seq_mod, 20, 20) <- a_gene_snp$OtherAllele
-# rs10082323 tggaaattgagccttggagGgattaaatgcatggggcatgcc
+# NEW based on previous test: make bp position 21, and make it Assessed Allele
+substr(a_gene_snp$fasta_seq_mod, 21, 21) <- a_gene_snp$AssessedAllele
 
 fwrite(a_gene_snp, "q2_3_output/a_gene_snp.txt", sep="\t")
 
@@ -371,10 +370,119 @@ for (i in 2:nrow(a_gene_snp)){
   write.fasta(a_gene_snp$fasta_seq_og[i], paste("chromosome:GRCh37:",a_gene_snp$SNPChr[i], ":", a_gene_snp$SNPWindowStart[i], ":", a_gene_snp$SNPWindowEnd[i],":1", sep=""), "q2_3_output/fasta_master_og.fa", open = "a", nbchar = 60, as.string = F)
 }
 
+# new fasta file!
+
+a_gene_snp_new <- a_gene_snp[which(str_sub(a_gene_snp$fasta_seq_og, 21, 21) == a_gene_snp$OtherAllele), ] # 710,183 x 14
+a_gene_snp_new2 <- a_gene_snp_new[!duplicated(a_gene_snp_new$SNP),] # 269,450 x 14 non duplicated
+
+write.fasta(a_gene_snp_new2$fasta_seq_mod[1], paste("chromosome:GRCh37:",a_gene_snp_new2$SNPChr[1], ":", a_gene_snp_new2$SNPWindowStart[1], ":", a_gene_snp_new2$SNPWindowEnd[1],":1", sep=""), "q2_3_output/fasta_master_alt.fa", open = "w", nbchar = 60, as.string = F)
+for (i in 2:nrow(a_gene_snp_new2)){
+  write.fasta(a_gene_snp_new2$fasta_seq_mod[i], paste("chromosome:GRCh37:",a_gene_snp_new2$SNPChr[i], ":", a_gene_snp_new2$SNPWindowStart[i], ":", a_gene_snp_new2$SNPWindowEnd[i],":1", sep=""), "q2_3_output/fasta_master_alt.fa", open = "a", nbchar = 60, as.string = F)
+}
+
+write.fasta(a_gene_snp_new2$fasta_seq_og[1], paste("chromosome:GRCh37:",a_gene_snp_new2$SNPChr[1], ":", a_gene_snp_new2$SNPWindowStart[1], ":", a_gene_snp_new2$SNPWindowEnd[1],":1", sep=""), "q2_3_output/fasta_master_og.fa", open = "w", nbchar = 60, as.string = F)
+for (i in 2:nrow(a_gene_snp_new2)){
+  write.fasta(a_gene_snp_new2$fasta_seq_og[i], paste("chromosome:GRCh37:",a_gene_snp_new2$SNPChr[i], ":", a_gene_snp_new2$SNPWindowStart[i], ":", a_gene_snp_new2$SNPWindowEnd[i],":1", sep=""), "q2_3_output/fasta_master_og.fa", open = "a", nbchar = 60, as.string = F)
+}
+
+
 # test:
-View(z <- cbind(str_sub(a_gene_snp$fasta_seq_og, 20, 20), a_gene_snp$AssessedAllele, a_gene_snp$SNP, a_gene_snp$SNPWindowStart, a_gene_snp$SNPWindowEnd, a_gene_snp$SNPPos, str_sub(full_chr_mod,a_gene_snp$SNPPos,a_gene_snp$SNPPos, a_gene_snp$fasta_sequence_og)))
-colnames(z) <- c("str_sub(a_gene_snp$fasta_seq_og, 20, 20)", "a_gene_snp$AssessedAllele", "a_gene_snp$SNP", "a_gene_snp$SNPWindowStart", "a_gene_snp$SNPWindowEnd", "a_gene_snp$SNPPos", "str_sub(full_chr_mod,a_gene_snp$SNPPos,a_gene_snp$SNPPos", "a_gene_snp$fasta_sequence_og")
-View(z[which(z[,2]==toupper(z[,7])), ])
+z <- cbind(str_sub(a_gene_snp$fasta_seq_og, 21, 21), a_gene_snp$AssessedAllele, a_gene_snp$OtherAllele, a_gene_snp$SNP, a_gene_snp$SNPWindowStart, a_gene_snp$SNPWindowEnd, a_gene_snp$SNPPos, str_sub(full_chr_mod,a_gene_snp$SNPPos, a_gene_snp$SNPPos), a_gene_snp$fasta_seq_og)
+colnames(z) <- c("str_sub(a_gene_snp$fasta_seq_og, 21, 21)", "a_gene_snp$AssessedAllele", "a_gene_snp$OtherAllele", "a_gene_snp$SNP", "a_gene_snp$SNPWindowStart", "a_gene_snp$SNPWindowEnd", "a_gene_snp$SNPPos", "str_sub(full_chr_mod,a_gene_snp$SNPPos,a_gene_snp$SNPPos", "a_gene_snp$fasta_sequence_og")
+zz <- z[which(z[,2]==toupper(z[,7]) & toupper(z[,7])==toupper(z[,1])), ]
+colnames(zz) <- c("str_sub(a_gene_snp$fasta_seq_og, 20, 20)", "a_gene_snp$AssessedAllele", "a_gene_snp$SNP", "a_gene_snp$SNPWindowStart", "a_gene_snp$SNPWindowEnd", "a_gene_snp$SNPPos", "str_sub(full_chr_mod,a_gene_snp$SNPPos,a_gene_snp$SNPPos", "a_gene_snp$fasta_sequence_og")
+zzz <- z[which(z[,2]!=toupper(z[,7])), ]
+colnames(zzz) <- c("str_sub(a_gene_snp$fasta_seq_og, 20, 20)", "a_gene_snp$AssessedAllele", "a_gene_snp$SNP", "a_gene_snp$SNPWindowStart", "a_gene_snp$SNPWindowEnd", "a_gene_snp$SNPPos", "str_sub(full_chr_mod,a_gene_snp$SNPPos,a_gene_snp$SNPPos", "a_gene_snp$fasta_sequence_og")
+
+# http://bioinfo.cipf.es/apps-beta/bam-viewer/0.0.1/ use this to check allele stuff
+# > head(a_gene_snp)
+# Gene GeneSymbol GeneChr   GenePos        SNP SNPChr
+# 1: ENSG00000000457      SCYL3       1 169842606 rs10082323      1
+# 2: ENSG00000000457      SCYL3       1 169842606  rs1011266      1
+# 3: ENSG00000000457      SCYL3       1 169842606 rs10127867      1
+# 4: ENSG00000000457      SCYL3       1 169842606 rs10157246      1
+# 5: ENSG00000000457      SCYL3       1 169842606 rs10157266      1
+# 6: ENSG00000000457      SCYL3       1 169842606 rs10157398      1
+# SNPPos AssessedAllele OtherAllele SNPWindowStart
+# 1: 169643176              A           G      169643156
+# 2: 169647046              A           G      169647026
+# 3: 170018276              C           T      170018256
+# 4: 169756203              G           A      169756183
+# 5: 169756389              G           A      169756369
+# 6: 169756548              C           G      169756528
+# SNPWindowEnd                               fasta_seq_og
+# 1:    169643196 AGATTAAATGCATGGGGCATGCCATTTGACTAGAAACTGGAA
+# 2:    169647066 GACTATTTTTCCTTCTTGCCGATTTTTATCTGGTTTTTAAAT
+# 3:    170018296 TCTGGGATGATCGAGCTTGGTTGGGGGAGGTGGGTCTGCCAT
+# 4:    169756223 AGAACTATGCTGCTGCTGCTGCAGTGTAGCCAGGACGCACAG
+# 5:    169756409 CTTCTGTAGCCCTAATTTCCGGTTCAAACTCTGCATTCACCT
+# 6:    169756568 CAAGAATCCCCACCTCAAAAGTCACTATCTCCCTCCCTGGTA
+# fasta_seq_mod
+# 1: AGATTAAATGCATGGGGCAGGCCATTTGACTAGAAACTGGAA
+# 2: GACTATTTTTCCTTCTTGCGGATTTTTATCTGGTTTTTAAAT
+# 3: TCTGGGATGATCGAGCTTGTTTGGGGGAGGTGGGTCTGCCAT
+# 4: AGAACTATGCTGCTGCTGCAGCAGTGTAGCCAGGACGCACAG
+# 5: CTTCTGTAGCCCTAATTTCAGGTTCAAACTCTGCATTCACCT
+# 6: CAAGAATCCCCACCTCAAAGGTCACTATCTCCCTCCCTGGTA
+# > head(z)
+# [,1] [,2] [,3]         [,4]        [,5]        [,6]       
+# [1,] "T"  "A"  "rs10082323" "169643156" "169643196" "169643176"
+# [2,] "C"  "A"  "rs1011266"  "169647026" "169647066" "169647046"
+# [3,] "G"  "C"  "rs10127867" "170018256" "170018296" "170018276"
+# [4,] "T"  "G"  "rs10157246" "169756183" "169756223" "169756203"
+# [5,] "C"  "G"  "rs10157266" "169756369" "169756409" "169756389"
+# [6,] "A"  "C"  "rs10157398" "169756528" "169756568" "169756548"
+# [,7]
+# [1,] "g" 
+# [2,] "g" 
+# [3,] "t" 
+# [4,] "G" 
+# [5,] "G" 
+# [6,] "g" 
+# > View(a_gene_snp$fasta_seq_og)
+# > head(z <- cbind(str_sub(a_gene_snp$fasta_seq_og, 20, 20), a_gene_snp$AssessedAllele, a_gene_snp$SNP, a_gene_snp$SNPWindowStart, a_gene_snp$SNPWindowEnd, a_gene_snp$SNPPos, str_sub(full_chr_mod,a_gene_snp$SNPPos, a_gene_snp$SNPPos), a_gene_snp$fasta_sequence_og))
+# [,1] [,2] [,3]         [,4]        [,5]        [,6]       
+# [1,] "T"  "A"  "rs10082323" "169643156" "169643196" "169643176"
+# [2,] "C"  "A"  "rs1011266"  "169647026" "169647066" "169647046"
+# [3,] "G"  "C"  "rs10127867" "170018256" "170018296" "170018276"
+# [4,] "T"  "G"  "rs10157246" "169756183" "169756223" "169756203"
+# [5,] "C"  "G"  "rs10157266" "169756369" "169756409" "169756389"
+# [6,] "A"  "C"  "rs10157398" "169756528" "169756568" "169756548"
+# [,7]
+# [1,] "g" 
+# [2,] "g" 
+# [3,] "t" 
+# [4,] "G" 
+# [5,] "G" 
+# [6,] "g" 
+# > 
+#   > View(a_gene_snp)
+# > "AGACCCCCTGCCAGGGAGACCCCAGGCGCCTGAATGGCCACG"
+# [1] "AGACCCCCTGCCAGGGAGACCCCAGGCGCCTGAATGGCCACG"
+# > "TGCCAGGGAGACTCCAGGCGCCTGA"
+# [1] "TGCCAGGGAGACTCCAGGCGCCTGA"
+# > nchar("TGCCAGGGAGACTCCAGGCGCCTGA")
+# [1] 25
+# > substr("AGACCCCCTGCCAGGGAGACCCCAGGCGCCTGAATGGCCACG", 20, 20)
+# [1] "C"
+# > substr("AGACCCCCTGCCAGGGAGACCCCAGGCGCCTGAATGGCCACG", 20, 20)
+# [1] "C"
+# > substr("AGACCCCCTGCCAGGGAGACCCCAGGCGCCTGAATGGCCACG", 18, 22)
+# [1] "GACCC"
+# > 
+#   > substr("AGATTAAATGCATGGGGCATGCCATTTGACTAGAAACTGGAA", 20, 20)
+# [1] "T"
+# > substr("AGATTAAATGCATGGGGCATGCCATTTGACTAGAAACTGGAA", 19, 21)
+# [1] "ATG"
+# > substr("AGATTAAATGCATGGGGCATGCCATTTGACTAGAAACTGGAA", 21, 21)
+# [1] "G"
+# > substr("TTTCTTTACCAGCACTCTTAATAATCATTCTTCTGTGCATCT", 21, 21)
+# [1] "A"
+# > substr("TTTCTTTACCAGCACTCTTAATAATCATTCTTCTGTGCATCT", 20, 20)
+# [1] "A"
+# > substr('CAAGAATCCCCACCTCAAAAGTCACTATCTCCCTCCCTGGTA', 21, 21)
+# [1] "G"
+
 
 # ==========================================================
 # create homer output
@@ -394,9 +502,9 @@ alt <- fread("q2_3_input/homer_master_alt.txt", sep='\t', header=T)
 colnames(alt) <- c("FASTA_ID", "alt_Offset", "Sequence", "Motif Name", "alt_Strand", "alt_MotifScore")
 
 # > nrow(ref)
-# [1] 6193641
+# [1] 6144198
 # > nrow(alt)
-# [1] 6084453
+# [1] 6178496
 
 #ref_alt_common <- merge(ref, alt, by=c("Sequence", "Motif Name"))
 #fwrite(ref_alt_common, "q2_3_output/ref_alt_common.txt", sep="\t")
@@ -430,19 +538,19 @@ in_alt_not_ref <- anti_join(alt, ref, by=c("FASTA_ID_Abb", "Motif Name"))
 # fwrite(in_alt_not_ref, "q2_3_output/in_alt_not_ref_by_motif_name_fastaid.txt", sep="\t")
 
 # nrow(in_alt_not_ref)
-# [1] 530699
+# [1] 556934
 # > nrow(in_ref_not_alt)
-# [1] 193,010 -> 588670
+# [1] 535066
 
 in_ref_not_alt_unique <- in_ref_not_alt[!duplicated(in_ref_not_alt$FASTA_ID_Abb),] 
 in_alt_not_ref_unique <- in_alt_not_ref[!duplicated(in_alt_not_ref$FASTA_ID_Abb),] 
 # fwrite(in_ref_not_alt_unique, "q2_3_output/in_ref_not_alt_unique.txt", sep="\t")
 # fwrite(in_alt_not_ref_unique, "q2_3_output/in_alt_not_ref_unique.txt", sep="\t")
 
-# > nrow(x)
-# [1] 73345
-# > nrow(y)
-# [1] 69674
+# > nrow(in_ref_not_alt_unique)
+# [1] 70550
+# > nrow(in_alt_not_ref_unique)
+# [1] 72078
 
 # not necessary
 a_gene_snp <- fread("q2_3_output/a_gene_snp.txt", sep="\t")
@@ -454,14 +562,15 @@ fwrite(in_ref_not_alt_unique_SNP, "q2_3_output/in_ref_not_alt_unique_SNP.txt", s
 fwrite(in_alt_not_ref_unique_SNP, "q2_3_output/in_alt_not_ref_unique_SNP.txt", sep="\t")
 
 # > nrow(in_ref_not_alt_unique_SNP)
-# [1] 281009
+# [1] 264905
 # > nrow(in_alt_not_ref_unique_SNP)
-# [1] 266234
+# [1] 269853
 
 # dim(in_ref_not_alt_unique_SNP[!duplicated(in_ref_not_alt_unique_SNP),])
-# [1] 73345     8
+# [1] 70550     8
 # dim(in_alt_not_ref_unique_SNP[!duplicated(in_alt_not_ref_unique_SNP),])
-# [1] 69674     8
+# [1] 72078     8
+# This checks out!
 
 # ==========================================================
 # read homer output
@@ -470,8 +579,8 @@ fwrite(in_alt_not_ref_unique_SNP, "q2_3_output/in_alt_not_ref_unique_SNP.txt", s
 in_ref_not_alt_unique_SNP <- fread("q2_3_output/in_ref_not_alt_unique_SNP.txt")
 in_alt_not_ref_unique_SNP <- fread("q2_3_output/in_ref_not_alt_unique_SNP.txt")
 
-x1 <- in_ref_not_alt_unique_SNP[!duplicated(in_ref_not_alt_unique_SNP),] # 73345
-x2 <- in_alt_not_ref_unique_SNP[!duplicated(in_alt_not_ref_unique_SNP),] # 69674
+x1 <- in_ref_not_alt_unique_SNP[!duplicated(in_ref_not_alt_unique_SNP),] # 70550
+x2 <- in_alt_not_ref_unique_SNP[!duplicated(in_alt_not_ref_unique_SNP),] # 72078
 
 # can you pull out a couple examples of TFs (maybe 1 or 2) from these 73K and
 # identify which part of the motif is affected by the SNP? I bet it

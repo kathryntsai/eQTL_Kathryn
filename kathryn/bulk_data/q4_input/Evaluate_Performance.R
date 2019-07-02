@@ -49,12 +49,12 @@ Load_and_Train_Model_AUC_CVglmnet_LabeledData <- function(classifier_all, TP_tra
   mcc = (tp/n - s * p ) / (p*s*(1-s)*(1-p))^0.5
 
   sa_matrix[1,1] <- sensitivity
-  sa_matrix[2,1] <- auc 
-  sa_matrix[3,1] <- auprc
+  sa_matrix[2,1] <- auc # sensitivity vs specificoty - too easy
+  sa_matrix[3,1] <- auprc # preferred, not both based on negative set proportion
   sa_matrix[4,1] <- mcc 
 
   #newList <- list("betas" = coef(ENet_fit, s = "lambda.min"), "prediction" = ENet_pred_lambdamin, "four_metrics" = sa_matrix) #, "PRC" = PRC)
-  newList <- list("four_metrics" = sa_matrix)
+  newList <- list("four_metrics" = sa_matrix, "perf_spec_sens" = perf, "perf_prec_rec" = PR.perf)
 
   return(newList)
 }
@@ -91,7 +91,7 @@ Load_and_Train_Model_AUC_CVglmnet_LabeledData <- function(classifier_all, TP_tra
 	
         }, error=function(e){cat("ERROR :",conditionMessage(e), "\n")})
         }#while loop
-        write.table(Sens_AUC_collection, paste0("perf_ENCODE_cisvtrans.txt"), sep = "\t", quote = F, row.names = FALSE, col.names = FALSE)
+        write.table(Sens_AUC_collection, paste0("q4_output/perf_ENCODE_cisvtrans.txt"), sep = "\t", quote = F, row.names = FALSE, col.names = FALSE)
 
 
 	#entire model: up to 1,000 positive, 10,000 negative
@@ -99,7 +99,7 @@ Load_and_Train_Model_AUC_CVglmnet_LabeledData <- function(classifier_all, TP_tra
         assign(paste0("IMPACT_fit_",tf), ENet_fit)
 
 	w1 <- which(ls(1) == paste0("IMPACT_fit_",tf))
-	save(list = ls(1)[w1], file = paste0("IMPACT_model_ENCODE_cisvtrans.RData"), envir = .GlobalEnv)
+	save(list = ls(1)[w1], file = paste0("q4_output/IMPACT_model_ENCODE_cisvtrans.RData"), envir = .GlobalEnv)
 
 
 

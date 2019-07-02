@@ -96,6 +96,6 @@ compute_overlap <- function(i,my_chrom,my_gene_start,my_gene_end,len_gene){
 
                 remove(list = ls(pattern = "dataset_"))
         }
-        write.table(classifier_train_empty_besides2col, "Classifier_binary_ENCODE_cis_v_trans_eQTLs.txt", sep = "\t", quote = F, row.names = FALSE, col.names = FALSE)
+        write.table(classifier_train_empty_besides2col, "q4_output/Classifier_binary_ENCODE_cis_v_trans_eQTLs.txt", sep = "\t", quote = F, row.names = FALSE, col.names = FALSE)
         system("gzip q4_output/Classifier_binary_ENCODE_cis_v_trans_eQTLs.txt")
 

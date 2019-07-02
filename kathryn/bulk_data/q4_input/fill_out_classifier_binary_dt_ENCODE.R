@@ -2,7 +2,7 @@
 args = commandArgs(trailingOnly=TRUE)
 tf <- as.numeric(args)
 library(GenomicRanges)
-len_datasets <- 5345
+len_datasets <- 500
 chrs <- c(1:22,"X","Y")
 
 get_overlap <- function(index,chr,mydat){ #for each gene in list of ENSG_IDs 
@@ -54,8 +54,8 @@ compute_overlap <- function(i,my_chrom,my_gene_start,my_gene_end,len_gene){
 
         #these text files should have 3 columns and 10K rows each and look like 
         #chr1 15672 15673 (if the SNP is at 72)
-        positive_bed <- read.table("/Users/kathryntsai/OneDrive - Villanova University/College/2018-2019/Summer 2019/TFs_eQTLs_Research/RProjects/Project2/q4_output/only_cis_downsampled.txt",sep = "\t", header = F, stringsAsFactors = FALSE)
-        negative_bed <- read.table("/Users/kathryntsai/OneDrive - Villanova University/College/2018-2019/Summer 2019/TFs_eQTLs_Research/RProjects/Project2/q4_output/only_trans_downsampled.txt",sep = "\t", header = F, stringsAsFactors = FALSE)
+        positive_bed <- read.table("/Users/kathryntsai/OneDrive - Villanova University/College/2018-2019/Summer 2019/TFs_eQTLs_Research/RProjects/Project2/q4_output/franke_cis_bed_file_smaller.txt",sep = "\t", header = F, stringsAsFactors = FALSE)
+        negative_bed <- read.table("/Users/kathryntsai/OneDrive - Villanova University/College/2018-2019/Summer 2019/TFs_eQTLs_Research/RProjects/Project2/q4_output/franke_trans_bed_file_smaller.txt",sep = "\t", header = F, stringsAsFactors = FALSE)
 
         head(positive_bed)
         head(negative_bed)
@@ -82,16 +82,16 @@ compute_overlap <- function(i,my_chrom,my_gene_start,my_gene_end,len_gene){
                 print(paste0("chr",chromosomes[chrom]))
                 #run
                 w <- which(my_chroms == chromosomes[chrom]) #no chr in var name 
-                print(paste0("total segments to be analyzed ", length(w)))
+                print(paste0("total segments to be analyzed: ", length(w)))
                 if (length(w)>0){
                 part_classifier_impact <- matrix(0,length(w),len_datasets)
                 for (g in 1:length(w)){
-                  print(g)
+                  #print(g)
                   part_classifier_impact[g,] <- get_overlap(g,chromosomes[chrom], training_data[w,])
                 }
 
                 #fill it in! 
-                classifier_train_empty_besides2col[w,3:ncol(classifier_train_empty_besides2col)] <- part_classifier_impact
+                classifier_train_empty_besides2col[w,(numextrafeatures_pluslabel+1):ncol(classifier_train_empty_besides2col)] <- part_classifier_impact
                 }#end if len w > 0
 
                 remove(list = ls(pattern = "dataset_"))

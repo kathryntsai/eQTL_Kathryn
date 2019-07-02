@@ -28,8 +28,6 @@ franke_cis_bed_file <- data.table(paste0("chr",only_cis$SNPChr),
                                   0)
 colnames(franke_cis_bed_file) <- c("c1","c2","c3","c4","c5","c6")
 franke_cis_bed_file_small <- franke_cis_bed_file[!duplicated(franke_cis_bed_file$c4)]
-franke_cis_bed_file_smaller <- franke_cis_bed_file_small %>% sample_n(3000)
-write.table(franke_cis_bed_file_smaller, file="q4_output/franke_cis_bed_file_smaller.txt", col.names = F, row.names=F, quote=F, sep='\t')
 
 franke_trans_bed_file <- data.table(paste0("chr",only_trans$SNPChr),
                                     only_trans$SNPPos - 20,
@@ -39,5 +37,9 @@ franke_trans_bed_file <- data.table(paste0("chr",only_trans$SNPChr),
                                   0)
 colnames(franke_trans_bed_file) <- c("c1","c2","c3","c4","c5","c6")
 franke_trans_bed_file_small <- franke_trans_bed_file[!duplicated(franke_trans_bed_file$c4)]
-franke_trans_bed_file_smaller <- franke_trans_bed_file_small %>% sample_n(3000)
+
+franke_cis_bed_file_smaller <- franke_cis_bed_file_small %>% sample_n(1000)
+write.table(franke_cis_bed_file_smaller, file="q4_output/franke_cis_bed_file_smaller.txt", col.names = F, row.names=F, quote=F, sep='\t')
+
+franke_trans_bed_file_smaller <- franke_trans_bed_file_small %>% sample_n(1000)
 write.table(franke_trans_bed_file_smaller, file="q4_output/franke_trans_bed_file_smaller.txt", col.names = F, row.names=F, quote=F, sep='\t')

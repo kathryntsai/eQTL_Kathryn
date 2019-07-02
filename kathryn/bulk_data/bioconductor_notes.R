@@ -500,3 +500,12 @@ library("Biostrings")
 HiC_data_1 <- fread("/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/Important_Files/PeripheralBloodHiC/GSM3612257_Neutrophil_Ecoli_HiC_rep1_validPairs.txt", sep="\t", header=T)
 # # This is the Hg38 ChicP dataset
 
+# http://zevross.com/blog/2014/08/05/using-the-r-function-anti_join-to-find-unmatched-records/
+# {r understanding_anti_join, include=F}
+# table1[!table1$id%in%table2$id,]
+# table1[is.na(match(table1$id,table2$id)),]
+# anti_join(table1, table2, by="id")
+# 
+
+
+

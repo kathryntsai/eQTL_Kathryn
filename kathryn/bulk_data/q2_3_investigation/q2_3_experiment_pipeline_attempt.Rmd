@@ -61,8 +61,8 @@ colnames(null_alt) <- c("SNPWindow", "alt_Offset", "Sequence", "Motif Name", "al
 null_alt <- null_alt[!duplicated(null_alt),]
 null_alt$SNPWindow <- gsub("\\-.*", "", null_alt$SNPWindow) # if necessary
 
-# x1 <- null_ref
-# x2 <- null_alt
+x1 <- null_ref
+x2 <- null_alt
 
 ```
 
@@ -221,7 +221,7 @@ ggplot(all_snp_pwms_ref, aes(x=as.numeric(Num))) +
   geom_density(alpha=.2, fill="#FF6666", aes(y=..count../8)) +
   geom_vline(aes(xintercept=mean(as.numeric(Num))),
             color="blue", linetype="dashed", size=1) + 
-  ggtitle("Likelihood of Interesting Motifs - Reference Allele")
+  ggtitle("Likelihood of All Motifs - Reference Allele")
 
 ```
 
@@ -372,6 +372,19 @@ ggplot(all_snp_pwms_alt, aes(x=as.numeric(Num))) +
   geom_vline(aes(xintercept=mean(as.numeric(Num))),
             color="blue", linetype="dashed", size=1) + 
   ggtitle("Likelihood of Interesting Motifs - Alternative Allele")
+
+```
+
+```{r all_null}
+all_homer <- rbind(all_snp_pwms_alt, all_snp_pwms_ref)
+
+ggplot(all_homer, aes(x=as.numeric(Num))) + 
+  geom_histogram(binwidth=.1, color="black", fill="blue") +
+  theme_stata() +
+  geom_density(alpha=.2, fill="#FF6666", aes(y=..count../8)) +
+  geom_vline(aes(xintercept=mean(as.numeric(Num))),
+            color="blue", linetype="dashed", size=1) + 
+  ggtitle("Likelihood of All Motifs - Ref/Alt Allele")
 
 ```
 

@@ -1,0 +1,1 @@
+ref_FASTA_ID	ref_Offset	Sequence	Motif Name	ref_Strand	ref_MotifScore

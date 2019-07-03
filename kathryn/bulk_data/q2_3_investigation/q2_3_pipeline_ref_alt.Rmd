@@ -295,7 +295,7 @@ ggplot(all_snp_pwms_alt, aes(x=OtherPWM, y=AssessedPWM, color=cut(as.numeric(Mot
   theme_stata() + 
   scale_colour_discrete(name="Motif Score") + 
   ggtitle("For Alt Allele") +
-  labs(x="Ref Allele", y="Alt Allele") + geom_abline(color="blue", alpha=.8)
+  labs(x="Ref Allele PWM", y="Alt Allele PWM") + geom_abline(color="blue", alpha=.8)
 
 
 ggplot(all_snp_pwms_ref, aes(x=AssessedPWM, y=OtherPWM, color=cut(as.numeric(MotifScore), 6))) +
@@ -303,7 +303,7 @@ ggplot(all_snp_pwms_ref, aes(x=AssessedPWM, y=OtherPWM, color=cut(as.numeric(Mot
   theme_stata() + 
   scale_colour_discrete(name="Motif Score") + 
   ggtitle("For Ref Allele") +
-  labs(x="Alt Allele", y="Ref Allele") + geom_abline(color="blue", alpha=.8)
+  labs(x="Alt Allele PWM", y="Ref Allele PWM") + geom_abline(color="blue", alpha=.8)
 
 
 ```

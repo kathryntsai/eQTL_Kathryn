@@ -38,8 +38,8 @@ Using only motifs on positive strands, sort motifs by Motif Score
 Change # data points with value of n in z_test_group
 ```{r get_samples}
 
-# x1_s <- x1 %>% sample_n(800)
-# x2_s <- x2 %>% sample_n(800)
+# x1_s <- x1 %>% sample_n(10000)
+# x2_s <- x2 %>% sample_n(10000)
 # fwrite(x1_s, "/Users/kathryntsai/OneDrive - Villanova University/College/2018-2019/Summer 2019/TFs_eQTLs_Research/RProjects/Project2/q2_3_output/x1_s_ref.txt", sep="\t")
 # fwrite(x2_s, "/Users/kathryntsai/OneDrive - Villanova University/College/2018-2019/Summer 2019/TFs_eQTLs_Research/RProjects/Project2/q2_3_output/x2_s_alt.txt", sep="\t")
 
@@ -340,7 +340,7 @@ df2 <- melt(data.frame(all_snp_pwms_alt[order(all_snp_pwms_alt$AssessedPWM - all
 g <- ggplot(df2, aes(x=SNPWindow, y=value, fill=variable)) +
     geom_bar(stat='identity', position='dodge')
 
-df2 <- melt(data.frame(all_snp_pwms_alt[order(all_snp_pwms_alt$'OtherPWM'), c("SNPWindow", "AssessedPWM", "OtherPWM")], id.vars='SNPWindow'))
+df2 <- melt(data.frame(all_snp_pwms_ref[order(all_snp_pwms_ref$'OtherPWM'), c("SNPWindow", "AssessedPWM", "OtherPWM")], id.vars='SNPWindow'))
 q <- ggplot(df2, aes(x=SNPWindow, y=value, fill=variable)) +
     geom_bar(stat='identity', position='dodge')
 

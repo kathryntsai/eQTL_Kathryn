@@ -313,13 +313,15 @@ in_alt_not_ref <- anti_join(alt, ref, by=c("FASTA_ID_Abb", "Motif Name"))
 # fwrite(in_ref_not_alt, "q2_3_output/in_ref_not_alt_by_motif_name_fastaid.txt", sep="\t")
 # fwrite(in_alt_not_ref, "q2_3_output/in_alt_not_ref_by_motif_name_fastaid.txt", sep="\t")
 
+# ref[which(ref$"FASTA_ID_Abb" == "chromosome:GRCh37:1:1429976:1430016:1" & ref$`Motif Name` == "n-Myc(bHLH)/mES-nMyc-ChIP-Seq(GSE11431)/Homer"),]
+
 # nrow(in_alt_not_ref)
 # [1] 556934
 # > nrow(in_ref_not_alt)
 # [1] 535066
 
-in_ref_not_alt_unique <- in_ref_not_alt[!duplicated(in_ref_not_alt$FASTA_ID_Abb),] 
-in_alt_not_ref_unique <- in_alt_not_ref[!duplicated(in_alt_not_ref$FASTA_ID_Abb),] 
+#in_ref_not_alt_unique <- in_ref_not_alt[!duplicated(in_ref_not_alt$FASTA_ID_Abb),] 
+#in_alt_not_ref_unique <- in_alt_not_ref[!duplicated(in_alt_not_ref$FASTA_ID_Abb),] 
 # fwrite(in_ref_not_alt_unique, "q2_3_output/in_ref_not_alt_unique.txt", sep="\t")
 # fwrite(in_alt_not_ref_unique, "q2_3_output/in_alt_not_ref_unique.txt", sep="\t")
 
@@ -331,11 +333,14 @@ in_alt_not_ref_unique <- in_alt_not_ref[!duplicated(in_alt_not_ref$FASTA_ID_Abb)
 # not necessary
 a_gene_snp <- fread("q2_3_output/a_gene_snp.txt", sep="\t")
 a_gene_snp_new <- data.table(a_gene_snp[,"SNP"], paste("chromosome:GRCh37:",a_gene_snp$SNPChr,":", a_gene_snp$SNPWindowStart,":", a_gene_snp$SNPWindowEnd,":1",sep=""))
-colnames(a_gene_snp_new)[2] <- "SNPWindow"
-in_ref_not_alt_unique_SNP <- merge(a_gene_snp_new, in_ref_not_alt_unique, by.x="SNPWindow", by.y="FASTA_ID_Abb", all.y=T) # inner_join doesn't work?
-in_alt_not_ref_unique_SNP <- merge(a_gene_snp_new, in_alt_not_ref_unique, by.x="SNPWindow", by.y="FASTA_ID_Abb", all.y=T) # inner_join doesn't work?
-fwrite(in_ref_not_alt_unique_SNP, "q2_3_output/in_ref_not_alt_unique_SNP.txt", sep="\t")
-fwrite(in_alt_not_ref_unique_SNP, "q2_3_output/in_alt_not_ref_unique_SNP.txt", sep="\t")
+colnames(a_gene_snp_new)[2] <- "FASTA_ID_Abb"
+a_gene_snp_new <- a_gene_snp_new[!duplicated(a_gene_snp_new),]
+in_ref_not_alt_SNP <- right_join(a_gene_snp_new, in_ref_not_alt) # still 556934
+in_alt_not_ref_SNP <- right_join(a_gene_snp_new, in_alt_not_ref) # still 535066
+in_ref_not_alt_SNP <- in_ref_not_alt_SNP[!duplicated(in_ref_not_alt_SNP),]
+in_alt_not_ref_SNP <- in_alt_not_ref_SNP[!duplicated(in_alt_not_ref_SNP),]
+fwrite(in_ref_not_alt_SNP, "q2_3_output/in_ref_not_alt_SNP.txt", sep="\t")
+fwrite(in_alt_not_ref_SNP, "q2_3_output/in_alt_not_ref_SNP.txt", sep="\t")
 
 # > nrow(in_ref_not_alt_unique_SNP)
 # [1] 264905
@@ -347,16 +352,6 @@ fwrite(in_alt_not_ref_unique_SNP, "q2_3_output/in_alt_not_ref_unique_SNP.txt", s
 # dim(in_alt_not_ref_unique_SNP[!duplicated(in_alt_not_ref_unique_SNP),])
 # [1] 72078     8
 # This checks out!
-
-# ==========================================================
-# read homer output
-# ==========================================================
-
-in_ref_not_alt_unique_SNP <- fread("q2_3_output/in_ref_not_alt_unique_SNP.txt")
-in_alt_not_ref_unique_SNP <- fread("q2_3_output/in_ref_not_alt_unique_SNP.txt")
-
-x1 <- in_ref_not_alt_unique_SNP[!duplicated(in_ref_not_alt_unique_SNP),] # 70550
-x2 <- in_alt_not_ref_unique_SNP[!duplicated(in_alt_not_ref_unique_SNP),] # 72078
 
 # can you pull out a couple examples of TFs (maybe 1 or 2) from these 73K and
 # identify which part of the motif is affected by the SNP? I bet it

@@ -1,0 +1,45 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r load_libraries}
+#library(devtools) # devtools::install_github("MRCIEU/TwoSampleMR")
+# https://rdrr.io/github/MRCIEU/TwoSampleMR/man/ld_matrix.html
+library(TwoSampleMR) # for samples < 500
+```
+
+```{r make_plink_files}
+
+chr1_cis <- franke_cis_data[which(GeneChr==1),]
+chr1_cis_split <- split(chr1_cis, chr1_cis$GeneSymbol)
+chr1_cis_useful <- chr1_cis_split[[11]] # ACBD6
+
+#fwrite(chr1_cis_useful$SNP, "SNPs_for_plink_ACBD6.txt", sep="\t")
+#fwrite(data.table(chr1_cis_useful$SNP, chr1_cis_useful$Zscore), "Zscore_file_ACBD6.txt", sep="\t")
+```
+
+```{r make_ld_matrix}
+ld_matrix <- ld_matrix(chr1_cis_useful$SNP, with_alleles = F)
+
+# not present in ld reference panel:
+SNPs_exclude <- t(data.table("chr1:181058272", "rs10798772", "rs10914041", "rs10914047", "rs12032249", "rs151335857", "rs187483246", "rs2331743", "rs74928106", "rs7512134", "rs75898898", "rs77561757", "rs78111936", "rs79418492", "rs878641"))
+colnames(SNPs_exclude) <- "SNP"
+
+fwrite(data.table(ld_matrix), "finemapping/ld_matrix_ACBD6.ld", sep="\t", quote=F)
+
+```
+
+```{r make_z_score_file}
+
+chr1_cis_useful_z <- data.table(chr1_cis_useful$SNP, chr1_cis_useful$Zscore)
+colnames(chr1_cis_useful_z) <- c("SNP", "ZSCORE")
+
+chr1_cis_useful_z_exclude <- anti_join(data.table(chr1_cis_useful_z), data.table(SNPs_exclude))
+
+fwrite(chr1_cis_useful_z_exclude, "finemapping/Zscore_file_ACBD6.Z", sep="\t")
+
+```
+
+
+./eCAVIAR -o "output.txt" -l "/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/finemapping/ld_matrix_ACBD6.ld" -z "/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/finemapping/Zscore_file_ACBD6.Z"

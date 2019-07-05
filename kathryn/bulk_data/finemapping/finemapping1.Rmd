@@ -19,11 +19,11 @@ library(snpEnrichment) # https://rdrr.io/cran/snpEnrichment/man/writeLD.html
 
 chr1_cis <- franke_cis_data[which(GeneChr==1),]
 chr1_cis_split <- split(chr1_cis, chr1_cis$GeneSymbol)
-chr1_cis_useful <- chr1_cis_split[[10]] # ACBD3
+chr1_cis_useful <- chr1_cis_split[[11]] # ACBD6
 
-fwrite(chr1_cis_useful$SNP, "SNPs_for_plink_ACBD3.txt", sep="\t")
+fwrite(chr1_cis_useful$SNP, "SNPs_for_plink_ACBD6.txt", sep="\t")
 
-fwrite(data.table(chr1_cis_useful$SNP, chr1_cis_useful$Zscore), "Zscore_file_ACBD3.txt", sep="\t")
+fwrite(data.table(chr1_cis_useful$SNP, chr1_cis_useful$Zscore), "Zscore_file_ACBD6.txt", sep="\t")
 
 ```
 
@@ -32,14 +32,17 @@ fwrite(data.table(chr1_cis_useful$SNP, chr1_cis_useful$Zscore), "Zscore_file_ACB
 snpInfoDir <- system.file("extdata/snpInfo",
                           package = "snpEnrichment")
 
-signalFile <- system.file("extdata/Signal/toySignal.txt", package = "snpEnrichment")
-# signalFile <- "/Users/kathryntsai/OneDrive - Villanova University/College/2018-2019/Summer 2019/TFs_eQTLs_Research/RProjects/Project2/finemapping/signalFile.txt"
 
-# SNPs_Pvalues <- data.table(chr1_cis_useful$SNP, chr1_cis_useful$Pvalue)
-# colnames(SNPs_Pvalues) <- c("SNP", "PVALUE")
-# fwrite(SNPs_Pvalues, "/Users/kathryntsai/OneDrive - Villanova University/College/2018-2019/Summer 2019/TFs_eQTLs_Research/RProjects/Project2/finemapping/signalFile.txt", sep="\t", quote=F)
+SNPs_Pvalues <- data.table(chr1_cis_useful$SNP, chr1_cis_useful$Pvalue)
+colnames(SNPs_Pvalues) <- c("SNP", "PVALUE")
+fwrite(SNPs_Pvalues, "/Users/kathryntsai/OneDrive - Villanova University/College/2018-2019/Summer 2019/TFs_eQTLs_Research/RProjects/Project2/finemapping/signalFile.txt", sep="\t", quote=F)
 
-initFiles(pattern = "Chrom", snpInfoDir, signalFile, mc.cores = 1)
+signalFile <- "/Users/kathryntsai/OneDrive - Villanova University/College/2018-2019/Summer 2019/TFs_eQTLs_Research/RProjects/Project2/finemapping/signalFile.txt"
+
+# /Users/kathryntsai/Library/R/3.5/library/snpEnrichment/extdata/Signal/toySignal.txt
+# signalFile <- system.file("extdata/Signal/toySignal.txt", package = "snpEnrichment")
+
+initFiles(pattern = "Chrom", snpInfoDir, signalFile)
 
 writeLD(pattern = "Chrom", snpInfoDir, signalFile, 
         ldDir=NULL, ldThresh = 0.8, depth = 1000)

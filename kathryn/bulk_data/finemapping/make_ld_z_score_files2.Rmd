@@ -41,5 +41,4 @@ fwrite(chr1_cis_useful_z_exclude, "finemapping/Zscore_file_ACBD6.Z", sep="\t")
 
 ```
 
-
-./eCAVIAR -o "output.txt" -l "/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/finemapping/ld_matrix_ACBD6.ld" -z "/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/finemapping/Zscore_file_ACBD6.Z"
+./CAVIAR -z /Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/finemapping/Zscore_file_ACBD6.Z -l  /Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/finemapping/ld_matrix_ACBD6.ld -c 10 -o /Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/finemapping/max_casual10 -f 1 -r 0.95

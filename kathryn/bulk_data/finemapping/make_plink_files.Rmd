@@ -1,0 +1,34 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r install_libraries}
+
+source("https://bioconductor.org/biocLite.R")
+biocLite("snpStats") # https://www.bioconductor.org/packages//2.10/bioc/html/snpStats.html
+
+library(BiocManager)
+library(biomaRt)
+library(snpEnrichment) # https://rdrr.io/cran/snpEnrichment/man/writeLD.html
+
+```
+
+```{r specify_data}
+
+# http://webcache.googleusercontent.com/search?q=cache:http://zzz.bwh.harvard.edu/plink/dosage.shtml#format
+
+chr1_cis <- franke_cis_data[which(GeneChr==1),]
+chr1_cis_split <- split(chr1_cis, chr1_cis$GeneSymbol)
+chr1_cis_useful <- chr1_cis_split[[11]] # ACBD6
+
+```
+
+
+```{r}
+
+plink_file <- data.table(chr1_cis_useful$SNPChr, chr1_cis_useful$SNP, chr1_cis_useful$SNPPos, chr1_cis_useful$OtherAllele, chr1_cis_useful$AssessedAllele, chr1_cis_useful$NrSamples, chr1_cis_useful$Info, chr1_cis_useful$Beta, chr1_cis_useful$SE, chr1_cis_useful$PValue)
+colnames(plink) <- c("CHR", "SNP", "BP", "A1_REF", "A2_ALT", "FRQ", "INFO", "OR", "SE", "P")
+
+```
+

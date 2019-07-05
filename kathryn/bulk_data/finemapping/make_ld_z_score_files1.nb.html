@@ -146,7 +146,7 @@ $(document).ready(function () {
 </style>
 <script>
 $(document).ready(function () {
-  window.initializeSourceEmbed("finemapping2.Rmd");
+  window.initializeSourceEmbed("make_ld_z_score_files1.Rmd");
   window.initializeCodeFolding("show" === "show");
 });
 </script>
@@ -178,66 +178,238 @@ $(document).ready(function () {
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShkZXZ0b29scykgIyBkZXZ0b29sczo6aW5zdGFsbF9naXRodWIoXCJNUkNJRVUvVHdvU2FtcGxlTVJcIilcbmBgYCJ9 -->
-<pre class="r"><code>library(devtools) # devtools::install_github(&quot;MRCIEU/TwoSampleMR&quot;)</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc291cmNlKFwiaHR0cHM6Ly9iaW9jb25kdWN0b3Iub3JnL2Jpb2NMaXRlLlJcIilcblxuYGBgIn0= -->
+<pre class="r"><code>source(&quot;https://bioconductor.org/biocLite.R&quot;)
+</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoicGFja2FnZSDigJhkZXZ0b29sc+KAmSB3YXMgYnVpbHQgdW5kZXIgUiB2ZXJzaW9uIDMuNS4yXG4ifQ== -->
-<pre><code>package ‘devtools’ was built under R version 3.5.2</code></pre>
+<!-- rnb-output-begin eyJkYXRhIjoiJ0Jpb2NJbnN0YWxsZXInIGFuZCAnYmlvY0xpdGUoKScgYXJlIGRlcHJlY2F0ZWQsIHVzZSB0aGUgJ0Jpb2NNYW5hZ2VyJyBDUkFOIHBhY2thZ2UgaW5zdGVhZC5CaW9jb25kdWN0b3IgdmVyc2lvbiAzLjggKEJpb2NJbnN0YWxsZXIgMS4zMi4xKSwgP2Jpb2NMaXRlIGZvciBoZWxwXG4ifQ== -->
+<pre><code>'BiocInstaller' and 'biocLite()' are deprecated, use the 'BiocManager' CRAN package instead.Bioconductor version 3.8 (BiocInstaller 1.32.1), ?biocLite for help</code></pre>
 <!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBodHRwczovL3JkcnIuaW8vZ2l0aHViL01SQ0lFVS9Ud29TYW1wbGVNUi9tYW4vbGRfbWF0cml4Lmh0bWxcbmxpYnJhcnkoVHdvU2FtcGxlTVIpICMgZm9yIHNhbXBsZXMgPCA1MDBcbmBgYCJ9 -->
-<pre class="r"><code># https://rdrr.io/github/MRCIEU/TwoSampleMR/man/ld_matrix.html
-library(TwoSampleMR) # for samples &lt; 500</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYmlvY0xpdGUoXCJzbnBTdGF0c1wiKSAjIGh0dHBzOi8vd3d3LmJpb2NvbmR1Y3Rvci5vcmcvcGFja2FnZXMvLzIuMTAvYmlvYy9odG1sL3NucFN0YXRzLmh0bWxcbmBgYCJ9 -->
+<pre class="r"><code>biocLite(&quot;snpStats&quot;) # https://www.bioconductor.org/packages//2.10/bioc/html/snpStats.html</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiV2VsY29tZSB0byBUd29TYW1wbGVNUi5cbls+XSBGdWxsIGRvY3VtZW50YXRpb246IGh0dHBzOi8vbXJjaWV1LmdpdGh1Yi5pby9Ud29TYW1wbGVNUlxuWz5dIENoZWNrIG5ld3MocGFja2FnZT0nVHdvU2FtcGxlTVInKSBmb3IgYnVnIGZpeGVzIGFuZCB1cGRhdGVzXG5bPl0gQnkgZ2VuZXJhdGluZyBhY2Nlc3MgdG9rZW5zIHRvIHJldHJpZXZlIGRhdGEgZnJvbSB0aGUgTVItQmFzZVxuICAgIGRhdGFiYXNlIHlvdSBjb25zZW50IHRvIGhhdmluZyB5b3VyIGVtYWlsIGFkZHJlc3MgbG9nZ2VkIG9uXG4gICAgb3VyIHNlcnZlcnMuIEZvciBpbmZvIG9uIGhvdyB0aGlzIGlzIHVzZWQgc2VlIGxvZ2dpbmdfaW5mbygpXG5cblxuQXR0YWNoaW5nIHBhY2thZ2U6IOKAmFR3b1NhbXBsZU1S4oCZXG5cblRoZSBmb2xsb3dpbmcgb2JqZWN0IGlzIG1hc2tlZCBmcm9tIOKAmHBhY2thZ2U6Z2x1ZeKAmTpcblxuICAgIHRyaW1cbiJ9 -->
-<pre><code>Welcome to TwoSampleMR.
-[&gt;] Full documentation: https://mrcieu.github.io/TwoSampleMR
-[&gt;] Check news(package='TwoSampleMR') for bug fixes and updates
-[&gt;] By generating access tokens to retrieve data from the MR-Base
-    database you consent to having your email address logged on
-    our servers. For info on how this is used see logging_info()
+<!-- rnb-output-begin eyJkYXRhIjoiJ2Jpb2NMaXRlJyBpcyBkZXByZWNhdGVkLlxuVXNlICdCaW9jTWFuYWdlcjo6aW5zdGFsbCcgaW5zdGVhZC5cblNlZSBoZWxwKFwiRGVwcmVjYXRlZFwiKUJpb0NfbWlycm9yOiBodHRwczovL2Jpb2NvbmR1Y3Rvci5vcmdcblVzaW5nIEJpb2NvbmR1Y3RvciAzLjggKEJpb2NJbnN0YWxsZXIgMS4zMi4xKSwgUiAzLjUuMCAoMjAxOC0wNC0yMykuXG5JbnN0YWxsaW5nIHBhY2thZ2Uocykg4oCYc25wU3RhdHPigJlcbmNhbm5vdCBvcGVuIFVSTCAnaHR0cHM6Ly9iaW9jb25kdWN0b3Iub3JnL3BhY2thZ2VzLzMuOC9kYXRhL2V4cGVyaW1lbnQvYmluL21hY29zeC9lbC1jYXBpdGFuL2NvbnRyaWIvMy41L1BBQ0tBR0VTLnJkcyc6IEhUVFAgc3RhdHVzIHdhcyAnNDA0IE5vdCBGb3VuZCdjYW5ub3Qgb3BlbiBVUkwgJ2h0dHBzOi8vYmlvY29uZHVjdG9yLm9yZy9wYWNrYWdlcy8zLjgvd29ya2Zsb3dzL2Jpbi9tYWNvc3gvZWwtY2FwaXRhbi9jb250cmliLzMuNS9QQUNLQUdFUy5yZHMnOiBIVFRQIHN0YXR1cyB3YXMgJzQwNCBOb3QgRm91bmQnY2Fubm90IG9wZW4gVVJMICdodHRwczovL2NyYW4ucnN0dWRpby5jb20vYmluL21hY29zeC9lbC1jYXBpdGFuL2NvbnRyaWIvMy41L1BBQ0tBR0VTLnJkcyc6IEhUVFAgc3RhdHVzIHdhcyAnNDA0IE5vdCBGb3VuZCd0cnlpbmcgVVJMICdodHRwczovL2Jpb2NvbmR1Y3Rvci5vcmcvcGFja2FnZXMvMy44L2Jpb2MvYmluL21hY29zeC9lbC1jYXBpdGFuL2NvbnRyaWIvMy41L3NucFN0YXRzXzEuMzIuMC50Z3onXG5Db250ZW50IHR5cGUgJ2FwcGxpY2F0aW9uL3gtZ3ppcCcgbGVuZ3RoIDc3MzM3NjQgYnl0ZXMgKDcuNCBNQilcbj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09XG5kb3dubG9hZGVkIDcuNCBNQlxuIn0= -->
+<pre><code>'biocLite' is deprecated.
+Use 'BiocManager::install' instead.
+See help(&quot;Deprecated&quot;)BioC_mirror: https://bioconductor.org
+Using Bioconductor 3.8 (BiocInstaller 1.32.1), R 3.5.0 (2018-04-23).
+Installing package(s) ‘snpStats’
+cannot open URL 'https://bioconductor.org/packages/3.8/data/experiment/bin/macosx/el-capitan/contrib/3.5/PACKAGES.rds': HTTP status was '404 Not Found'cannot open URL 'https://bioconductor.org/packages/3.8/workflows/bin/macosx/el-capitan/contrib/3.5/PACKAGES.rds': HTTP status was '404 Not Found'cannot open URL 'https://cran.rstudio.com/bin/macosx/el-capitan/contrib/3.5/PACKAGES.rds': HTTP status was '404 Not Found'trying URL 'https://bioconductor.org/packages/3.8/bioc/bin/macosx/el-capitan/contrib/3.5/snpStats_1.32.0.tgz'
+Content type 'application/x-gzip' length 7733764 bytes (7.4 MB)
+==================================================
+downloaded 7.4 MB</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG5UaGUgZG93bmxvYWRlZCBiaW5hcnkgcGFja2FnZXMgYXJlIGluXG5cdC92YXIvZm9sZGVycy8wNS9ncnc0bnBzajN4eGdieF9kcnRuZDZ0YzAwMDAwZ24vVC8vUnRtcHk2MTBqby9kb3dubG9hZGVkX3BhY2thZ2VzXG4ifQ== -->
+<pre><code>
+The downloaded binary packages are in
+    /var/folders/05/grw4npsj3xxgbx_drtnd6tc00000gn/T//Rtmpy610jo/downloaded_packages</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiaW5zdGFsbGF0aW9uIHBhdGggbm90IHdyaXRlYWJsZSwgdW5hYmxlIHRvIHVwZGF0ZSBwYWNrYWdlczogYWNzLCBhc3NlcnR0aGF0LCBiYWNrcG9ydHMsIEJILCBib290LCBicm9vbSwgY2FsbHIsIGNoZWNrbWF0ZSxcbiAgY2hvcm9wbGV0aHIsIGNsYXNzLCBjbGFzc0ludCwgY2xpLCBjbHVzdGVyLCBjb2RhLCBjb2RldG9vbHMsIGNvbG9yc3BhY2UsIGN1cmwsIGRhdGEudGFibGUsIGRicGx5ciwgZGVsZGlyLCBkZXZ0b29scyxcbiAgZGlnZXN0LCBkb3RDYWxsNjQsIGRwbHlyLCBlMTA3MSwgRW52U3RhdHMsIGV2YWx1YXRlLCBleHBtLCBmaWVsZHMsIGZvcmNhdHMsIGZvcmVpZ24sIGdlb2ZhY2V0LCBnZW9ncmlkLCBnZW9zcGhlcmUsXG4gIGdnZm9yY2UsIGdnbWFwLCBnZ3Bsb3QyLCBnZ3JhcGgsIGdncmVwZWwsIGdndGhlbWVzLCBnaXQyciwgZ2x1ZSwgZ21vZGVscywgZ3RhYmxlLCBndG9vbHMsIEhhcmR5V2VpbmJlcmcsIGhhdmVuLCBoZXhiaW4sXG4gIGhpZ2hyLCBIbWlzYywgaHRtbFRhYmxlLCBodG1sd2lkZ2V0cywgaHR0cHV2LCBodHRyLCBpZ3JhcGgsIGpvbW8sIGpzb25saXRlLCBrbml0ciwgbGF0ZXIsIGxhdHRpY2UsIGxhenlldmFsLCBsbWU0LFxuICBtYXB0b29scywgbWFya2Rvd24sIE1BU1MsIE1hdHJpeCwgbWdjdiwgbWljZSwgbWltZSwgbWl0bWwsIG1vZGVsciwgbXVsdGNvbXAsIG11bnNlbGwsIG12dG5vcm0sIG5sbWUsIG5sb3B0ciwgb3BlbnNzbCwgcGFuLFxuICBwaWxsYXIsIHBrZ2NvbmZpZywgcGxvdGx5LCBwb2xzcGxpbmUsIHBvbHljbGlwLCBwcm9jZXNzeCwgcHN5Y2gsIHB1cnJyLCBxdWFudHJlZywgUi51dGlscywgUjYsIFJBTk4sIHJhc3RlciwgUmNwcCxcbiAgUmNwcEVpZ2VuLCBSQ3VybCwgcmVhZHIsIHJlYWR4bCwgcmVwcmV4LCByZ2RhbCwgcmdlb3MsIFJnb29nbGVNYXBzLCByanNvbiwgUkpTT05JTywgcmxhbmcsIHJtYXJrZG93biwgcm1zLCBycGFydCxcbiAgcnN0dWRpb2FwaSwgcnZlc3QsIHNhbmR3aWNoLCBzY2FsZXMsIFNETVRvb2xzLCBzZiwgc2hpbnksIHNwYW0sIHNwYXRpYWxFY28sIHNwYXRzdGF0LCBzcGF0c3RhdC5kYXRhLCBzcGF0c3RhdC51dGlscyxcbiAgc3BEYXRhLCBzcGRlcCwgc3RyaW5naSwgc3RyaW5nciwgc3Vydml2YWwsIHRlc3R0aGF0LCBUSC5kYXRhLCB0aWJibGUsIHRpZHlyLCB0aWR5c2VsZWN0LCB0aWdyaXMsIHRpbnl0ZXgsIHR3ZWVuciwgdW5pdHMsXG4gIFdESSwgWE1MLCB4dGFibGUsIHlhSW1wdXRlLCB5YW1sLCB6b29cbiJ9 -->
+<pre><code>installation path not writeable, unable to update packages: acs, assertthat, backports, BH, boot, broom, callr, checkmate,
+  choroplethr, class, classInt, cli, cluster, coda, codetools, colorspace, curl, data.table, dbplyr, deldir, devtools,
+  digest, dotCall64, dplyr, e1071, EnvStats, evaluate, expm, fields, forcats, foreign, geofacet, geogrid, geosphere,
+  ggforce, ggmap, ggplot2, ggraph, ggrepel, ggthemes, git2r, glue, gmodels, gtable, gtools, HardyWeinberg, haven, hexbin,
+  highr, Hmisc, htmlTable, htmlwidgets, httpuv, httr, igraph, jomo, jsonlite, knitr, later, lattice, lazyeval, lme4,
+  maptools, markdown, MASS, Matrix, mgcv, mice, mime, mitml, modelr, multcomp, munsell, mvtnorm, nlme, nloptr, openssl, pan,
+  pillar, pkgconfig, plotly, polspline, polyclip, processx, psych, purrr, quantreg, R.utils, R6, RANN, raster, Rcpp,
+  RcppEigen, RCurl, readr, readxl, reprex, rgdal, rgeos, RgoogleMaps, rjson, RJSONIO, rlang, rmarkdown, rms, rpart,
+  rstudioapi, rvest, sandwich, scales, SDMTools, sf, shiny, spam, spatialEco, spatstat, spatstat.data, spatstat.utils,
+  spData, spdep, stringi, stringr, survival, testthat, TH.data, tibble, tidyr, tidyselect, tigris, tinytex, tweenr, units,
+  WDI, XML, xtable, yaImpute, yaml, zoo</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShCaW9jTWFuYWdlcilcbmBgYCJ9 -->
+<pre class="r"><code>library(BiocManager)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiQmlvY29uZHVjdG9yIHZlcnNpb24gMy44IChCaW9jTWFuYWdlciAxLjMwLjQpLCA/QmlvY01hbmFnZXI6Omluc3RhbGwgZm9yIGhlbHBcbkJpb2NvbmR1Y3RvciB2ZXJzaW9uICczLjgnIGlzIG91dC1vZi1kYXRlOyB0aGUgY3VycmVudCByZWxlYXNlIHZlcnNpb24gJzMuOScgaXMgYXZhaWxhYmxlIHdpdGggUiB2ZXJzaW9uICczLjYnOyBzZWVcbiAgaHR0cHM6Ly9iaW9jb25kdWN0b3Iub3JnL2luc3RhbGxcblxuQXR0YWNoaW5nIHBhY2thZ2U6IOKAmEJpb2NNYW5hZ2Vy4oCZXG5cblRoZSBmb2xsb3dpbmcgb2JqZWN0IGlzIG1hc2tlZCBmcm9tIOKAmHBhY2thZ2U6ZGV2dG9vbHPigJk6XG5cbiAgICBpbnN0YWxsXG4ifQ== -->
+<pre><code>Bioconductor version 3.8 (BiocManager 1.30.4), ?BiocManager::install for help
+Bioconductor version '3.8' is out-of-date; the current release version '3.9' is available with R version '3.6'; see
+  https://bioconductor.org/install
 
+Attaching package: ‘BiocManager’
 
-Attaching package: ‘TwoSampleMR’
+The following object is masked from ‘package:devtools’:
 
-The following object is masked from ‘package:glue’:
+    install</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShiaW9tYVJ0KVxuYGBgIn0= -->
+<pre class="r"><code>library(biomaRt)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoicGFja2FnZSDigJhiaW9tYVJ04oCZIHdhcyBidWlsdCB1bmRlciBSIHZlcnNpb24gMy41LjFcbkF0dGFjaGluZyBwYWNrYWdlOiDigJhiaW9tYVJ04oCZXG5cblRoZSBmb2xsb3dpbmcgb2JqZWN0IGlzIG1hc2tlZCBmcm9tIOKAmHBhY2thZ2U6c2VxaW5y4oCZOlxuXG4gICAgZ2V0U2VxdWVuY2VcbiJ9 -->
+<pre><code>package ‘biomaRt’ was built under R version 3.5.1
+Attaching package: ‘biomaRt’
 
-    trim</code></pre>
+The following object is masked from ‘package:seqinr’:
+
+    getSequence</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShzbnBFbnJpY2htZW50KSAjIGh0dHBzOi8vcmRyci5pby9jcmFuL3NucEVucmljaG1lbnQvbWFuL3dyaXRlTEQuaHRtbFxuYGBgIn0= -->
+<pre class="r"><code>library(snpEnrichment) # https://rdrr.io/cran/snpEnrichment/man/writeLD.html</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG5BdHRhY2hpbmcgcGFja2FnZTog4oCYc25wRW5yaWNobWVudOKAmVxuXG5UaGUgZm9sbG93aW5nIG9iamVjdCBpcyBtYXNrZWQgZnJvbSDigJhwYWNrYWdlOlR3b1NhbXBsZU1S4oCZOlxuXG4gICAgZW5yaWNobWVudFxuXG5UaGUgZm9sbG93aW5nIG9iamVjdCBpcyBtYXNrZWQgZnJvbSDigJhwYWNrYWdlOnNlcWlucuKAmTpcblxuICAgIEdDXG4ifQ== -->
+<pre><code>
+Attaching package: ‘snpEnrichment’
+
+The following object is masked from ‘package:TwoSampleMR’:
+
+    enrichment
+
+The following object is masked from ‘package:seqinr’:
+
+    GC</code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY2hyMV9jaXMgPC0gZnJhbmtlX2Npc19kYXRhW3doaWNoKEdlbmVDaHI9PTEpLF1cbmNocjFfY2lzX3NwbGl0IDwtIHNwbGl0KGNocjFfY2lzLCBjaHIxX2NpcyRHZW5lU3ltYm9sKVxuY2hyMV9jaXNfdXNlZnVsIDwtIGNocjFfY2lzX3NwbGl0W1sxMV1dICMgQUNCRDZcbiNmd3JpdGUoY2hyMV9jaXNfdXNlZnVsJFNOUCwgXCJTTlBzX2Zvcl9wbGlua19BQ0JENi50eHRcIiwgc2VwPVwiXFx0XCIpXG4jZndyaXRlKGRhdGEudGFibGUoY2hyMV9jaXNfdXNlZnVsJFNOUCwgY2hyMV9jaXNfdXNlZnVsJFpzY29yZSksIFwiWnNjb3JlX2ZpbGVfQUNCRDYudHh0XCIsIHNlcD1cIlxcdFwiKVxuYGBgIn0= -->
-<pre class="r"><code>chr1_cis &lt;- franke_cis_data[which(GeneChr==1),]
-chr1_cis_split &lt;- split(chr1_cis, chr1_cis$GeneSymbol)
-chr1_cis_useful &lt;- chr1_cis_split[[11]] # ACBD6
-#fwrite(chr1_cis_useful$SNP, &quot;SNPs_for_plink_ACBD6.txt&quot;, sep=&quot;\t&quot;)
-#fwrite(data.table(chr1_cis_useful$SNP, chr1_cis_useful$Zscore), &quot;Zscore_file_ACBD6.txt&quot;, sep=&quot;\t&quot;)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5jaHIxX2Npc191c2VmdWxfeiA8LSBkYXRhLnRhYmxlKGNocjFfY2lzX3VzZWZ1bCRTTlAsIGNocjFfY2lzX3VzZWZ1bCRac2NvcmUpXG5jb2xuYW1lcyhjaHIxX2Npc191c2VmdWxfeikgPC0gYyhcIlNOUFwiLCBcIlpTQ09SRVwiKVxuXG5jaHIxX2Npc191c2VmdWxfel9leGNsdWRlIDwtIGFudGlfam9pbihkYXRhLnRhYmxlKGNocjFfY2lzX3VzZWZ1bF96KSwgZGF0YS50YWJsZShTTlBzX2V4Y2x1ZGUpKVxuXG5md3JpdGUoY2hyMV9jaXNfdXNlZnVsX3pfZXhjbHVkZSwgXCJmaW5lbWFwcGluZy9ac2NvcmVfZmlsZV9BQ0JENi5aXCIsIHNlcD1cIlxcdFwiKVxuXG5gYGAifQ== -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuYGBgclxuXG5jaHIxX2NpcyA8LSBmcmFua2VfY2lzX2RhdGFbd2hpY2goR2VuZUNocj09MSksXVxuY2hyMV9jaXNfc3BsaXQgPC0gc3BsaXQoY2hyMV9jaXMsIGNocjFfY2lzJEdlbmVTeW1ib2wpXG5cbmBgYFxuYGBgXG5gYGAifQ== -->
+<p><code>r</code>r</p>
 <pre class="r"><code>
-chr1_cis_useful_z &lt;- data.table(chr1_cis_useful$SNP, chr1_cis_useful$Zscore)
-colnames(chr1_cis_useful_z) &lt;- c(&quot;SNP&quot;, &quot;ZSCORE&quot;)
+chr1_cis &lt;- franke_cis_data[which(GeneChr==1),]
+chr1_cis_split &lt;- split(chr1_cis, chr1_cis$GeneSymbol)
+</code></pre>
+<pre><code></code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaW5pdEZpbGVzKHBhdHRlcm4gPSBcIkNocm9tXCIsIHNucEluZm9EaXIsIHNpZ25hbEZpbGUpXG5cbmBgYCJ9 -->
+<pre class="r"><code>initFiles(pattern = &quot;Chrom&quot;, snpInfoDir, signalFile)
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiRXJyb3IgaW4gZ3N1YihcIi8qJFwiLCBcIi9cIiwgcGF0aCkgOiBvYmplY3QgJ3NucEluZm9EaXInIG5vdCBmb3VuZFxuIn0= -->
+<pre><code>Error in gsub(&quot;/*$&quot;, &quot;/&quot;, path) : object 'snpInfoDir' not found</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG4jIGxkRGlyIDwtIFwiL1VzZXJzL2thdGhyeW50c2FpL09uZURyaXZlIC0gVmlsbGFub3ZhIFVuaXZlcnNpdHkvQ29sbGVnZS8yMDE4LTIwMTkvU3VtbWVyIDIwMTkvVEZzX2VRVExzX1Jlc2VhcmNoL1JQcm9qZWN0cy9Qcm9qZWN0Mi9maW5lbWFwcGluZ1wiXG5cbnNucExpc3REaXIgPC0gc3lzdGVtLmZpbGUoXCJleHRkYXRhL0xpc3RcIiwgcGFja2FnZSA9IFwic25wRW5yaWNobWVudFwiKVxuZGF0YSh0cmFuc2NyaXB0KVxudHJhbnNjcmlwdEZpbGUgPC0gdHJhbnNjcmlwdFxuXG50b3lEYXRhIDwtIHJlYWRFbnJpY2htZW50KFxuICAgIHBhdHRlcm4gPSBcIkNocm9tXCIsIHNpZ25hbEZpbGUsIHRyYW5zY3JpcHRGaWxlLCBzbnBMaXN0RGlyLCBzbnBJbmZvRGlyLFxuICAgIGRpc3RUaHJlc2ggPSAxMDAwLCBzaWdUaHJlc2ggPSAwLjA1LCBMRCA9IFRSVUUsIGxkRGlyID0gTlVMTCxcbiAgICBtYy5jb3JlcyA9IDFcbilcblxudG95RGF0YVxuXG5gYGAifQ== -->
+<pre class="r"><code>
+# ldDir &lt;- &quot;/Users/kathryntsai/OneDrive - Villanova University/College/2018-2019/Summer 2019/TFs_eQTLs_Research/RProjects/Project2/finemapping&quot;
 
-chr1_cis_useful_z_exclude &lt;- anti_join(data.table(chr1_cis_useful_z), data.table(SNPs_exclude))
+snpListDir &lt;- system.file(&quot;extdata/List&quot;, package = &quot;snpEnrichment&quot;)
+data(transcript)
+transcriptFile &lt;- transcript
 
-fwrite(chr1_cis_useful_z_exclude, &quot;finemapping/Zscore_file_ACBD6.Z&quot;, sep=&quot;\t&quot;)
+toyData &lt;- readEnrichment(
+    pattern = &quot;Chrom&quot;, signalFile, transcriptFile, snpListDir, snpInfoDir,
+    distThresh = 1000, sigThresh = 0.05, LD = TRUE, ldDir = NULL,
+    mc.cores = 1
+)
+
+toyData
 </code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
-<p>./eCAVIAR -o “output.txt” -l “/Users/kathryntsai/OneDrive - Villanova University/College/2018-2019/Summer 2019/TFs_eQTLs_Research/RProjects/Project2/finemapping/ld_matrix_ACBD6.ld” -z “/Users/kathryntsai/OneDrive - Villanova University/College/2018-2019/Summer 2019/TFs_eQTLs_Research/RProjects/Project2/finemapping/Zscore_file_ACBD6.Z”</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxucmVTYW1wbGUob2JqZWN0ID0gdG95RGF0YSxcbiAgICAgICAgIG5TYW1wbGUgPSAxMCxcbiAgICAgICAgIGVtcGlyaWNQdmFsdWUgPSBUUlVFLFxuICAgICAgICAgTUFGcG9vbCA9IGMoMC4wNSwgMC4xMCwgMC4yLCAwLjMsIDAuNCwgMC41KSxcbiAgICAgICAgIG1jLmNvcmVzID0gMSxcbiAgICAgICAgIG9ubHlHZW5vbWUgPSBUUlVFKVxuYGBgXG5gYGAifQ== -->
+<p><code>r</code>r reSample(object = toyData, nSample = 10, empiricPvalue = TRUE, MAFpool = c(0.05, 0.10, 0.2, 0.3, 0.4, 0.5), mc.cores = 1, onlyGenome = TRUE)</p>
+<pre><code></code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiIyMjIyMjIyMjIyMgUmVzYW1wbGUgRW5yaWNobWVudCAjIyMjIyMjIyMjIyNcbiAgR2Vub21lICAgICAgIDogMC4uIDEwLi4gRU5EXG4jIyMjIyMjIyBSZXNhbXBsZSBFbnJpY2htZW50IERvbmUgIyMjIyMjIyMjI1xuKioqIE9iamVjdCBcXHRveURhdGFcXCBoYXMgYmVlbiB1cGRhdGVkLiAqKipcbiJ9 -->
+<pre><code>########### Resample Enrichment ############
+  Genome       : 0.. 10.. END
+######## Resample Enrichment Done ##########
+*** Object \toyData\ has been updated. ***</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuXG5leGNsdWRlRmlsZSA8LSBzeXN0ZW0uZmlsZShcXGV4dGRhdGEvRXhjbHVkZS90b3lFeGNsdWRlLnR4dFxcLCBwYWNrYWdlID0gXFxzbnBFbnJpY2htZW50XFwpXG50b3lEYXRhX2V4Y2x1ZGUgPC0gZXhjbHVkZVNOUCh0b3lEYXRhLCBleGNsdWRlRmlsZSwgbWMuY29yZXMgPSAxKVxuXG5gYGBcbmBgYCJ9 -->
+<p><code>r</code>r</p>
+<p>excludeFile &lt;- system.file(/Exclude/toyExclude.txt, package = ) toyData_exclude &lt;- excludeSNP(toyData, excludeFile, mc.cores = 1)</p>
+<pre><code></code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuc2hvdyh0b3lEYXRhKVxuXG5gYGBcbmBgYCJ9 -->
+<p><code>r</code>r show(toyData)</p>
+<pre><code></code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiICAgIH5+fiBDbGFzczogRW5yaWNobWVudCB+fn4gXG4gfiBMb3NzIDogKDI0eDQpXG4gICAgICAgICAgICAgIFJvd3MgICBVbmlxdWUgIEludGVyc2VjdC5TaWduYWwgICBDSVMgIFxuICAgICAgU2lnbmFsICAxMDAwMCAgMTAwMDAgICAgICAgICA5OTc4ICAgICAgICA5Nzg0ICBcbiAgICAgIEdlbm9tZSAgMTMzMyAgICAxMzMzICAgICAgICAgMTMzMCAgICAgICAgMTI5MiAgXG4gICAgICAuLi4uLiAgIC4uLi4uICAuLi4uLiAgICAgICAgLi4uLi4gICAgICAgIC4uLi4uIFxuXG4gfiBDYWxsIDpcbiAgICByZWFkRW5yaWNobWVudChwYXR0ZXJuPVxcQ2hyb21cXCwgXG4gICAgICAgICAgICAgICAgICAgc2lnbmFsRmlsZT1cXC9Vc2Vycy9rYXRocnludHNhaS9MaWJyYXJ5L1IvMy41L2xpYnJhcnkvc25wRW5yaWNobWVudC9leHRkYXRhL1NpZ25hbC90b3lTaWduYWwudHh0XFwsIFxuICAgICAgICAgICAgICAgICAgIHRyYW5zY3JpcHRGaWxlPXRyYW5zY3JpcHRGaWxlLCBcbiAgICAgICAgICAgICAgICAgICBzbnBMaXN0RGlyPVxcL1VzZXJzL2thdGhyeW50c2FpL0xpYnJhcnkvUi8zLjUvbGlicmFyeS9zbnBFbnJpY2htZW50L2V4dGRhdGEvTGlzdC9cXCwgXG4gICAgICAgICAgICAgICAgICAgc25wSW5mb0Rpcj1cXC9Vc2Vycy9rYXRocnludHNhaS9MaWJyYXJ5L1IvMy41L2xpYnJhcnkvc25wRW5yaWNobWVudC9leHRkYXRhL3NucEluZm8vXFwsIFxuICAgICAgICAgICAgICAgICAgIGRpc3RUaHJlc2g9MTAwMCwgXG4gICAgICAgICAgICAgICAgICAgc2lnVGhyZXNoPTAuMDUsIFxuICAgICAgICAgICAgICAgICAgIExEPVRSVUUsIFxuICAgICAgICAgICAgICAgICAgIGxkRGlyPVxcL3Zhci9mb2xkZXJzLzA1L2dydzRucHNqM3h4Z2J4X2RydG5kNnRjMDAwMDBnbi9ULy9SdG1wSDN6Qjl0L3NucEVucmljaG1lbnQvXFwsIFxuICAgICAgICAgICAgICAgICAgIG1jLmNvcmVzPTEpXG4gICAgcmVTYW1wbGUob2JqZWN0PXRveURhdGEsIFxuICAgICAgICAgICAgIG5TYW1wbGU9MTAsIFxuICAgICAgICAgICAgIGVtcGlyaWNQdmFsdWU9VFJVRSwgXG4gICAgICAgICAgICAgTUFGcG9vbD1jKDAuMDUsIDAuMSwgMC4yLCAwLjMsIDAuNCwgMC41KSwgXG4gICAgICAgICAgICAgbWMuY29yZXM9MSwgXG4gICAgICAgICAgICAgb25seUdlbm9tZT1UUlVFKVxuXG4gfiBlU05QIDpcbiAgIC0gTGlzdCA6ICgxMjkyKSByczc1MzQ0NjEgcnMxNzYyODE0IHJzNzUzNDc3MCByczE3NDIzMzM1IHJzMjIxMzg0OSAuLi5cbiAgIC0gVGFibGUgOiAoMngyKVxuICAgICAgICA3ODg5ICAxMTg0IFxuICAgICAgICA2MDMgICAxMDggIFxuXG4gICAtIEVucmljaG1lbnRSYXRpbyA6IDEuMTkzMzc0XG4gICAtIFogICAgICAgICAgICAgICA6IDIuMDU0NTIzXG4gICAtIFBWYWx1ZSAgICAgICAgICA6IDwwLjFcbiAgIC0gUmVzYW1wbGluZyAgICAgIDogKDEweDUpIDEwXG5cbiB+IHhTTlAgOlxuICAgLSBMaXN0IDogKDEzNDEpIHJzNzUzNDQ2MSByczE3NjI4MTQgcnM3NTM0NzcwIHJzMTc0MjMzMzUgcnMyMjEzODQ5IC4uLlxuICAgLSBUYWJsZSA6ICgyeDIpXG4gICAgICAgIDc4NDQgIDEyMjkgXG4gICAgICAgIDU5OSAgIDExMiAgXG5cbiAgIC0gRW5yaWNobWVudFJhdGlvIDogMS4xOTMzNzVcbiAgIC0gWiAgICAgICAgICAgICAgIDogLTAuMzA5NTgyOFxuICAgLSBQVmFsdWUgICAgICAgICAgOiAwLjVcbiAgIC0gUmVzYW1wbGluZyAgICAgIDogKDEweDUpIDEwXG5cbiB+IENocm9tb3NvbWVzIDogMC8yMiBlbXB0eSBDaHJvbW9zb21lc1xuIn0= -->
+<pre><code>    ~~~ Class: Enrichment ~~~ 
+ ~ Loss : (24x4)
+              Rows   Unique  Intersect.Signal   CIS  
+      Signal  10000  10000         9978        9784  
+      Genome  1333    1333         1330        1292  
+      .....   .....  .....        .....        ..... 
+
+ ~ Call :
+    readEnrichment(pattern=\Chrom\, 
+                   signalFile=\/Users/kathryntsai/Library/R/3.5/library/snpEnrichment/extdata/Signal/toySignal.txt\, 
+                   transcriptFile=transcriptFile, 
+                   snpListDir=\/Users/kathryntsai/Library/R/3.5/library/snpEnrichment/extdata/List/\, 
+                   snpInfoDir=\/Users/kathryntsai/Library/R/3.5/library/snpEnrichment/extdata/snpInfo/\, 
+                   distThresh=1000, 
+                   sigThresh=0.05, 
+                   LD=TRUE, 
+                   ldDir=\/var/folders/05/grw4npsj3xxgbx_drtnd6tc00000gn/T//RtmpH3zB9t/snpEnrichment/\, 
+                   mc.cores=1)
+    reSample(object=toyData, 
+             nSample=10, 
+             empiricPvalue=TRUE, 
+             MAFpool=c(0.05, 0.1, 0.2, 0.3, 0.4, 0.5), 
+             mc.cores=1, 
+             onlyGenome=TRUE)
+
+ ~ eSNP :
+   - List : (1292) rs7534461 rs1762814 rs7534770 rs17423335 rs2213849 ...
+   - Table : (2x2)
+        7889  1184 
+        603   108  
+
+   - EnrichmentRatio : 1.193374
+   - Z               : 2.054523
+   - PValue          : &lt;0.1
+   - Resampling      : (10x5) 10
+
+ ~ xSNP :
+   - List : (1341) rs7534461 rs1762814 rs7534770 rs17423335 rs2213849 ...
+   - Table : (2x2)
+        7844  1229 
+        599   112  
+
+   - EnrichmentRatio : 1.193375
+   - Z               : -0.3095828
+   - PValue          : 0.5
+   - Resampling      : (10x5) 10
+
+ ~ Chromosomes : 0/22 empty Chromosomes</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxucHJpbnQodG95RGF0YSlcbmBgYFxuYGBgIn0= -->
+<p><code>r</code>r print(toyData)</p>
+<pre><code></code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiICAgICAgICAgICAgRW5yaWNobWVudFJhdGlvIFBWYWx1ZSBuU2FtcGxlIFRvdGFsU05QIGVTTlBcbkdlbm9tZTplU05QICAgICAgICAxLjE5MzM3NCAgICAwLjAgICAgICAxMCAgICAgOTc4NCAxMjkyXG5HZW5vbWU6eFNOUCAgICAgICAgMS4xOTMzNzUgICAgMC41ICAgICAgMTAgICAgIDk3ODQgMTM0MVxuIn0= -->
+<pre><code>            EnrichmentRatio PValue nSample TotalSNP eSNP
+Genome:eSNP        1.193374    0.0      10     9784 1292
+Genome:xSNP        1.193375    0.5      10     9784 1341</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuaGVhZChnZXRFbnJpY2hTTlAodG95RGF0YSwgdHlwZSA9IFxceFNOUFxcKSlcbmBgYFxuYGBgIn0= -->
+<p><code>r</code>r head(getEnrichSNP(toyData, type = ))</p>
+<pre><code></code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiTG9hZGluZyAuLi5cbiJ9 -->
+<pre><code>Loading ...</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjoiZGF0YS5mcmFtZSIsIm5jb2wiOjgsIm5yb3ciOjV9LCJyZGYiOiJINHNJQUFBQUFBQUFBd3R5aVREaWl1QmlZR0JnWW1CbUJaTE1RQ1lMRTVCZ1pHQmg0QVRSRlF3TXpNSkFCZ2NRQ3dBeEsxU0NzNmpZeE5UQXpNTElBQ0ZnWm1CaVpHcUtLbUJoYW9rc1lHbG1abUZzaGhBd3R6QTJOelF3QlhMNFFJYmJUL0ErcWFNWFkySy90R3gxQlB1L1MvWUxwc285bUhvOTF6N0M4TmZQMitmbTJzKzB5MVdXNU53RFUrK2d3d0FHRGlab3RBeVVWbUNBQWJCNngwbUp6UnVBREVlelJER1FvR09aOUF1UXJ4eG5QL1crQWFKem42czJJS20zMzZJUnNFYmtZNGo5NWt2K1Rwc2o3dHBmUFhDZGdiR3B4LzdXMXF3TDZ5SU8yKy9wSy9LVVhXME9Vdyt6elA0REF5RUFNZjhEcW5wY05EQVNlS0htZzJLSEJjcG1CRW1neFJoYlRtcFphazR4V25SeEZSVWJHaGlaV0JoYkdpT0pHSmxhbUFQakEwbkUzTXpRMk1EU0RDMU9EWkFFTEF3TkxZeU5MTkJzWlUzT1NTeUdXUXAzU2xwaWNrbCtFWkQxRDExNVhtSnVLa3c1QjFTUU9kZ3ZBS1l6SU16Uko5UVZKdUhzRVFSakJ2Z0h3NWkram01UUprc3FRaXRMQllMTjQrTVNYNTVaa2hFUGxrZDFBbWRSZnJrZXpCbWd3R1dDUmp3clJDSHpmelRmY0tVa2xpVHFwUlVCdFdEeEVYdCtRVWxtZmg3UU1DWmhhT3dnYTJZc1FoUGdMVThzU2M2SUwwb3RMczBwQVRtQkN4cWZqRkRuTUVKTmdiRTVJQmF5d0p3RmkxbTIxTHowekx4VVdNRG1KQ2FsNWtBNWZFQXZnbjJvVjFDVW1WY0NqK2I4OG1LOWt2eVNSSmc2cnVUOEhKZ0kyR2NNL3dDTXNiV0JHZ1FBQUE9PSJ9 -->
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["SNP"],"name":[1],"type":["chr"],"align":["left"]},{"label":["PVALUE"],"name":[2],"type":["dbl"],"align":["right"]},{"label":["CHR"],"name":[3],"type":["dbl"],"align":["right"]},{"label":["POS"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["MAF"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["eSNP"],"name":[6],"type":["dbl"],"align":["right"]},{"label":["xSNP"],"name":[7],"type":["dbl"],"align":["right"]},{"label":["LD_with_eSNP"],"name":[8],"type":["fctr"],"align":["left"]}],"data":[{"1":"rs4506820","2":"0.01591410","3":"14","4":"77095148","5":"0.07874016","6":"0","7":"1","8":"rs12587683","_rn_":"1"},{"1":"rs6042550","2":"0.04192100","3":"20","4":"1466646","5":"0.07742782","6":"1","7":"1","8":"rs6042506","_rn_":"2"},{"1":"rs6048590","2":"0.03238770","3":"20","4":"23182977","5":"0.33989501","6":"0","7":"1","8":"rs8118328","_rn_":"3"},{"1":"rs6966836","2":"0.00147676","3":"7","4":"117002998","5":"0.41732283","6":"0","7":"1","8":"rs10248393","_rn_":"4"},{"1":"rs7837105","2":"0.02465220","3":"8","4":"15677740","5":"0.11154856","6":"0","7":"1","8":"rs17613096","_rn_":"5"}],"options":{"columns":{"min":{},"max":[10],"total":[8]},"rows":{"min":[10],"max":[10],"total":[5]},"pages":{}}}
+  </script>
+</div>
+<!-- rnb-frame-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiUiBOb3RlYm9vayIKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKYGBge3IgbG9hZF9saWJyYXJpZXN9CiNsaWJyYXJ5KGRldnRvb2xzKSAjIGRldnRvb2xzOjppbnN0YWxsX2dpdGh1YigiTVJDSUVVL1R3b1NhbXBsZU1SIikKIyBodHRwczovL3JkcnIuaW8vZ2l0aHViL01SQ0lFVS9Ud29TYW1wbGVNUi9tYW4vbGRfbWF0cml4Lmh0bWwKbGlicmFyeShUd29TYW1wbGVNUikgIyBmb3Igc2FtcGxlcyA8IDUwMApgYGAKCmBgYHtyIG1ha2VfcGxpbmtfZmlsZXN9CgpjaHIxX2NpcyA8LSBmcmFua2VfY2lzX2RhdGFbd2hpY2goR2VuZUNocj09MSksXQpjaHIxX2Npc19zcGxpdCA8LSBzcGxpdChjaHIxX2NpcywgY2hyMV9jaXMkR2VuZVN5bWJvbCkKY2hyMV9jaXNfdXNlZnVsIDwtIGNocjFfY2lzX3NwbGl0W1sxMV1dICMgQUNCRDYKCiNmd3JpdGUoY2hyMV9jaXNfdXNlZnVsJFNOUCwgIlNOUHNfZm9yX3BsaW5rX0FDQkQ2LnR4dCIsIHNlcD0iXHQiKQojZndyaXRlKGRhdGEudGFibGUoY2hyMV9jaXNfdXNlZnVsJFNOUCwgY2hyMV9jaXNfdXNlZnVsJFpzY29yZSksICJac2NvcmVfZmlsZV9BQ0JENi50eHQiLCBzZXA9Ilx0IikKYGBgCgpgYGB7ciBtYWtlX2xkX21hdHJpeH0KbGRfbWF0cml4IDwtIGxkX21hdHJpeChjaHIxX2Npc191c2VmdWwkU05QLCB3aXRoX2FsbGVsZXMgPSBGKQoKIyBub3QgcHJlc2VudCBpbiBsZCByZWZlcmVuY2UgcGFuZWw6ClNOUHNfZXhjbHVkZSA8LSB0KGRhdGEudGFibGUoImNocjE6MTgxMDU4MjcyIiwgInJzMTA3OTg3NzIiLCAicnMxMDkxNDA0MSIsICJyczEwOTE0MDQ3IiwgInJzMTIwMzIyNDkiLCAicnMxNTEzMzU4NTciLCAicnMxODc0ODMyNDYiLCAicnMyMzMxNzQzIiwgInJzNzQ5MjgxMDYiLCAicnM3NTEyMTM0IiwgInJzNzU4OTg4OTgiLCAicnM3NzU2MTc1NyIsICJyczc4MTExOTM2IiwgInJzNzk0MTg0OTIiLCAicnM4Nzg2NDEiKSkKY29sbmFtZXMoU05Qc19leGNsdWRlKSA8LSAiU05QIgoKZndyaXRlKGRhdGEudGFibGUobGRfbWF0cml4KSwgImZpbmVtYXBwaW5nL2xkX21hdHJpeF9BQ0JENi5sZCIsIHNlcD0iXHQiLCBxdW90ZT1GKQoKYGBgCgpgYGB7ciBtYWtlX3pfc2NvcmVfZmlsZX0KCmNocjFfY2lzX3VzZWZ1bF96IDwtIGRhdGEudGFibGUoY2hyMV9jaXNfdXNlZnVsJFNOUCwgY2hyMV9jaXNfdXNlZnVsJFpzY29yZSkKY29sbmFtZXMoY2hyMV9jaXNfdXNlZnVsX3opIDwtIGMoIlNOUCIsICJaU0NPUkUiKQoKY2hyMV9jaXNfdXNlZnVsX3pfZXhjbHVkZSA8LSBhbnRpX2pvaW4oZGF0YS50YWJsZShjaHIxX2Npc191c2VmdWxfeiksIGRhdGEudGFibGUoU05Qc19leGNsdWRlKSkKCmZ3cml0ZShjaHIxX2Npc191c2VmdWxfel9leGNsdWRlLCAiZmluZW1hcHBpbmcvWnNjb3JlX2ZpbGVfQUNCRDYuWiIsIHNlcD0iXHQiKQoKYGBgCgoKLi9lQ0FWSUFSIC1vICJvdXRwdXQudHh0IiAtbCAiL1VzZXJzL2thdGhyeW50c2FpL09uZURyaXZlXCAtXCBWaWxsYW5vdmFcIFVuaXZlcnNpdHkvQ29sbGVnZS8yMDE4LTIwMTkvU3VtbWVyXCAyMDE5L1RGc19lUVRMc19SZXNlYXJjaC9SUHJvamVjdHMvUHJvamVjdDIvZmluZW1hcHBpbmcvbGRfbWF0cml4X0FDQkQ2LmxkIiAteiAiL1VzZXJzL2thdGhyeW50c2FpL09uZURyaXZlXCAtXCBWaWxsYW5vdmFcIFVuaXZlcnNpdHkvQ29sbGVnZS8yMDE4LTIwMTkvU3VtbWVyXCAyMDE5L1RGc19lUVRMc19SZXNlYXJjaC9SUHJvamVjdHMvUHJvamVjdDIvZmluZW1hcHBpbmcvWnNjb3JlX2ZpbGVfQUNCRDYuWiI=</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiUiBOb3RlYm9vayIKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKYGBge3IgaW5zdGFsbF9saWJyYXJpZXN9Cgpzb3VyY2UoImh0dHBzOi8vYmlvY29uZHVjdG9yLm9yZy9iaW9jTGl0ZS5SIikKYmlvY0xpdGUoInNucFN0YXRzIikgIyBodHRwczovL3d3dy5iaW9jb25kdWN0b3Iub3JnL3BhY2thZ2VzLy8yLjEwL2Jpb2MvaHRtbC9zbnBTdGF0cy5odG1sCgpsaWJyYXJ5KEJpb2NNYW5hZ2VyKQpsaWJyYXJ5KGJpb21hUnQpCmxpYnJhcnkoc25wRW5yaWNobWVudCkgIyBodHRwczovL3JkcnIuaW8vY3Jhbi9zbnBFbnJpY2htZW50L21hbi93cml0ZUxELmh0bWwKCmBgYAoKCmBgYHtyIG1ha2VfcGxpbmtfZmlsZXN9CgpjaHIxX2NpcyA8LSBmcmFua2VfY2lzX2RhdGFbd2hpY2goR2VuZUNocj09MSksXQpjaHIxX2Npc19zcGxpdCA8LSBzcGxpdChjaHIxX2NpcywgY2hyMV9jaXMkR2VuZVN5bWJvbCkKY2hyMV9jaXNfdXNlZnVsIDwtIGNocjFfY2lzX3NwbGl0W1sxMV1dICMgQUNCRDYKCiNmd3JpdGUoY2hyMV9jaXNfdXNlZnVsJFNOUCwgIlNOUHNfZm9yX3BsaW5rX0FDQkQ2LnR4dCIsIHNlcD0iXHQiKQojZndyaXRlKGRhdGEudGFibGUoY2hyMV9jaXNfdXNlZnVsJFNOUCwgY2hyMV9jaXNfdXNlZnVsJFpzY29yZSksICJac2NvcmVfZmlsZV9BQ0JENi50eHQiLCBzZXA9Ilx0IikKCmBgYAoKYGBge3IgcHJlcGFyZV9wbGlua19kYXRhfQoKc25wSW5mb0RpciA8LSBzeXN0ZW0uZmlsZSgiZXh0ZGF0YS9zbnBJbmZvIiwKICAgICAgICAgICAgICAgICAgICAgICAgICBwYWNrYWdlID0gInNucEVucmljaG1lbnQiKQoKCiMgU05Qc19QdmFsdWVzIDwtIGRhdGEudGFibGUoY2hyMV9jaXNfdXNlZnVsJFNOUCwgY2hyMV9jaXNfdXNlZnVsJFB2YWx1ZSkKIyBjb2xuYW1lcyhTTlBzX1B2YWx1ZXMpIDwtIGMoIlNOUCIsICJQVkFMVUUiKQojIGZ3cml0ZShTTlBzX1B2YWx1ZXMsICIvVXNlcnMva2F0aHJ5bnRzYWkvT25lRHJpdmUgLSBWaWxsYW5vdmEgVW5pdmVyc2l0eS9Db2xsZWdlLzIwMTgtMjAxOS9TdW1tZXIgMjAxOS9URnNfZVFUTHNfUmVzZWFyY2gvUlByb2plY3RzL1Byb2plY3QyL2ZpbmVtYXBwaW5nL3NpZ25hbEZpbGUudHh0Iiwgc2VwPSJcdCIsIHF1b3RlPUYpCiMgCnNpZ25hbEZpbGUgPC0gIi9Vc2Vycy9rYXRocnludHNhaS9PbmVEcml2ZSAtIFZpbGxhbm92YSBVbml2ZXJzaXR5L0NvbGxlZ2UvMjAxOC0yMDE5L1N1bW1lciAyMDE5L1RGc19lUVRMc19SZXNlYXJjaC9SUHJvamVjdHMvUHJvamVjdDIvZmluZW1hcHBpbmcvdG95U2lnbmFsX3Rlc3QudHh0IgoKIyAvVXNlcnMva2F0aHJ5bnRzYWkvTGlicmFyeS9SLzMuNS9saWJyYXJ5L3NucEVucmljaG1lbnQvZXh0ZGF0YS9TaWduYWwvdG95U2lnbmFsLnR4dAojIHNpZ25hbEZpbGUgPC0gc3lzdGVtLmZpbGUoImV4dGRhdGEvU2lnbmFsL3RveVNpZ25hbC50eHQiLCBwYWNrYWdlID0gInNucEVucmljaG1lbnQiKQoKaW5pdEZpbGVzKHBhdHRlcm4gPSAiQ2hyb20iLCBzbnBJbmZvRGlyLCBzaWduYWxGaWxlKQoKd3JpdGVMRChwYXR0ZXJuID0gIkNocm9tIiwgc25wSW5mb0Rpciwgc2lnbmFsRmlsZSwgCiAgICAgICAgbGREaXI9TlVMTCwgbGRUaHJlc2ggPSAwLjgsIGRlcHRoID0gMTAwMCkKCmBgYAoKYGBge3IgcmVhZF9wbGlua19kYXRhfQoKIyBsZERpciA8LSAiL1VzZXJzL2thdGhyeW50c2FpL09uZURyaXZlIC0gVmlsbGFub3ZhIFVuaXZlcnNpdHkvQ29sbGVnZS8yMDE4LTIwMTkvU3VtbWVyIDIwMTkvVEZzX2VRVExzX1Jlc2VhcmNoL1JQcm9qZWN0cy9Qcm9qZWN0Mi9maW5lbWFwcGluZyIKCnNucExpc3REaXIgPC0gc3lzdGVtLmZpbGUoImV4dGRhdGEvTGlzdCIsIHBhY2thZ2UgPSAic25wRW5yaWNobWVudCIpCmRhdGEodHJhbnNjcmlwdCkKdHJhbnNjcmlwdEZpbGUgPC0gdHJhbnNjcmlwdAoKdG95RGF0YSA8LSByZWFkRW5yaWNobWVudCgKICAgIHBhdHRlcm4gPSAiQ2hyb20iLCBzaWduYWxGaWxlLCB0cmFuc2NyaXB0RmlsZSwgc25wTGlzdERpciwgc25wSW5mb0RpciwKICAgIGRpc3RUaHJlc2ggPSAxMDAwLCBzaWdUaHJlc2ggPSAwLjA1LCBMRCA9IFRSVUUsIGxkRGlyID0gTlVMTCwKICAgIG1jLmNvcmVzID0gMQopCgp0b3lEYXRhCgpgYGAKCgpgYGB7ciBjb21wdXRlX3BsaW5rX3Jlc3VsdHN9CgpyZVNhbXBsZShvYmplY3QgPSB0b3lEYXRhLAogICAgICAgICBuU2FtcGxlID0gMTAsCiAgICAgICAgIGVtcGlyaWNQdmFsdWUgPSBUUlVFLAogICAgICAgICBNQUZwb29sID0gYygwLjA1LCAwLjEwLCAwLjIsIDAuMywgMC40LCAwLjUpLAogICAgICAgICBtYy5jb3JlcyA9IDEsCiAgICAgICAgIG9ubHlHZW5vbWUgPSBUUlVFKQoKYGBgCgoKYGBge3IgZXhjbHVkZV9zbnBfZnJvbV9vcmlnaW5hbF9saXN0fQoKZXhjbHVkZUZpbGUgPC0gc3lzdGVtLmZpbGUoImV4dGRhdGEvRXhjbHVkZS90b3lFeGNsdWRlLnR4dCIsIHBhY2thZ2UgPSAic25wRW5yaWNobWVudCIpCnRveURhdGFfZXhjbHVkZSA8LSBleGNsdWRlU05QKHRveURhdGEsIGV4Y2x1ZGVGaWxlLCBtYy5jb3JlcyA9IDEpCgpgYGAKCmBgYHtyIHdhdGNoX3Jlc3VsdHN9CgpzaG93KHRveURhdGEpCnByaW50KHRveURhdGEpCmhlYWQoZ2V0RW5yaWNoU05QKHRveURhdGEsIHR5cGUgPSAieFNOUCIpKQoKc2hvdyh0b3lEYXRhX2V4Y2x1ZGUpCnByaW50KHRveURhdGFfZXhjbHVkZSkKaGVhZChnZXRFbnJpY2hTTlAodG95RGF0YV9leGNsdWRlLCB0eXBlID0gImVTTlAiKSkKCmBgYAoK</div>
 
 
 

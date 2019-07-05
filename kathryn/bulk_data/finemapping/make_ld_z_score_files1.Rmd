@@ -21,9 +21,8 @@ chr1_cis <- franke_cis_data[which(GeneChr==1),]
 chr1_cis_split <- split(chr1_cis, chr1_cis$GeneSymbol)
 chr1_cis_useful <- chr1_cis_split[[11]] # ACBD6
 
-fwrite(chr1_cis_useful$SNP, "SNPs_for_plink_ACBD6.txt", sep="\t")
-
-fwrite(data.table(chr1_cis_useful$SNP, chr1_cis_useful$Zscore), "Zscore_file_ACBD6.txt", sep="\t")
+#fwrite(chr1_cis_useful$SNP, "SNPs_for_plink_ACBD6.txt", sep="\t")
+#fwrite(data.table(chr1_cis_useful$SNP, chr1_cis_useful$Zscore), "Zscore_file_ACBD6.txt", sep="\t")
 
 ```
 
@@ -33,11 +32,11 @@ snpInfoDir <- system.file("extdata/snpInfo",
                           package = "snpEnrichment")
 
 
-SNPs_Pvalues <- data.table(chr1_cis_useful$SNP, chr1_cis_useful$Pvalue)
-colnames(SNPs_Pvalues) <- c("SNP", "PVALUE")
-fwrite(SNPs_Pvalues, "/Users/kathryntsai/OneDrive - Villanova University/College/2018-2019/Summer 2019/TFs_eQTLs_Research/RProjects/Project2/finemapping/signalFile.txt", sep="\t", quote=F)
-
-signalFile <- "/Users/kathryntsai/OneDrive - Villanova University/College/2018-2019/Summer 2019/TFs_eQTLs_Research/RProjects/Project2/finemapping/signalFile.txt"
+# SNPs_Pvalues <- data.table(chr1_cis_useful$SNP, chr1_cis_useful$Pvalue)
+# colnames(SNPs_Pvalues) <- c("SNP", "PVALUE")
+# fwrite(SNPs_Pvalues, "/Users/kathryntsai/OneDrive - Villanova University/College/2018-2019/Summer 2019/TFs_eQTLs_Research/RProjects/Project2/finemapping/signalFile.txt", sep="\t", quote=F)
+# 
+signalFile <- "/Users/kathryntsai/OneDrive - Villanova University/College/2018-2019/Summer 2019/TFs_eQTLs_Research/RProjects/Project2/finemapping/toySignal_test.txt"
 
 # /Users/kathryntsai/Library/R/3.5/library/snpEnrichment/extdata/Signal/toySignal.txt
 # signalFile <- system.file("extdata/Signal/toySignal.txt", package = "snpEnrichment")

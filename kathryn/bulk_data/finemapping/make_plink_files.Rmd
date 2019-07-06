@@ -27,8 +27,17 @@ chr1_cis_useful <- chr1_cis_split[[11]] # ACBD6
 
 ```{r}
 
-plink_file <- data.table(chr1_cis_useful$SNPChr, chr1_cis_useful$SNP, chr1_cis_useful$SNPPos, chr1_cis_useful$OtherAllele, chr1_cis_useful$AssessedAllele, chr1_cis_useful$NrSamples, chr1_cis_useful$Info, chr1_cis_useful$Beta, chr1_cis_useful$SE, chr1_cis_useful$PValue)
-colnames(plink) <- c("CHR", "SNP", "BP", "A1_REF", "A2_ALT", "FRQ", "INFO", "OR", "SE", "P")
+map_file <- data.table(chr1_cis_useful$SNPChr, chr1_cis_useful$SNP, 0, chr1_cis_useful$SNPPos)
+fwrite(map_file, "acbd6.map", sep="\t", col.names = F, row.names=F)
+```
+plink --file acbd6 --make-bed --out acbd6
+
+```{r}
+bim_file <- data.table(chr1_cis_useful$SNPChr, chr1_cis_useful$SNP, 0, chr1_cis_useful$SNPPos, chr1_cis_useful$AssessedAllele, chr1_cis_useful$OtherAllele)
+fam_file <- data.table(chr1_cis_useful$SNP, 0, 0, 0, 0, 0)
 
 ```
+
+Notes:
+plink --file test --make-bed --out test
 

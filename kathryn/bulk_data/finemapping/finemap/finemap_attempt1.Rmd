@@ -27,6 +27,7 @@ https://github.com/manning-lab/fineMap
 https://github.com/chr1swallace/finemap-psa
 https://github.com/opentargets/genetics-finemapping
 https://omictools.com/finemap-tool
+https://github.com/JoniColeman/gwas_scripts/blob/master/README.md
 
 1000 Genomes
 https://www.google.com/search?q=background+finemap&oq=background+finemap&aqs=chrome..69i57.1595j0j1&sourceid=chrome&ie=UTF-8
@@ -34,6 +35,13 @@ https://www.semanticscholar.org/paper/FINEMAP%3A-efficient-variable-selection-us
 https://www.google.com/search?q=1000+genomes+plink+files&oq=1000+genomes+&aqs=chrome.4.69i57j0l5.4991j0j1&sourceid=chrome&ie=UTF-8
 https://www.google.com/search?q=1000+genomes+background+score+regression&oq=1000+genomes+background+score+regression&aqs=chrome..69i57.3654j0j1&sourceid=chrome&ie=UTF-8
 http://www.internationalgenome.org/data/
+
+git clone https://github.com/gkichaev/PAINTOR_V3.0
+git clone https://github.com/fhormoz/caviar
+git clone https://github.com/variani/finemapr
+
+http://genetics.cs.ucla.edu/caviar/caviar_manual.pdf
+http://zarlab.cs.ucla.edu/tag/ecaviar/
 
 ```{r load_packages}
 
@@ -70,10 +78,18 @@ mutate(z1, pval = pchisq(zscore^2, df = 1, lower.tail = FALSE)) %>%
   ggplot(aes(pval)) + geom_histogram()
 ```
 
+brew install zstd
+file.choose(region.log)
+Kat-Juno-10:run_finemap kathryntsai$ vim region.log
+Kat-Juno-10:run_finemap kathryntsai$ vim region.snp
+Kat-Juno-10:run_finemap kathryntsai$ vim region.config
+
 ```{r run_finemap}
 
 options(finemapr_finemap = "/Users/kathryntsai/finemap_v1.3.1_MacOSX/finemap_v1.3.1_MacOSX")
-out_finemap <- run_finemap(z1, ld1, n1, args = "--n-causal-max 3")
+
+devtools::load_all("/Users/kathryntsai/Documents/GitHub/finemapr/R/finemap.R")
+out_finemap <- run_finemap(z1, ld1, n1, args = "--n-causal-snps 3")
 print(out_finemap)
 plot(out_finemap, label_size = 3, grid_ncol = 1)
 
@@ -89,7 +105,7 @@ plot(out_finemap, label_size = 3, grid_ncol = 1)
 
 ```{r run_caviar}
 
-options(finemapr_caviar = "~/apps/caviar/CAVIAR")
+options(finemapr_caviar = "/Users/kathryntsai/Documents/GitHub/caviar/CAVIAR-C++/CAVIAR")
 out_caviar <- run_caviar(z1, ld1, args = "-c 3")
 print(out_caviar)
 plot(out_caviar, label_size = 3)
@@ -98,7 +114,7 @@ plot(out_caviar, label_size = 3)
 
 ```{r run_paintor}
 
-options(finemapr_paintor = "~/apps/paintor/PAINTOR")
+options(finemapr_paintor = "/Users/kathryntsai/Documents/GitHub/PAINTOR_V3.0/PAINTOR")
 out_paintor <- run_paintor(z1, ld1, n1, args = "-enumerate 3")
 print(out_paintor)
 plot(out_paintor, label_size = 3)

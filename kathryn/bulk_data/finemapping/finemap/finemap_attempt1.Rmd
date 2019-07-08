@@ -1,0 +1,23 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+FINEMAP
+
+# http://www.christianbenner.com/
+
+If using straight FINEMAP, need to include inputs:
+Master file 
+Z file - minor allele frequencies, beta, and se in z-file
+LD file
+BGEN, BGI, SAMPLE, and INCL file
+```{r}
+
+"/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/finemapping/finemap_v1.3.1_MacOSX/finemap_v1.3.1_MacOSX"
+
+```
+
+Google search: FINEMAP
+https://github.com/Ensembl/Finemap
+https://github.com/jinghuazhao/FM-pipeline

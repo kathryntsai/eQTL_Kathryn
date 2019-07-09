@@ -1,0 +1,42 @@
+
+@----------------------------------------------------------@
+|        PLINK!       |     v1.07      |   10/Aug/2009     |
+|----------------------------------------------------------|
+|  (C) 2009 Shaun Purcell, GNU General Public License, v2  |
+|----------------------------------------------------------|
+|  For documentation, citation & bug-report instructions:  |
+|        http://pngu.mgh.harvard.edu/purcell/plink/        |
+@----------------------------------------------------------@
+
+Web-based version check ( --noweb to skip )
+Recent cached web-check found...Problem connecting to web
+
+Writing this text to log file [ plink.log ]
+Analysis started: Tue Jul  9 12:52:19 2019
+
+Options in effect:
+	--file acbd6
+	--r
+
+418 (of 418) markers to be included from [ acbd6.map ]
+Warning, found 1 individuals with ambiguous sex codes
+These individuals will be set to missing ( or use --allow-no-sex )
+Writing list of these individuals to [ plink.nosex ]
+1 individuals read from [ acbd6.ped ] 
+0 individuals with nonmissing phenotypes
+Assuming a disease phenotype (1=unaff, 2=aff, 0=miss)
+Missing phenotype value is also -9
+0 cases, 0 controls and 1 missing
+0 males, 0 females, and 1 of unspecified sex
+Before frequency and genotyping pruning, there are 418 SNPs
+1 founders and 0 non-founders found
+Total genotyping rate in remaining individuals is 1
+0 SNPs failed missingness test ( GENO > 1 )
+0 SNPs failed frequency test ( MAF < 0 )
+After frequency and genotyping pruning, there are 418 SNPs
+After filtering, 0 cases, 0 controls and 1 missing
+After filtering, 0 males, 0 females, and 1 of unspecified sex
+Writing LD statistics to [ plink.ld ] 
+
+Analysis finished: Tue Jul  9 12:52:19 2019
+

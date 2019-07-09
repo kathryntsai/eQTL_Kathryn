@@ -22,12 +22,19 @@ library(snpEnrichment) # https://rdrr.io/cran/snpEnrichment/man/writeLD.html
 
 chr1_cis <- franke_cis_data[which(GeneChr==1),]
 chr1_cis_split <- split(chr1_cis, chr1_cis$GeneSymbol)
-chr1_cis_useful <- chr1_cis_split[[11]] # ACBD6
+ACBD6 <- chr1_cis_split[[11]] # ACBD6
 ```
+
+```{r }
+
+fwrite(data.table(ACBD6$SNP), "/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/finemapping/acbd6_snps.txt", row.names=F, col.names=F)
+
+```
+
 
 ```{r make_map_1_gene_locus}
 
-map_file <- data.table(chr1_cis_useful$SNPChr, chr1_cis_useful$SNP, 0, chr1_cis_useful$SNPPos)
+map_file <- data.table(ACBD6$SNPChr, ACBD6$SNP, 0, ACBD6$SNPPos)
 fwrite(map_file, "/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/finemapping/acbd6.map", sep="\t", col.names = F, row.names=F)
 ```
 
@@ -40,9 +47,20 @@ Have to make up information for summary stats:
      Maternal ID
      Sex (1=male; 2=female; other=unknown)
      Phenotype
+http://cubre.covenantuniversity.edu.ng/wp-content/uploads/2014/07/H3ABionet_2014_GWAS_2_Plink_Data_Format.pdf
 
 ```{r make_ped_1_gene_locus}
-ped_file <- data.table(1:length(chr1_cis_useful$SNP), chr1_cis_useful$SNP, 0, 0, 3, -9, "A", "A", "A", "A")
+
+ACBD6_table <- data.table(ACBD6$SNP, ACBD6$OtherAllele, ACBD6$AssessedAllele)
+colnames(ACBD6_table) <- c("SNP", "Ref", "Alt")
+#ACBD6_table_melted <- melt(ACBD6_table, id.vars="SNP") 
+#ACBD6_table_melted_alleles <- ACBD6_table_melted[order(ACBD6_table_melted$SNP), "value"]
+
+#cbind(ACBD6_table[seq(1, nrow(ACBD6_table), by=2), -1], ACBD6_table[seq(2, nrow(ACBD6_table), by=2), -1])
+
+acbd6_alleles <- strsplit(paste0(paste0(ACBD6_table$Ref, ACBD6_table$Alt), sep="", collapse=""), split="")
+
+ped_file <- data.table("chr1", "acbd6", 0, 0, 3, -9, t(acbd6_alleles[[1]]))
 fwrite(ped_file, "/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/finemapping/acbd6.ped", sep="\t", col.names = F, row.names=F)
 ```
 
@@ -60,11 +78,17 @@ system("/Users/kathryntsai/plink-1.07-mac-intel/plink --file test --r")
 https://www.cog-genomics.org/plink/1.9/ld 
 https://www.cog-genomics.org/plink/1.9/data#make_bed
 https://web.archive.org/web/20181008145054/http://zzz.bwh.harvard.edu/plink/ld.shtml
+
 ```{r run_plink_1_gene_locus}
 
 # in /Users/kathryntsai/OneDrive - Villanova University/College/2018-2019/Summer 2019/TFs_eQTLs_Research/RProjects/Project2/finemapping
 system("/Users/kathryntsai/plink-1.07-mac-intel/plink --file acbd6 --allow-no-sex --make-bed --out acbd6") 
-system("/Users/kathryntsai/plink-1.07-mac-intel/plink --file acbd6 --r")
+#system("/Users/kathryntsai/plink-1.07-mac-intel/plink --file acbd6 --r") # pariwise snps
+
+#/Users/kathryntsai/plink-1.07-mac-intel/plink --r2 --bfile acbd6 --extract samplesnp.txt --ld-window-r2 0.8 --out acbd6_ld
+
+/Users/kathryntsai/plink-1.07-mac-intel/plink --r2 --bfile acbd6 --extract acbd6_snps.txt --ld-window-r2 0.8 --out acbd6_ld
+
 
 ```
 

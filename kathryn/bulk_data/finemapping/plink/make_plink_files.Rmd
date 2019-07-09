@@ -1,0 +1,70 @@
+---
+title: "Make a Plink file"
+output: html_notebook
+---
+
+https://github.com/bulik/ldsc
+
+```{r install_libraries}
+
+source("https://bioconductor.org/biocLite.R")
+biocLite("snpStats") # https://www.bioconductor.org/packages//2.10/bioc/html/snpStats.html
+
+library(BiocManager)
+library(biomaRt)
+library(snpEnrichment) # https://rdrr.io/cran/snpEnrichment/man/writeLD.html
+
+```
+
+```{r specify_data}
+
+# http://webcache.googleusercontent.com/search?q=cache:http://zzz.bwh.harvard.edu/plink/dosage.shtml#format
+
+chr1_cis <- franke_cis_data[which(GeneChr==1),]
+chr1_cis_split <- split(chr1_cis, chr1_cis$GeneSymbol)
+chr1_cis_useful <- chr1_cis_split[[11]] # ACBD6
+```
+
+```{r make_map_1_gene_locus}
+
+map_file <- data.table(chr1_cis_useful$SNPChr, chr1_cis_useful$SNP, 0, chr1_cis_useful$SNPPos)
+fwrite(map_file, "/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/finemapping/acbd6.map", sep="\t", col.names = F, row.names=F)
+```
+
+
+https://web.archive.org/web/20190528204434/http://zzz.bwh.harvard.edu/plink/data.shtml
+Have to make up information for summary stats:
+     Family ID
+     Individual ID
+     Paternal ID
+     Maternal ID
+     Sex (1=male; 2=female; other=unknown)
+     Phenotype
+
+```{r make_ped_1_gene_locus}
+ped_file <- data.table(1:length(chr1_cis_useful$SNP), chr1_cis_useful$SNP, 0, 0, 3, -9, "A", "A", "A", "A")
+fwrite(ped_file, "/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/finemapping/acbd6.ped", sep="\t", col.names = F, row.names=F)
+```
+
+```{r plink_test, include=F}
+
+# in plink_mac_20190907 folder
+# create test.ped, test.map --> create toy_analysis.frq, toy_analysis.log
+system("/Users/kathryntsai/plink-1.07-mac-intel/plink --file test --freq --out toy_analysis --noweb") # getting started
+# test.fam, test.bim, test.bed, test.log
+system("/Users/kathryntsai/plink-1.07-mac-intel/plink --file test --maf 0.05 --make-bed --out test") # https://www.cog-genomics.org/plink/1.9/data#make_bed
+# plink.ld, plink.log
+system("/Users/kathryntsai/plink-1.07-mac-intel/plink --file test --r")
+```
+
+https://www.cog-genomics.org/plink/1.9/ld 
+https://www.cog-genomics.org/plink/1.9/data#make_bed
+https://web.archive.org/web/20181008145054/http://zzz.bwh.harvard.edu/plink/ld.shtml
+```{r run_plink_1_gene_locus}
+
+# in /Users/kathryntsai/OneDrive - Villanova University/College/2018-2019/Summer 2019/TFs_eQTLs_Research/RProjects/Project2/finemapping
+system("/Users/kathryntsai/plink-1.07-mac-intel/plink --file acbd6 --allow-no-sex --make-bed --out acbd6") 
+system("/Users/kathryntsai/plink-1.07-mac-intel/plink --file acbd6 --r")
+
+```
+

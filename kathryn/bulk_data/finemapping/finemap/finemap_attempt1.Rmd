@@ -1,8 +1,8 @@
 ---
-title: "R Notebook"
+title: "Use FINEMAPR to use FINEMAP, Caviar, and "
 output: html_notebook
 ---
-
+///
 FINEMAP
 
 http://www.christianbenner.com/

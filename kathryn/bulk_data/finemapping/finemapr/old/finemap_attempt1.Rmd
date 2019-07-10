@@ -2,7 +2,9 @@
 title: "Use FINEMAPR to use FINEMAP, Caviar, and "
 output: html_notebook
 ---
-///
+
+Questions: Zscore vs. Pvalue in eQTLGen data
+
 FINEMAP
 
 http://www.christianbenner.com/
@@ -66,13 +68,38 @@ file1_z <- system.file("extdata/region1.z", package = "finemapr")
 file1_ld <- system.file("extdata/region1.ld", package = "finemapr")
 z1 <- read_zscore(file1_z)
 ld1 <- read_ld(file1_ld, snps = z1$snp)
+z2 <- data.table(z1$snp, 1, 1:5363, "A", "G", 0, z1$zscore, 0)
+colnames(z2)[1:8] <- c("rsid", "chromosome", "position", "allele1", "allele2", "maf", "zscore", "se")
 n1 <- 5363
 
 ```
 
+  # rsid
+  # chromosome
+  # position
+  # allele1
+  # allele2
+  # maf
+  # beta
+  # se
+
+```{r new_data_load}
+
+chr1_cis <- franke_cis_data[which(GeneChr==1),]
+new <- chr1_cis[, c("SNP", "SNPChr", "SNPPos", "OtherAllele", "AssessedAllele", "FDR", "Zscore", "Pvalue", "Gene", "GeneSymbol", "GeneChr", "GenePos", "NrCohorts", "NrSamples")]
+colnames(new)[1:8] <- c("rsid", "chromosome", "position", "allele1", "allele2", "maf", "zscore", "se")
+new[, c(6, 8)] <- 0
+z1 <- new
+
+#l1 <- # after plink
+  
+n1 <- nrow(new)
+```
+
+
 ```{r explore z_scores}
 
-z1 %>% arrange(-abs(zscore)) %>% head(5) %>% kable(digits = 1)
+z1 %>% arrange(-abs(as.numeric(zscore))) %>% head(5) %>% kable(digits = 1)
 ggplot(z1, aes(zscore)) + geom_histogram()
 mutate(z1, pval = pchisq(zscore^2, df = 1, lower.tail = FALSE)) %>%
   ggplot(aes(pval)) + geom_histogram()
@@ -89,7 +116,7 @@ Kat-Juno-10:run_finemap kathryntsai$ vim region.config
 options(finemapr_finemap = "/Users/kathryntsai/finemap_v1.3.1_MacOSX/finemap_v1.3.1_MacOSX")
 
 devtools::load_all("/Users/kathryntsai/Documents/GitHub/finemapr/R/finemap.R")
-out_finemap <- run_finemap(z1, ld1, n1, args = "--n-causal-snps 3")
+out_finemap <- run_finemap(z2, ld1, n1, args = "--n-causal-snps 3") # if not using test, make it z1
 print(out_finemap)
 plot(out_finemap, label_size = 3, grid_ncol = 1)
 

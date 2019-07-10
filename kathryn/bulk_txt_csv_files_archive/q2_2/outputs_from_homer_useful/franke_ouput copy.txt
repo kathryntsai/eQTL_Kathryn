@@ -1,1 +1,0 @@
-PositionID	Offset	Sequence	Motif Name	Strand	MotifScore

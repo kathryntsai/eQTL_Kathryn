@@ -1,0 +1,28 @@
+
+@----------------------------------------------------------@
+|        PLINK!       |     v1.07      |   10/Aug/2009     |
+|----------------------------------------------------------|
+|  (C) 2009 Shaun Purcell, GNU General Public License, v2  |
+|----------------------------------------------------------|
+|  For documentation, citation & bug-report instructions:  |
+|        http://pngu.mgh.harvard.edu/purcell/plink/        |
+@----------------------------------------------------------@
+
+Web-based version check ( --noweb to skip )
+Recent cached web-check found...Problem connecting to web
+
+Writing this text to log file [ acbd6.log ]
+Analysis started: Tue Jul  9 11:16:25 2019
+
+Options in effect:
+	--file acbd6
+	--allow-no-sex
+	--make-bed
+	--out acbd6
+
+418 (of 418) markers to be included from [ acbd6.map ]
+
+ERROR: 
+A problem with line 1 in [ acbd6.ped ]
+Expecting 6 + 2 * 418 = 842 columns, but found 12
+

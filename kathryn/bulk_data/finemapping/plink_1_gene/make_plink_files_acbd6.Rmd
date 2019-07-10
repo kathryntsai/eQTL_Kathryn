@@ -1,0 +1,128 @@
+---
+title: "Make a Plink file"
+output: html_notebook
+---
+
+https://github.com/bulik/ldsc
+
+Todo:
+- make plink files with each cis eQTL, organized by chromosome
+- run plink in system on each
+- if the matrix is too slow, take pairwise snp comparisons and make matrix in r
+
+```{r install_libraries}
+
+#source("https://bioconductor.org/biocLite.R")
+#biocLite("snpStats") # https://www.bioconductor.org/packages//2.10/bioc/html/snpStats.html
+
+library(snpStats)
+library(BiocManager)
+library(biomaRt)
+library(snpEnrichment) # https://rdrr.io/cran/snpEnrichment/man/writeLD.html
+
+```
+
+```{r specify_data}
+
+# http://webcache.googleusercontent.com/search?q=cache:http://zzz.bwh.harvard.edu/plink/dosage.shtml#format
+
+chr1_cis <- franke_cis_data[which(GeneChr==1),]
+chr1_cis_split <- split(chr1_cis, chr1_cis$GeneSymbol)
+ACBD6 <- chr1_cis_split[[11]] # ACBD6
+```
+
+```{r create_snp_file_1_gene_locus}
+
+fwrite(data.table(ACBD6$SNP), "/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/finemapping/acbd6_snps.txt", row.names=F, col.names=F)
+
+```
+
+
+```{r make_map_1_gene_locus}
+
+map_file <- data.table(ACBD6$SNPChr, ACBD6$SNP, 0, ACBD6$SNPPos)
+fwrite(map_file, "/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/finemapping/acbd6.map", sep="\t", col.names = F, row.names=F)
+```
+
+https://web.archive.org/web/20190528204434/http://zzz.bwh.harvard.edu/plink/data.shtml
+Have to make up information for summary stats:
+     Family ID
+     Individual ID
+     Paternal ID
+     Maternal ID
+     Sex (1=male; 2=female; other=unknown)
+     Phenotype
+http://cubre.covenantuniversity.edu.ng/wp-content/uploads/2014/07/H3ABionet_2014_GWAS_2_Plink_Data_Format.pdf
+
+```{r make_ped_1_gene_locus}
+
+ACBD6_table <- data.table(ACBD6$SNP, ACBD6$OtherAllele, ACBD6$AssessedAllele)
+colnames(ACBD6_table) <- c("SNP", "Ref", "Alt")
+#ACBD6_table_melted <- melt(ACBD6_table, id.vars="SNP") 
+#ACBD6_table_melted_alleles <- ACBD6_table_melted[order(ACBD6_table_melted$SNP), "value"]
+
+#cbind(ACBD6_table[seq(1, nrow(ACBD6_table), by=2), -1], ACBD6_table[seq(2, nrow(ACBD6_table), by=2), -1])
+
+acbd6_alleles <- strsplit(paste0(paste0(ACBD6_table$Ref, ACBD6_table$Alt), sep="", collapse=""), split="")
+
+ped_file <- data.table("chr1", "acbd6", 0, 0, 3, -9, t(acbd6_alleles[[1]]))
+fwrite(ped_file, "/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/finemapping/acbd6.ped", sep="\t", col.names = F, row.names=F)
+```
+
+```{r plink_test, include=F}
+
+# in plink_mac_20190907 folder
+# create test.ped, test.map --> create toy_analysis.frq, toy_analysis.log
+system("/Users/kathryntsai/plink-1.07-mac-intel/plink --file test --freq --out toy_analysis --noweb") # getting started
+# test.fam, test.bim, test.bed, test.log
+system("/Users/kathryntsai/plink-1.07-mac-intel/plink --file test --maf 0.05 --make-bed --out test") # https://www.cog-genomics.org/plink/1.9/data#make_bed
+# plink.ld, plink.log
+system("/Users/kathryntsai/plink-1.07-mac-intel/plink --file test --r")
+```
+
+https://www.cog-genomics.org/plink/1.9/ld 
+https://www.cog-genomics.org/plink/1.9/data#make_bed
+https://web.archive.org/web/20181008145054/http://zzz.bwh.harvard.edu/plink/ld.shtml
+
+```{r run_plink_part1_for_1_gene_locus}
+
+# in /Users/kathryntsai/OneDrive - Villanova University/College/2018-2019/Summer 2019/TFs_eQTLs_Research/RProjects/Project2/finemapping
+system("/Users/kathryntsai/plink-1.07-mac-intel/plink --file acbd6 --allow-no-sex --make-bed --out acbd6") 
+
+```
+
+```{r run_plink_part2_unused_for_1_gene_locus, include=F}
+
+system("/Users/kathryntsai/plink-1.07-mac-intel/plink --file acbd6 --r") # pairwise snps
+
+system("/Users/kathryntsai/plink-1.07-mac-intel/plink --r2 --bfile acbd6 --extract acbd6_snps.txt --ld-window-r2 0.8 --out acbd6_ld")
+
+# https://www.cog-genomics.org/plink2/resources
+# https://bioinformatics.stackexchange.com/questions/2905/using-plink-to-find-snps-in-ld-linkage-disequilibrium-with-another-set-of-snps
+
+system("/Users/kathryntsai/plink-1.07-mac-intel/plink --r2 bin --bfile 1kg_phase1_chr1 --extract acbd6_snps.txt --ld-window-r2 0.8 --out acbd6_ld")
+
+# https://bioinformatics.stackexchange.com/questions/2905/using-plink-to-find-snps-in-ld-linkage-disequilibrium-with-another-set-of-snps
+# https://www.cog-genomics.org/plink2/resources
+system("/Users/kathryntsai/plink-1.07-mac-intel/plink --r2 --bfile 1kg_phase1_chr1 --clump acbd6_snps.txt --clump-field P --clump-p1 1.0001 --clump-p2 0.0001 --clump-r2 0.8 --clump-kb 1000 --out acbd6_ld3")
+
+# error
+system("/Users/kathryntsai/plink-1.07-mac-intel/plink --bfile 1kg_phase1_all --r2 --ld-window-r2 0 --out acbd6_ld4")
+
+system("/Users/kathryntsai/plink-1.07-mac-intel/plink --bfile 1kg_phase1_chr1 --r2 --matrix --out acbd6_ld5")
+
+```
+
+https://www.biostars.org/p/263373/
+https://www.biostars.org/p/274562/
+
+https://www.bioconductor.org/packages//2.10/bioc/manuals/snpStats/man/snpStats.pdf
+
+```{r snpStats, include=F}
+
+data(testdata)
+ld1 <- ld(Autosomes[, 1:50], depth=10, stats=c("D.prime", "R.squared"))[["R.squared"]]
+ld2 <- ld(Autosomes[, 1:50], depth=9, stats=c("D.prime", "R.squared"))
+ld3 <- ld(Autosomes[, 1:20], Autosomes[, 21:25], stats="R.squared") 
+
+```

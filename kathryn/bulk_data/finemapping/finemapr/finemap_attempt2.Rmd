@@ -56,7 +56,8 @@ library(magrittr)
 library(dplyr)
 library(ggplot2)
 library(knitr)
-theme_set(theme_linedraw())
+library(ggthemes)
+theme_set(theme_stata())
 
 ```
 
@@ -67,6 +68,7 @@ All three fine-mapping tools estimated the poterior causal probabilities of the 
 file1_z <- system.file("extdata/region1.z", package = "finemapr")
 file1_ld <- system.file("extdata/region1.ld", package = "finemapr")
 z1 <- read_zscore(file1_z)
+devtools::load_all("/Users/kathryntsai/Documents/GitHub/finemapr_variani/finemapr/R/finemap.R")
 ld1 <- read_ld(file1_ld, snps = z1$snp)
 n1 <- nrow(z1)
 
@@ -76,13 +78,34 @@ n1 <- nrow(z1)
 ```{r new_data_load}
 
 chr1_cis <- franke_cis_data[which(GeneChr==1),]
-new <- chr1_cis[, c("SNP", "Zscore")]
-colnames(new) <- c("snp", "zscore")
-z1 <- new
+chr1_cis_split <- split(chr1_cis, chr1_cis$GeneSymbol)
+ACBD6 <- chr1_cis_split[[11]] # ACBD6
 
-#l1 <- # after plink
-  
-n1 <- nrow(new)
+new <- ACBD6[, c("SNP", "Zscore")]
+colnames(new) <- c("snp", "zscore")
+fwrite(new, "abcd6_z.z", sep="\t", col.names=F)
+z1 <- read_zscore("/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/finemapping/abcd6_z.z")
+
+# devtools::load_all("/Users/kathryntsai/Documents/GitHub/finemapr_variani/R/finemap.R")
+# zz <- read.table("/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/finemapping/abcd6_ld.ld", sep="\t", row.names = 1, header=T)
+# fwrite(zz, "abcd6_ldlink.ld", sep="\t", row.names=F, col.names=F)
+#ld1 <- read_ld("/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/finemapping/abcd6_ldlink.ld")
+
+devtools::load_all("/Users/kathryntsai/Documents/GitHub/finemapr/R/finemap.R")
+ld1 <- read_ld("/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/finemapping/abcd6_ld.ld")
+
+z1 <- z1[match(row.names(ld1), z1$snp),]
+# cuts out 4 snps
+
+ld1 <- ld1[z1$snp %in% rownames(ld1), z1$snp %in% colnames(ld1)] # ensure matrix is square
+z1 <- z1[match(row.names(ld1), z1$snp),]
+# cuts out rs113028155
+
+ld1 <- ld1[!is.na(round(diag(ld1), 4)),!is.na(round(diag(ld1), 4))] # ensure diagonal exists for caviar
+z1 <- z1[match(row.names(ld1), z1$snp),]
+# cuts out rs78111936, rs187483246, rs2331743
+
+n1 <- nrow(z1)
 ```
 
 ```{r new_data_load_old, include=F}
@@ -123,12 +146,13 @@ n1 <- 5363
 ```{r explore z_scores}
 
 z1 %>% arrange(-abs(as.numeric(zscore))) %>% head(5) %>% kable(digits = 1)
-ggplot(z1, aes(zscore)) + geom_histogram()
+ggplot(z1, aes(zscore)) + geom_histogram(fill='red', color='blue')
 mutate(z1, pval = pchisq(zscore^2, df = 1, lower.tail = FALSE)) %>%
-  ggplot(aes(pval)) + geom_histogram()
+  ggplot(aes(pval)) + geom_histogram(fill='red', color='blue')
 ```
 
 brew install zstd
+It doesn't seem to be taking finemap arguments
 
 ```{r run_finemap}
 
@@ -137,10 +161,14 @@ options(finemapr_finemap = "/Users/kathryntsai/finemap_v1.1_MacOSX/finemap_v1.1_
 
 devtools::load_all("/Users/kathryntsai/Documents/GitHub/finemapr_variani/finemapr/R/finemap.R")
 # devtools::load_all("/Users/kathryntsai/Documents/GitHub/finemapr/R/finemap.R")
-out_finemap <- run_finemap(z1, ld1, n1, args = "--n-causal-snps 3") # if not using test, make it z1
-print(out_finemap)
-plot(out_finemap, label_size = 3, grid_ncol = 1)
-
+out_finemap <- run_finemap(z1, ld1, n1, args = " --n-configs-top 9007 --n-causal-max 3") # if not using test, make it z1
+out_finemap$num_loci <- length(out_finemap$snp[["snp"]])
+out_finemap$dir_run <- paste0(getwd(), '/finemapping/run_finemap')
+#run_tool(out_finemap)
+#write_files(out_finemap)
+out_finemap2 <- collect_results(out_finemap)
+print(out_finemap2)
+plot(out_finemap2, label_size = 3, grid_ncol = 1)
 ```
 
 ./CAVIAR 
@@ -151,6 +179,8 @@ plot(out_finemap, label_size = 3, grid_ncol = 1)
 -f 1 
 -r 0.95
 
+./CAVIAR -o acbd6_folder -l /Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/finemapping/acbd6_ld.ld -z /Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/finemapping/acbd6_z.txt -c 2 -f 1 -r 0.95
+
 ```{r run_caviar}
 
 options(finemapr_caviar = "/Users/kathryntsai/Documents/GitHub/caviar/CAVIAR-C++/CAVIAR")
@@ -160,12 +190,22 @@ plot(out_caviar, label_size = 3)
 
 ```
 
+
 ```{r run_paintor}
 
-options(finemapr_paintor = "/Users/kathryntsai/Documents/GitHub/PAINTOR_V3.0/PAINTOR")
+options(finemapr_paintor = "/Users/kathryntsai/Documents/GitHub/PAINTOR_V2.1/PAINTOR")
+
+devtools::load_all("/Users/kathryntsai/Documents/GitHub/finemapr_variani/finemapr/R/paintor.R")
+
 out_paintor <- run_paintor(z1, ld1, n1, args = "-enumerate 3")
+out_paintor$num_loci <- length(out_paintor$snp[["snp"]])
+out_paintor <- collect_results(out_paintor)
 print(out_paintor)
 plot(out_paintor, label_size = 3)
+
+process_annot.FinemaprPaintor(out_paintor)
+write_files.FinemaprPaintor(out_paintor)
+run_tool.FinemaprPaintor(out_paintor)
 
 ```
 

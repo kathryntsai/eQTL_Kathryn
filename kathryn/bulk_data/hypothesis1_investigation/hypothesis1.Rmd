@@ -13,3 +13,49 @@ oe <- HiC_data_2[, c("oeChr", "oeStart", "oeEnd", "oeID", "oeName")]
 # have you tried using awk to select only the super significant interactions? (I.e. Rows with p<X)
 
 ```
+
+Case 1: SNP found in Bait, Gene found in OE
+```{r}
+
+for (i in 1:nrow(franke_trans_data)){
+  snp_bait_match <- HiC_data_2 %>% 
+    filter(franke_trans_data$SNPChr[i] == HiC_data_2$baitChr) %>%
+    filter(franke_trans_data$SNPPos[i] >= HiC_data_2$baitStart) %>%
+    filter(franke_trans_data$SNPPos[i] <= HiC_data_2$baitEnd)
+  
+  # merge franke trans data with snp bait match 
+  z <- right_join(snp_bait_match, franke_trans_data, by=c("SNPChr, SNPPos"))
+  
+  snp_bait_match_gene <- HiC_data_2 %>% 
+    filter(z$GeneChr[i] == HiC_data_2$oeChr) %>%
+    filter(z$GenePos[i] >= HiC_data_2$oeStart) %>%
+    filter(z$GenePos[i] <= HiC_data_2$oeEnd)
+  
+  dim(snp_bait_match_gene)
+}
+
+
+```
+
+Case 2: SNP found in OE, Gene found in Bait
+```{r}
+
+for (i in 1:nrow(franke_trans_data)){
+  snp_bait_match <- HiC_data_2 %>% 
+    filter(franke_trans_data$SNPChr[i] == HiC_data_2$oeChr) %>%
+    filter(franke_trans_data$SNPPos[i] >= HiC_data_2$oeStart) %>%
+    filter(franke_trans_data$SNPPos[i] <= HiC_data_2$oeEnd)
+  
+  # merge franke trans data with snp bait match 
+  z <- right_join(snp_bait_match, franke_trans_data, by=c("SNPChr, SNPPos"))
+  
+  snp_bait_match_gene <- HiC_data_2 %>% 
+    filter(z$GeneChr[i] == HiC_data_2$baitChr) %>%
+    filter(z$GenePos[i] >= HiC_data_2$baitStart) %>%
+    filter(z$GenePos[i] <= HiC_data_2$baitEnd)
+  
+  dim(snp_bait_match_gene)
+}
+
+```
+

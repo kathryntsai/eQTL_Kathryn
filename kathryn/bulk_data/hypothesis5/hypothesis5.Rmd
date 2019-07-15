@@ -1,0 +1,17 @@
+---
+title: "Protein-Protein Interaction"
+output: html_notebook
+---
+
+match stringDB protein ID with ENSG/ENSP conversion list
+match stringDB gene ID with franke_trans_data gene ID
+does SNP fall into a gene - match SNP with SNPChr, SNPPos is in GeneChr, GenePos - that matches another protein ID
+look at function
+
+Count number of times this happens
+
+```{r}
+fread("hypothesis5_input/ENSG_ENSP_conversion.txt")
+fread("/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/hypothesis5_input/9606.protein.actions.v11.0.txt")
+```
+

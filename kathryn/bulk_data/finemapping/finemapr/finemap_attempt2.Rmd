@@ -91,7 +91,7 @@ z1 <- read_zscore("/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College
 # fwrite(zz, "abcd6_ldlink.ld", sep="\t", row.names=F, col.names=F)
 #ld1 <- read_ld("/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/finemapping/abcd6_ldlink.ld")
 
-devtools::load_all("/Users/kathryntsai/Documents/GitHub/finemapr/R/finemap.R")
+devtools::load_all("/Users/kathryntsai/Documents/GitHub/finemapr")
 ld1 <- read_ld("/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/finemapping/abcd6_ld.ld")
 
 z1 <- z1[match(row.names(ld1), z1$snp),]
@@ -159,16 +159,16 @@ It doesn't seem to be taking finemap arguments
 options(finemapr_finemap = "/Users/kathryntsai/finemap_v1.1_MacOSX/finemap_v1.1_MacOSX")
 #options(finemapr_finemap = "/Users/kathryntsai/finemap_v1.3.1_MacOSX/finemap_v1.3.1_MacOSX")
 
-devtools::load_all("/Users/kathryntsai/Documents/GitHub/finemapr_variani/finemapr/R/finemap.R")
-# devtools::load_all("/Users/kathryntsai/Documents/GitHub/finemapr/R/finemap.R")
-out_finemap <- run_finemap(z1, ld1, n1, args = " --n-configs-top 9007 --n-causal-max 3") # if not using test, make it z1
+#devtools::load_all("/Users/kathryntsai/Documents/GitHub/finemapr_variani/finemapr/R/finemap.R")
+#devtools::load_all("/Users/kathryntsai/Documents/GitHub/finemapr/R/finemap.R")
+out_finemap <- run_finemap(z1, ld1, n1, args = "--n-causal-max 3") # if not using test, make it z1
 out_finemap$num_loci <- length(out_finemap$snp[["snp"]])
-out_finemap$dir_run <- paste0(getwd(), '/finemapping/run_finemap')
+out_finemap$dir_run <- paste0(getwd(), '/run_finemap')
 #run_tool(out_finemap)
 #write_files(out_finemap)
 out_finemap2 <- collect_results(out_finemap)
 print(out_finemap2)
-plot(out_finemap2, label_size = 3, grid_ncol = 1)
+plot(out_finemap, label_size = 3, grid_ncol = 1)
 ```
 
 ./CAVIAR 
@@ -195,7 +195,7 @@ plot(out_caviar, label_size = 3)
 
 options(finemapr_paintor = "/Users/kathryntsai/Documents/GitHub/PAINTOR_V2.1/PAINTOR")
 
-devtools::load_all("/Users/kathryntsai/Documents/GitHub/finemapr_variani/finemapr/R/paintor.R")
+devtools::load_all("/Users/kathryntsai/Documents/GitHub/finemapr/R/paintor.R")
 
 out_paintor <- run_paintor(z1, ld1, n1, args = "-enumerate 3")
 out_paintor$num_loci <- length(out_paintor$snp[["snp"]])
@@ -203,9 +203,9 @@ out_paintor <- collect_results(out_paintor)
 print(out_paintor)
 plot(out_paintor, label_size = 3)
 
-process_annot.FinemaprPaintor(out_paintor)
-write_files.FinemaprPaintor(out_paintor)
-run_tool.FinemaprPaintor(out_paintor)
+# process_annot.FinemaprPaintor(out_paintor)
+# write_files.FinemaprPaintor(out_paintor)
+# run_tool.FinemaprPaintor(out_paintor)
 
 ```
 

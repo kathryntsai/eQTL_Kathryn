@@ -13,6 +13,8 @@ franke_cis_data <- fread("input_data/cis-eQTL_significant_20181017.txt", header 
 # Read Lude Franke's trans-eQTL data
 franke_trans_data <- fread("input_data/trans-eQTL_significant_20181017.txt", header = TRUE, sep = "\t", dec = ".")
 
+my_path="/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/"
+
 library(fastmatch)
 library(seqinr)
 library(tidyverse)

@@ -15,14 +15,14 @@ colnames(allgenes) <- c("GeneChr", "GeneStart", "GeneEnd", "GeneSymbol", "0", "S
 ```
 
 Case 1: SNP found in Bait, Gene found in OE
-```{r case_1}
+```{r case_1, include=F}
 
 y <- HiC_data_2 %>% 
     filter(franke_trans_data$SNPChr[1] == baitChr) %>%
     filter(franke_trans_data$SNPPos[1] >= baitStart) %>%
     filter(franke_trans_data$SNPPos[1] <= baitEnd)
 if (dim(y)[1] != 0){
-  z <- cbind(1, y[, c("baitChr", "baitStart", "baitEnd", "baitID", "baitName", "oeChr", "oeStart", "oeEnd", "oeID", "oeName")], franke_trans_data[1,c("SNP", "SNPChr", "SNPPos", "Gene", "GeneSymbol", "GeneChr", "GenePos")])
+  z <- cbind(1, y[, c("baitChr", "baitStart", "baitEnd", "baitID", "baitName", "oeChr", "oeStart", "oeEnd", "oeID", "oeName")], franke_trans_data[1,c("SNP", "SNPChr", "SNPPos", "Gene", "GeneSymbol")])
   snp_bait_match <- z
 } else {
   snp_bait_match <- rnorm(18)
@@ -34,13 +34,13 @@ for (i in 2:nrow(franke_trans_data)){
     filter(franke_trans_data$SNPPos[i] >= baitStart) %>%
     filter(franke_trans_data$SNPPos[i] <= baitEnd)
   if (dim(y)[1] != 0){
-    z <- cbind(i, y[, c("baitChr", "baitStart", "baitEnd", "baitID", "baitName", "oeChr", "oeStart", "oeEnd", "oeID", "oeName")], franke_trans_data[i,c("SNP", "SNPChr", "SNPPos", "Gene", "GeneSymbol", "GeneChr", "GenePos")])
+    z <- cbind(i, y[, c("baitChr", "baitStart", "baitEnd", "baitID", "baitName", "oeChr", "oeStart", "oeEnd", "oeID", "oeName")], franke_trans_data[i,c("SNP", "SNPChr", "SNPPos", "Gene", "GeneSymbol")])
     snp_bait_match <- rbind(snp_bait_match, z, use.names=F)
   }
   if (i %% 1000 == 0) print(i)
 }
 
-colnames(snp_bait_match) <- c("row_eQTLGen", "baitChr", "baitStart", "baitEnd", "baitID", "baitName", "oeChr_poss", "oeStart_poss", "oeEnd_poss", "oeID_poss", "oeName_poss", "SNP", "SNPChr", "SNPPos", "Gene", "GeneSymbol", "GeneChr", "GenePos")
+colnames(snp_bait_match) <- c("row_eQTLGen", "baitChr", "baitStart", "baitEnd", "baitID", "baitName", "oeChr_poss", "oeStart_poss", "oeEnd_poss", "oeID_poss", "oeName_poss", "SNP", "SNPChr", "SNPPos", "Gene", "GeneSymbol")
 
 # y <- snp_bait_match %>% 
 #     filter(GeneChr == oeChr_poss) %>%
@@ -75,7 +75,7 @@ dim(snp_bait_match_gene)
 ```
 
 Case 2: SNP found in OE, Gene found in Bait
-```{r case_2}
+```{r case_2, include=F}
 
 y <- HiC_data_2 %>% 
     filter(franke_trans_data$SNPChr[1] == oeChr) %>%
@@ -113,39 +113,53 @@ dim(snp_oe_match_gene)
 ```
 
 ```{r}
+
+#snp_bait_match <- rbind(snp_bait_match, z, use.names=F)
+
+allgenes <- allgenes[,1:4]
+allgenes <- allgenes[!duplicated(allgenes),]
+allgenes$Size <- allgenes$GeneEnd - allgenes$GeneStart
+allgenes <- allgenes %>% group_by(GeneSymbol) %>% filter(Size ==max(Size))
+
 franke_trans_data$rank <- 1:nrow(franke_trans_data)
+franke_trans_data2 <- merge(franke_trans_data, allgenes[,c("GeneStart", "GeneEnd", "GeneSymbol")], by="GeneSymbol") # lose 59786 - 54178 = 5608 genes lost
+franke_trans_data2$rank <- 1:nrow(franke_trans_data2)
 
 snp_in_bait_gene_in_oe_list <- function(zz){
+  unlist(zz)
    y <- HiC_data_2 %>%
-    filter(zz[,"SNPChr"] == baitChr) %>%
-    filter(zz[,"SNPPos"] >= baitStart) %>%
-    filter(zz[,"SNPPos"] <= baitEnd)
+    filter(zz[["SNPChr"]] == baitChr) %>%
+    filter(zz[["SNPPos"]] >= baitStart) %>%
+    filter(zz[["SNPPos"]] <= baitEnd)
    if (dim(y)[1] != 0){
-    z <- cbind(zz[,c("rank")], y[, c("baitChr", "baitStart", "baitEnd", "baitID", "baitName", "oeChr", "oeStart", "oeEnd", "oeID", "oeName")], zz[,c("SNP", "SNPChr", "SNPPos", "Gene", "GeneSymbol", "GeneChr", "GenePos")])
-    #snp_bait_match <- rbind(snp_bait_match, z, use.names=F)
-    
-    colnames(z) <- c("row_eQTLGen", "baitChr", "baitStart", "baitEnd", "baitID", "baitName", "oeChr_poss", "oeStart_poss", "oeEnd_poss", "oeID_poss", "oeName_poss", "SNP", "SNPChr", "SNPPos", "Gene", "GeneSymbol", "GeneChr", "GenePos")
-    
-    zzz <- z %>% 
-    filter(GeneChr == oeChr_poss) %>%
-    filter(GenePos >= oeStart_poss) %>%
-    filter(GenePos <= oeEnd_poss)
-
-    return(zzz[,"row_eQTLGen"])
-   } else{
-    return(0)
-   }
+     z <- cbind(zz[["rank"]], y[, c("baitChr", "baitStart", "baitEnd", "baitID", "baitName", "oeChr", "oeStart", "oeEnd", "oeID", "oeName")], zz[["SNP"]], zz[["SNPChr"]], zz[["SNPPos"]], zz[["Gene"]], zz[["GeneSymbol"]], zz[["GeneChr"]], zz[["GeneStart"]], zz[["GeneEnd"]])
+     colnames(z) <- c("row_eQTLGen", "baitChr", "baitStart", "baitEnd", "baitID", "baitName", "oeChr_poss", "oeStart_poss", "oeEnd_poss", "oeID_poss", "oeName_poss", "SNP", "SNPChr", "SNPPos", "Gene", "GeneSymbol", "GeneChr", "GeneStart", "GeneEnd")
+     zzz <- z %>% filter(GeneChr == oeChr_poss) %>% filter(GeneStart >= oeStart_poss | GeneEnd <= oeEnd_poss)
+     if (dim(z)[1] != 0)
+       return(zzz$row_eQTLGen)
+    else
+        return("SNP found in bait, but bait not found in oe")
+   } 
+  return("Snp not found in bait")
 }
+
+snp_bait_match_gene <- apply(franke_trans_data2[2:100], 1, snp_in_bait_gene_in_oe_list)
 
 snp_in_oe_list <- function(zz){
    y <- HiC_data_2 %>%
-    filter(zz$SNPChr == baitChr) %>%
-    filter(zz$SNPPos >= baitStart) %>%
-    filter(zz$SNPPos <= baitEnd)
+    filter(zz[[1]][["SNPChr"]] == oeChr) %>%
+    filter(zz[[1]][["SNPPos"]] >= oeStart) %>%
+    filter(zz[[1]][["SNPPos"]] <= oeEnd)
    if (dim(y)[1] != 0){
-    z <- cbind(zz[,c("rank")], y[, c("baitChr", "baitStart", "baitEnd", "baitID", "baitName", "oeChr", "oeStart", "oeEnd", "oeID", "oeName")], zz[,c("SNP", "SNPChr", "SNPPos", "Gene", "GeneSymbol", "GeneChr", "GenePos")])
-    #snp_bait_match <- rbind(snp_bait_match, z, use.names=F)
-    return(z)
+    z <- cbind(zz[[1]][["rank"]], y[, c("baitChr", "baitStart", "baitEnd", "baitID", "baitName", "oeChr", "oeStart", "oeEnd", "oeID", "oeName")], zz[[1]][["SNP"]], zz[[1]][["SNPChr"]], zz[[1]][["SNPPos"]], zz[[1]][["Gene"]], zz[[1]][["GeneSymbol"]], zz[[1]][["GeneChr"]], zz[[1]][["GeneStart"]], zz[[1]][["GeneEnd"]])
+    
+    colnames(z) <- c("row_eQTLGen", "oeChr", "oeStart", "oeEnd", "oeID", "oeName", "baitChr_poss", "baitStart_poss", "baitEnd_poss", "baitID_poss", "baitName_poss", "SNP", "SNPChr", "SNPPos", "Gene", "GeneSymbol")
+    
+    zzz <- z %>% 
+    filter(GeneChr == oeChr_poss) %>%
+    filter(GenePos >= oeStart_poss | filter(GenePos <= oeEnd_poss))
+
+    return(zzz)
    } else{
     return(0)
    }

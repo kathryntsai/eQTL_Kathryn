@@ -1,0 +1,38 @@
+---
+title: "Protein-Protein Interaction"
+output: html_notebook
+---
+
+<!--match stringDB protein ID with ENSG/ENSP conversion list-->
+match stringDB gene ID with franke_trans_data gene ID
+does SNP fall into a gene - match SNP with SNPChr, SNPPos is in GeneChr, GenePos - that matches another protein ID
+look at function
+
+Count number of times this happens
+
+```{r}
+library(rsnps)
+
+conversion <- fread(paste0(my_path, "hypothesis5_input/ENSG_ENSP_conversion.txt"))
+stringdb <- fread(paste0(my_path, "hypothesis5_input/9606.protein.actions.v11.0.txt"))
+stringdb$item_id_a <- gsub("9606.", "", stringdb$item_id_a)
+stringdb$item_id_b <- gsub("9606.", "", stringdb$item_id_b)
+
+stringdb_ensga <- merge(stringdb, conversion, by.x="item_id_a", by.y="Ensembl Protein ID", all.y=F)
+colnames(stringdb_ensga)[8] <- "ENSG A" # check whether it's actually 8
+stringdb_ensgab <- merge(stringdb_ensga, conversion, by.x="item_id_b", by.y="Ensembl Protein ID", all.y=F)
+colnames(stringdb_ensgab)[9] <- "ENSG B"
+
+# gene_positions <- system(paste0('mysql  --user=genome --host=genome-mysql.cse.ucsc.edu -A -D hg19
+# mysql> select distinct G.gene,N.value from ensGtp as G, ensemblToGeneName as N where 
+#   G.transcript=N.name and
+#   G.gene in (', ENSG00000197021, ENSG00000204379, ') ;'))
+
+match_a <- merge(franke_trans_data[1:10,], stringdb_ensgab, by.y = "ENSG A", by.x = "Gene")
+match_a_snp <- match_a %>% filter(SNPGene == "ENSG B")
+  
+match_b <- inner_join(stringdb_ensgab, franke_trans_data, by.x = "ENSG B", by.y = "Gene")
+match_b_snp <- match_b %>% filter(SNPGene == "ENSG A")
+
+```
+

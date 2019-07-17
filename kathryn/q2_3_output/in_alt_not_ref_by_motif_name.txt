@@ -1,0 +1,1 @@
+alt_FASTA_ID	alt_Offset	Sequence	Motif Name	alt_Strand	alt_MotifScore

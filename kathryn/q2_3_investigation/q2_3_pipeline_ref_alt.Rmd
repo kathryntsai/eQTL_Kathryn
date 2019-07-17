@@ -1,0 +1,360 @@
+---
+title: "Read Homer Output Analysis - For Ref/Alt"
+output: html_notebook
+---
+---
+
+Can you pull out a couple examples of TFs (maybe 1 or 2) from these 73K and identify which part of the motif is affected by the SNP? I bet it will be the part of a motif where there is a very heavy weight on one particular nucleotide and messing that up results in failure to identify the motif with the alternative allele. 
+
+also, could you show one or two examples of TFs from the 69K set, where searching the reference genome fails to identify a motif but searching with the alternative allele finds it? 
+
+Similarly, I bet the SNPs occur in the super important core part of the motif with high probabilities (from the PWM) for that nucleotide. Do you have experience making sequence logos? they’re fun plots to show the important of each nucleotide in a motif?
+
+Limitations: only looks at positive strand
+
+```{r load_libraries}
+# source("https://bioconductor.org/biocLite.R")
+# BiocManager::install("seqLogo")
+
+library(seqLogo) # makePWM
+library(stringr) # read.fasta, write.fasta
+library(data.table)
+library(dplyr)
+library(glue)
+library(matrixStats)
+library(ggthemes)
+```
+
+```{r load_data}
+
+in_ref_not_alt_SNP <- fread("/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/q2_3_output/in_ref_not_alt_SNP.txt") # 534958 x 8
+in_alt_not_ref_SNP <- fread("/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/q2_3_output/in_alt_not_ref_SNP.txt") # 556774 x 8
+
+a_gene_snp <- fread("/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/q2_3_output/a_gene_snp.txt") # 925540 x 14
+a_gene_snp$SNPWindow <- paste("chromosome:GRCh37:",a_gene_snp$SNPChr, ":", a_gene_snp$SNPWindowStart, ":", a_gene_snp$SNPWindowEnd,":1", sep="") # 925540 x 15
+```
+
+Using only motifs on positive strands, sort motifs by Motif Score
+Change # data points with value of n in z_test_group
+```{r get_samples}
+
+# x1_s <- x1 %>% sample_n(10000)
+# x2_s <- x2 %>% sample_n(10000)
+# fwrite(x1_s, "/Users/kathryntsai/OneDrive - Villanova University/College/2018-2019/Summer 2019/TFs_eQTLs_Research/RProjects/Project2/q2_3_output/x1_s_ref.txt", sep="\t")
+# fwrite(x2_s, "/Users/kathryntsai/OneDrive - Villanova University/College/2018-2019/Summer 2019/TFs_eQTLs_Research/RProjects/Project2/q2_3_output/x2_s_alt.txt", sep="\t")
+
+x1_s <- fread("/Users/kathryntsai/OneDrive - Villanova University/College/2018-2019/Summer 2019/TFs_eQTLs_Research/RProjects/Project2/q2_3_output/x1_s_ref.txt", sep='\t')
+x2_s <- fread("/Users/kathryntsai/OneDrive - Villanova University/College/2018-2019/Summer 2019/TFs_eQTLs_Research/RProjects/Project2/q2_3_output/x2_s_alt.txt", sep='\t')
+
+z <- x1_s[x1_s$"ref_Strand" == "+",]
+ref_test_group <- z[order(z$"ref_MotifScore", decreasing=T),]
+
+z <- x2_s[x2_s$"alt_Strand" == "+",]
+alt_test_group <- z[order(z$"alt_MotifScore", decreasing=T),]
+
+```
+
+
+Todo: detect # motifs without hardcoding it in
+
+```{r create_motifs_table}
+
+# used forklift to rename all the motifs
+
+motifs_table <- data.frame(read.table("/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/q2_3_investigation/motifs/motif1.motif", sep="\t", header=F,nrow=1)[,2])
+colnames(motifs_table) <- "Motif Name"
+
+n = 429
+for (i in 2:n){
+  z <- read.table(paste("/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/q2_3_investigation/motifs/motif", i, ".motif", sep=""), sep="\t", header=F,nrow=1)[,2]
+  z <- data.frame(z)
+  colnames(z) <- "Motif Name"
+  motifs_table <- rbind(motifs_table, z)
+}
+
+motifs_table <- cbind(motifs_table, 1:n)
+colnames(motifs_table)[2] <- "Num"
+# 429 x 2
+
+```
+
+```{r match_motifs_with_test_groups_ref}
+ 
+ref_test_group_file <- left_join(ref_test_group, motifs_table) # 10051 x 9
+ref_test_group_file$SNPPosInFasta <- 0.001 
+
+ref_test_group_with_fasta <- left_join(ref_test_group_file, a_gene_snp[!duplicated(a_gene_snp$fasta_seq_og),]) # also by 'SNP'
+ref_test_group_with_fasta$ref_Offset <- ref_test_group_with_fasta$ref_Offset + 21
+ref_test_group_with_fasta <- ref_test_group_with_fasta[which(str_sub(ref_test_group_with_fasta$fasta_seq_og, 21, 21) == ref_test_group_with_fasta$OtherAllele), ] # only necessary if you didn't use old a_gene_snp file for homer input
+counter_of_excluded_data <- 0
+
+```
+
+```{r get_max_pwm_info_ref}
+
+i=1
+
+## make_PWM_and_get_motif_sequence_for_1_motif
+impt_table <- read.table(paste("/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/q2_3_investigation/motifs/motif", ref_test_group_with_fasta[i,"Num"], ".motif", sep=""), sep="\t", skip=1, header=F, stringsAsFactors=FALSE)
+colnames(impt_table) <- c("A", "C", "G", "T")
+max_TF_motifs <- data.frame(cbind(data.frame(rowMaxs(as.matrix(impt_table), cols=T)), 1:nrow(impt_table), colnames(impt_table)[apply(impt_table,1,which.max)]))
+colnames(max_TF_motifs) <- c("Num", "Index", "Base")
+tf_motif <- paste(max_TF_motifs$Base, collapse="", sep="")
+
+if (ref_test_group_with_fasta$ref_Offset[i] >= (21 - nchar(tf_motif)) & ref_test_group_with_fasta$ref_Offset[i] < 21)
+{
+    ref_test_group_with_fasta$SNPPosInFasta[i] <- 21 - ref_test_group_with_fasta$ref_Offset[i]+1
+    allele_pwms <- data.table(impt_table[ref_test_group_with_fasta$SNPPosInFasta[i], ref_test_group_with_fasta$AssessedAllele[i]],
+                              impt_table[ref_test_group_with_fasta$SNPPosInFasta[i], ref_test_group_with_fasta$OtherAllele[i]])
+    colnames(allele_pwms) <- c("AssessedPWM", "OtherPWM")
+    all_snp_pwms_ref <- max_TF_motifs[21 - ref_test_group_with_fasta$ref_Offset[i], ] # make this rbind later
+    all_snp_pwms_ref <- cbind(all_snp_pwms_ref, i, ref_test_group_with_fasta[i,], allele_pwms) # make this cbind later
+} else {
+  all_snp_pwms_ref <- data.table(NA, NA, NA, i, ref_test_group_with_fasta[i]) # to begin
+  colnames(all_snp_pwms_ref) <- c("Num", "Index", "Base", "i", colnames(ref_test_group_with_fasta))
+  counter_of_excluded_data <- counter_of_excluded_data + 1
+}
+    
+for (i in 2:nrow(ref_test_group_with_fasta)){
+  impt_table <- read.table(paste("/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/q2_3_investigation/motifs/motif", ref_test_group_with_fasta[i,"Num"], ".motif", sep=""), sep="\t", skip=1, header=F, stringsAsFactors=FALSE)
+  colnames(impt_table) <- c("A", "C", "G", "T")
+  max_TF_motifs <- data.frame(cbind(data.frame(rowMaxs(as.matrix(impt_table), cols=T)), 1:nrow(impt_table), colnames(impt_table)[apply(impt_table,1,which.max)]))
+  colnames(max_TF_motifs) <- c("Num", "Index", "Base")
+  tf_motif <- paste(max_TF_motifs$Base, collapse="", sep="")  # CATGCATATGCATAT
+  
+  ## does_TF_hit_SNP_if_so_get_position
+  if (ref_test_group_with_fasta$ref_Offset[i] >= (21 - nchar(tf_motif)) & ref_test_group_with_fasta$ref_Offset[i] < 21) # if offset = 21, skip this
+  {
+      ref_test_group_with_fasta$SNPPosInFasta[i] <- 21 - ref_test_group_with_fasta$ref_Offset[i]
+      allele_pwms <- data.table(impt_table[ref_test_group_with_fasta$SNPPosInFasta[i], ref_test_group_with_fasta$AssessedAllele[i]],
+                              impt_table[ref_test_group_with_fasta$SNPPosInFasta[i], ref_test_group_with_fasta$OtherAllele[i]])
+      colnames(allele_pwms) <- c("AssessedPWM", "OtherPWM")
+      row_to_bind <- data.frame(max_TF_motifs[21 - ref_test_group_with_fasta$ref_Offset[i], ], i, ref_test_group_with_fasta[i,], allele_pwms)
+      colnames(row_to_bind) <- colnames(all_snp_pwms_ref)
+      all_snp_pwms_ref <- rbind(all_snp_pwms_ref, row_to_bind)
+  } else {
+    counter_of_excluded_data <- counter_of_excluded_data + 1
+  }
+}
+
+all_snp_pwms_ref <- all_snp_pwms_ref[!is.na(all_snp_pwms_ref$Num),]
+
+```
+
+```{r rename_cols_to_get_rid_of_duplicates_ref}
+colnames(all_snp_pwms_ref) <- c("Num", "Index", "Base", "i", "SNPWindow", "SNP", "SNPWindow2", "Offset", "Sequence", "Motif Name", "Strand", "MotifScore", "Num1", "SNPPosInFasta", "Gene", "GeneSymbol", "GeneChr", "GenePos", "SNPChr", "SNPPos", "AssessedAllele", "OtherAllele", "SNPWindowStart", "SNPWindowEnd", "fasta_seq_og", "fasta_seq_mod", "AssessedPWM", "OtherPWM")
+```
+
+
+```{r visualize_likelihood_ref}
+
+ggplot(all_snp_pwms_ref, aes(x=as.numeric(Num))) + 
+  geom_histogram(binwidth=.1, color="black", fill="blue") +
+  theme_stata() +
+  geom_density(alpha=.2, fill="#FF6666", aes(y=..count../8)) +
+  geom_vline(aes(xintercept=mean(as.numeric(Num))),
+            color="blue", linetype="dashed", size=1) + 
+  ggtitle("Likelihood of Interesting Motifs - Reference Allele")
+
+```
+
+For alt
+
+```{r match_motifs_with_test_groups_alt}
+
+alt_test_group_file <- left_join(alt_test_group, motifs_table) # 9901 x 9
+alt_test_group_file$SNPPosInFasta <- 0.001 
+
+alt_test_group_with_fasta <- left_join(alt_test_group_file, a_gene_snp[!duplicated(a_gene_snp$fasta_seq_og),]) # also by 'SNP'
+alt_test_group_with_fasta$alt_Offset <- alt_test_group_with_fasta$alt_Offset + 21
+alt_test_group_with_fasta <- alt_test_group_with_fasta[which(str_sub(alt_test_group_with_fasta$fasta_seq_og, 21, 21) == alt_test_group_with_fasta$OtherAllele), ] # 37x20, only necessary if you didn't use old a_gene_snp file for homer input
+counter_of_excluded_data <- 0
+
+```
+
+```{r get_max_pwm_info_alt}
+
+i=1
+
+## make_PWM_and_get_motif_sequence_for_1_motif
+impt_table <- read.table(paste("/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/q2_3_investigation/motifs/motif", alt_test_group_with_fasta[i,"Num"], ".motif", sep=""), sep="\t", skip=1, header=F, stringsAsFactors=FALSE)
+colnames(impt_table) <- c("A", "C", "G", "T")
+max_TF_motifs <- data.frame(cbind(data.frame(rowMaxs(as.matrix(impt_table), cols=T)), 1:nrow(impt_table), colnames(impt_table)[apply(impt_table,1,which.max)]))
+colnames(max_TF_motifs) <- c("Num", "Index", "Base")
+tf_motif <- paste(max_TF_motifs$Base, collapse="", sep="")
+
+## get_fasta_seq_and_get_rid_of_matches_that_do_not_work: Where does the SNP hit the TF? for alt_test_group: I think eQTLGen is zero-indexed.
+
+## does_TF_hit_SNP_if_so_get_position
+if (alt_test_group_with_fasta$alt_Offset[i] >= (21 - nchar(tf_motif)) & alt_test_group_with_fasta$alt_Offset[i] < 21)
+{
+    alt_test_group_with_fasta$SNPPosInFasta[i] <- 21 - alt_test_group_with_fasta$alt_Offset[i]+1
+    allele_pwms <- data.table(impt_table[alt_test_group_with_fasta$SNPPosInFasta[i], alt_test_group_with_fasta$AssessedAllele[i]],
+                              impt_table[alt_test_group_with_fasta$SNPPosInFasta[i], alt_test_group_with_fasta$OtherAllele[i]])
+    colnames(allele_pwms) <- c("AssessedPWM", "OtherPWM")
+    all_snp_pwms_alt <- max_TF_motifs[21 - alt_test_group_with_fasta$alt_Offset[i], ] # make this rbind later
+    all_snp_pwms_alt <- cbind(all_snp_pwms_alt, i, alt_test_group_with_fasta[i,], allele_pwms) # make this cbind later
+} else {
+  all_snp_pwms_alt <- data.table(NA, NA, NA, i, alt_test_group_with_fasta[i,], allele_pwms) # to begin
+  colnames(all_snp_pwms_alt) <- c("Num", "Index", "Base", "i", colnames(alt_test_group_with_fasta), colnames(allele_pwms))
+  counter_of_excluded_data <- counter_of_excluded_data + 1
+}
+    
+for (i in 2:nrow(alt_test_group_with_fasta)){
+  impt_table <- read.table(paste("/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/q2_3_investigation/motifs/motif", alt_test_group_with_fasta[i,"Num"], ".motif", sep=""), sep="\t", skip=1, header=F, stringsAsFactors=FALSE)
+  colnames(impt_table) <- c("A", "C", "G", "T")
+  max_TF_motifs <- data.frame(cbind(data.frame(rowMaxs(as.matrix(impt_table), cols=T)), 1:nrow(impt_table), colnames(impt_table)[apply(impt_table,1,which.max)]))
+  colnames(max_TF_motifs) <- c("Num", "Index", "Base")
+  tf_motif <- paste(max_TF_motifs$Base, collapse="", sep="")  # CATGCATATGCATAT
+  
+  ## does_TF_hit_SNP_if_so_get_position
+  if (alt_test_group_with_fasta$alt_Offset[i] >= (21 - nchar(tf_motif)) & alt_test_group_with_fasta$alt_Offset[i] < 21) # if offset = 21, skip this
+  {
+      alt_test_group_with_fasta$SNPPosInFasta[i] <- 21 - alt_test_group_with_fasta$alt_Offset[i]
+      allele_pwms <- data.table(impt_table[alt_test_group_with_fasta$SNPPosInFasta[i], alt_test_group_with_fasta$AssessedAllele[i]],
+                              impt_table[alt_test_group_with_fasta$SNPPosInFasta[i], alt_test_group_with_fasta$OtherAllele[i]])
+      colnames(allele_pwms) <- c("AssessedPWM", "OtherPWM")
+      row_to_bind <- data.frame(max_TF_motifs[21 - alt_test_group_with_fasta$alt_Offset[i], ], i, alt_test_group_with_fasta[i,], allele_pwms)
+      colnames(row_to_bind) <- colnames(all_snp_pwms_alt)
+      all_snp_pwms_alt <- rbind(all_snp_pwms_alt, row_to_bind)
+  } else {
+    counter_of_excluded_data <- counter_of_excluded_data + 1
+  }
+}
+
+all_snp_pwms_alt <- all_snp_pwms_alt[!is.na(all_snp_pwms_alt$Num),]
+```
+
+```{r rename_cols_to_get_rid_of_duplicates_alt}
+
+# changed SNP placement
+colnames(all_snp_pwms_alt) <- c("Num", "Index", "Base", "i", "SNPWindow", "SNP", "SNPWindow2", "Offset", "Sequence", "Motif Name", "Strand", "MotifScore", "Num1", "SNPPosInFasta", "Gene", "GeneSymbol", "GeneChr", "GenePos", "SNPChr", "SNPPos", "AssessedAllele", "OtherAllele", "SNPWindowStart", "SNPWindowEnd", "fasta_seq_og", "fasta_seq_mod", "AssessedPWM", "OtherPWM")
+```
+
+
+```{r visualize_likelihood_alt}
+
+ggplot(all_snp_pwms_alt, aes(x=as.numeric(Num))) + 
+  geom_histogram(binwidth=.1, color="black", fill="blue") +
+  theme_stata() +
+  geom_density(alpha=.2, fill="#FF6666", aes(y=..count../8)) +
+  geom_vline(aes(xintercept=mean(as.numeric(Num))),
+            color="blue", linetype="dashed", size=1) + 
+  ggtitle("Likelihood of Interesting Motifs - Alternative Allele")
+
+```
+
+all_snp_pwms_alt: 90 x 25
+all_snp_pwms_ref: 77 x 25
+
+fill=factor(as.numeric(i), levels = c(0, 50, 100, 150, 200, 250, 300, 350), ordered=T)))
+
+```{r make_more_complex_ref}
+
+ggplot(all_snp_pwms_ref, aes(x=as.numeric(Num), fill=cut(as.numeric(MotifScore), 6))) + 
+     geom_histogram(binwidth=.1, color="black") +
+     theme_stata() +
+     geom_density(alpha=.2, fill="#FF6666", aes(y=..count../8)) +
+     geom_vline(aes(xintercept=mean(as.numeric(Num))),
+                color="blue", linetype="dashed", size=1) + 
+     ggtitle("Likelihood of Interesting Motifs - Reference Allele") +
+     scale_fill_discrete(name="Motif Score") +
+     xlab("Num") +
+     ylab("Count")
+```
+
+
+```{r make_more_complex_alt}
+
+ggplot(all_snp_pwms_alt, aes(x=as.numeric(Num), fill=cut(as.numeric(MotifScore), 6))) + 
+     geom_histogram(data=all_snp_pwms_alt, binwidth=.1, color="black") +
+     scale_fill_discrete(name="Motif Score") +
+     theme_stata() +
+     geom_density(alpha=.2, fill="#FF6666", aes(y=..count../8)) +
+     geom_vline(aes(xintercept=mean(as.numeric(Num))),
+                color="blue", linetype="dashed", size=1) + 
+     ggtitle("Likelihood of Interesting Motifs - Alternative Allele") +
+     scale_fill_discrete(name="Motif Score") +
+     xlab("Num") +
+     ylab("Count")
+
+```
+
+Plot the sequence score of the motif with the ref allele versus the sequence score of the motif with the alt allele. I think we should do this!
+What would be even easier to plot is 1) among motifs found when the SNP was flipped to alt, the PWM probability of the ref allele versus the PWM probability of the alt allele
+And 2) vice versa for motifs found when snp was flipped to ref
+What you have is already halfway there!
+Just a thought - maybe better to not spend time chasing this and better to focus on LD pruning
+
+Sort by highest to lowest pwm?
+
+```{r further_exploration_alt_ref_scatter_main}
+
+ggplot(all_snp_pwms_alt, aes(x=OtherPWM, y=AssessedPWM, color=cut(as.numeric(MotifScore), 6))) +
+  geom_point() + 
+  theme_stata() + 
+  scale_colour_discrete(name="Motif Score") + 
+  ggtitle("For Alt Allele") +
+  labs(x="Ref Allele PWM", y="Alt Allele PWM") + geom_abline(color="blue", alpha=.8)
+
+
+ggplot(all_snp_pwms_ref, aes(x=AssessedPWM, y=OtherPWM, color=cut(as.numeric(MotifScore), 6))) +
+  geom_point() + 
+  theme_stata() + 
+  scale_colour_discrete(name="Motif Score") + 
+  ggtitle("For Ref Allele") +
+  labs(x="Alt Allele PWM", y="Ref Allele PWM") + geom_abline(color="blue", alpha=.8)
+
+
+```
+
+
+```{r further_exploration_alt_ref_scatter}
+
+df2 <- melt(data.frame(all_snp_pwms_alt[order(all_snp_pwms_alt$AssessedPWM - all_snp_pwms_alt$OtherPWM), c("SNP", "AssessedPWM", "OtherPWM")], id.vars='SNP'))
+q <- ggplot(df2, aes(x=SNP, y=value, color=factor(variable))) +
+  geom_point() + 
+  theme_stata() + 
+  scale_colour_discrete(name="Assessed = Alt, Other = Ref") + 
+  ggtitle("For Alt Allele") +
+  labs(x="SNP", y="PWM Score")
+
+q
+
+df2 <- melt(data.frame(all_snp_pwms_ref[order(all_snp_pwms_ref$AssessedPWM - all_snp_pwms_ref$OtherPWM), c("SNP", "AssessedPWM", "OtherPWM")], id.vars='SNP'))
+g <- ggplot(df2, aes(x=SNP, y=value, color=factor(variable))) +
+  geom_point() + 
+  theme_stata() + 
+  scale_colour_discrete(name="Assessed = Alt, Other = Ref") + 
+  ggtitle("For Ref Allele") +
+  labs(x="SNP", y="PWM Score")
+
+g
+
+```
+
+
+```{r further_exploration_alt_bar}
+
+df2 <- melt(data.frame(all_snp_pwms_alt[order(all_snp_pwms_alt$AssessedPWM - all_snp_pwms_alt$`OtherPWM`), c("SNPWindow", "AssessedPWM", "OtherPWM")], id.vars='SNPWindow'))
+g <- ggplot(df2, aes(x=SNPWindow, y=value, fill=variable)) +
+    geom_bar(stat='identity', position='dodge')
+
+df2 <- melt(data.frame(all_snp_pwms_ref[order(all_snp_pwms_ref$'OtherPWM'), c("SNPWindow", "AssessedPWM", "OtherPWM")], id.vars='SNPWindow'))
+q <- ggplot(df2, aes(x=SNPWindow, y=value, fill=variable)) +
+    geom_bar(stat='identity', position='dodge')
+
+g
+q
+
+```
+
+```{r further_exploration_ref}
+
+df2 <- melt(data.frame(all_snp_pwms_ref[order(all_snp_pwms_ref$AssessedPWM - all_snp_pwms_ref$`OtherPWM`), c("SNPWindow", "AssessedPWM", "OtherPWM")], id.vars='SNPWindow'))
+ggplot(df2, aes(x=SNPWindow, y=value, fill=variable)) +
+    geom_bar(stat='identity', position='dodge')
+
+```
+
+

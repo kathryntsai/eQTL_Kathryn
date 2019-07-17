@@ -1,0 +1,150 @@
+---
+title: "Use FINEMAPR to use FINEMAP, Caviar, and "
+output: html_notebook
+---
+
+Questions: Zscore vs. Pvalue in eQTLGen data
+
+FINEMAP
+
+http://www.christianbenner.com/
+https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4495769/
+
+Instructions: https://variani.github.io/finemapr/vignettes/finemapr.html
+
+If using straight FINEMAP, need to include inputs:
+Master file 
+Z file - minor allele frequencies, beta, and se in z-file
+LD file
+BGEN, BGI, SAMPLE, and INCL file
+
+https://github.com/topics/finemap
+https://github.com/variani/finemapr and https://variani.github.io/finemapr/vignettes/finemapr.html
+https://github.com/slwest/finemap-scripts
+
+Google search: FINEMAP
+https://github.com/Ensembl/Finemap
+https://github.com/jinghuazhao/FM-pipeline
+https://github.com/manning-lab/fineMap
+https://github.com/chr1swallace/finemap-psa
+https://github.com/opentargets/genetics-finemapping
+https://omictools.com/finemap-tool
+https://github.com/JoniColeman/gwas_scripts/blob/master/README.md
+
+1000 Genomes
+https://www.google.com/search?q=background+finemap&oq=background+finemap&aqs=chrome..69i57.1595j0j1&sourceid=chrome&ie=UTF-8
+https://www.semanticscholar.org/paper/FINEMAP%3A-efficient-variable-selection-using-summary-Benner-Spencer/08f23c6b03aa51eb83948b750162b63810f838cc
+https://www.google.com/search?q=1000+genomes+plink+files&oq=1000+genomes+&aqs=chrome.4.69i57j0l5.4991j0j1&sourceid=chrome&ie=UTF-8
+https://www.google.com/search?q=1000+genomes+background+score+regression&oq=1000+genomes+background+score+regression&aqs=chrome..69i57.3654j0j1&sourceid=chrome&ie=UTF-8
+http://www.internationalgenome.org/data/
+
+git clone https://github.com/gkichaev/PAINTOR_V3.0
+git clone https://github.com/fhormoz/caviar
+git clone https://github.com/variani/finemapr
+
+http://genetics.cs.ucla.edu/caviar/caviar_manual.pdf
+http://zarlab.cs.ucla.edu/tag/ecaviar/
+
+```{r load_packages}
+
+# Load finemapr
+library(devtools)
+devtools::load_all("/Users/kathryntsai/Documents/GitHub/finemapr")
+#devtools::install_github("variani/finemapr")
+
+library(magrittr)
+library(dplyr)
+library(ggplot2)
+library(knitr)
+theme_set(theme_linedraw())
+
+```
+
+All three fine-mapping tools estimated the poterior causal probabilities of the two variants, rs15 and rs47, very close to 1.
+
+```{r example_data_load}
+
+file1_z <- system.file("extdata/region1.z", package = "finemapr")
+file1_ld <- system.file("extdata/region1.ld", package = "finemapr")
+z1 <- read_zscore(file1_z)
+ld1 <- read_ld(file1_ld, snps = z1$snp)
+z2 <- data.table(z1$snp, 1, 1:5363, "A", "G", 0, z1$zscore, 0)
+colnames(z2)[1:8] <- c("rsid", "chromosome", "position", "allele1", "allele2", "maf", "zscore", "se")
+n1 <- 5363
+
+```
+
+  # rsid
+  # chromosome
+  # position
+  # allele1
+  # allele2
+  # maf
+  # beta
+  # se
+
+```{r new_data_load}
+
+chr1_cis <- franke_cis_data[which(GeneChr==1),]
+new <- chr1_cis[, c("SNP", "SNPChr", "SNPPos", "OtherAllele", "AssessedAllele", "FDR", "Zscore", "Pvalue", "Gene", "GeneSymbol", "GeneChr", "GenePos", "NrCohorts", "NrSamples")]
+colnames(new)[1:8] <- c("rsid", "chromosome", "position", "allele1", "allele2", "maf", "zscore", "se")
+new[, c(6, 8)] <- 0
+z1 <- new
+
+#l1 <- # after plink
+  
+n1 <- nrow(new)
+```
+
+
+```{r explore z_scores}
+
+z1 %>% arrange(-abs(as.numeric(zscore))) %>% head(5) %>% kable(digits = 1)
+ggplot(z1, aes(zscore)) + geom_histogram()
+mutate(z1, pval = pchisq(zscore^2, df = 1, lower.tail = FALSE)) %>%
+  ggplot(aes(pval)) + geom_histogram()
+```
+
+brew install zstd
+file.choose(region.log)
+Kat-Juno-10:run_finemap kathryntsai$ vim region.log
+Kat-Juno-10:run_finemap kathryntsai$ vim region.snp
+Kat-Juno-10:run_finemap kathryntsai$ vim region.config
+
+```{r run_finemap}
+
+options(finemapr_finemap = "/Users/kathryntsai/finemap_v1.3.1_MacOSX/finemap_v1.3.1_MacOSX")
+
+devtools::load_all("/Users/kathryntsai/Documents/GitHub/finemapr/R/finemap.R")
+out_finemap <- run_finemap(z2, ld1, n1, args = "--n-causal-snps 3") # if not using test, make it z1
+print(out_finemap)
+plot(out_finemap, label_size = 3, grid_ncol = 1)
+
+```
+
+./CAVIAR 
+-z /Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/finemapping/Zscore_file_ACBD6.Z 
+-l  /Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/finemapping/ld_matrix_ACBD6.ld 
+-c 5 
+-o /Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/finemapping/max_casual5 
+-f 1 
+-r 0.95
+
+```{r run_caviar}
+
+options(finemapr_caviar = "/Users/kathryntsai/Documents/GitHub/caviar/CAVIAR-C++/CAVIAR")
+out_caviar <- run_caviar(z1, ld1, args = "-c 3")
+print(out_caviar)
+plot(out_caviar, label_size = 3)
+
+```
+
+```{r run_paintor}
+
+options(finemapr_paintor = "/Users/kathryntsai/Documents/GitHub/PAINTOR_V3.0/PAINTOR")
+out_paintor <- run_paintor(z1, ld1, n1, args = "-enumerate 3")
+print(out_paintor)
+plot(out_paintor, label_size = 3)
+
+```
+

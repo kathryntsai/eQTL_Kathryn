@@ -1,0 +1,1096 @@
+---
+title: "Single Cell eQTL Investigation"
+output: html_notebook
+
+# ttest for tbet and pax5
+---
+
+# Initial data creation
+```{r load_libraries}
+
+# library("BSgenome")
+# library(BiocManager)
+# library(BSgenome.Hsapiens.UCSC.hg19)
+# library(GenomicAlignments)
+# library(SNPlocs.Hsapiens.dbSNP144.GRCh37)
+
+library(readxl)
+library(knitr)
+library(ggplot2)
+library(ggthemes)
+theme_set(theme_stata())
+
+```
+
+```{r load_data}
+pax5_chr1 <- fread("impact_cell_specific/PAX5_IMPACT_scaled_predictions_chr1_bedgraph.txt.gz")
+pax5_chr2 <- fread("impact_cell_specific/PAX5_IMPACT_scaled_predictions_chr2_bedgraph.txt.gz")
+pax5_chr3 <- fread("impact_cell_specific/PAX5_IMPACT_scaled_predictions_chr3_bedgraph.txt.gz")
+pax5_chr4 <- fread("impact_cell_specific/PAX5_IMPACT_scaled_predictions_chr4_bedgraph.txt.gz")
+pax5_chr5 <- fread("impact_cell_specific/PAX5_IMPACT_scaled_predictions_chr5_bedgraph.txt.gz")
+pax5_chr6 <- fread("impact_cell_specific/PAX5_IMPACT_scaled_predictions_chr6_bedgraph.txt.gz")
+pax5_chr7 <- fread("impact_cell_specific/PAX5_IMPACT_scaled_predictions_chr7_bedgraph.txt.gz")
+pax5_chr8 <- fread("impact_cell_specific/PAX5_IMPACT_scaled_predictions_chr8_bedgraph.txt.gz")
+pax5_chr9 <- fread("impact_cell_specific/PAX5_IMPACT_scaled_predictions_chr9_bedgraph.txt.gz")
+pax5_chr10 <- fread("impact_cell_specific/PAX5_IMPACT_scaled_predictions_chr10_bedgraph.txt.gz")
+pax5_chr11 <- fread("impact_cell_specific/PAX5_IMPACT_scaled_predictions_chr11_bedgraph.txt.gz")
+pax5_chr12 <- fread("impact_cell_specific/PAX5_IMPACT_scaled_predictions_chr12_bedgraph.txt.gz")
+pax5_chr13 <- fread("impact_cell_specific/PAX5_IMPACT_scaled_predictions_chr13_bedgraph.txt.gz")
+pax5_chr14 <- fread("impact_cell_specific/PAX5_IMPACT_scaled_predictions_chr14_bedgraph.txt.gz")
+pax5_chr15 <- fread("impact_cell_specific/PAX5_IMPACT_scaled_predictions_chr15_bedgraph.txt.gz")
+pax5_chr16 <- fread("impact_cell_specific/PAX5_IMPACT_scaled_predictions_chr16_bedgraph.txt.gz")
+pax5_chr17 <- fread("impact_cell_specific/PAX5_IMPACT_scaled_predictions_chr17_bedgraph.txt.gz")
+pax5_chr18 <- fread("impact_cell_specific/PAX5_IMPACT_scaled_predictions_chr18_bedgraph.txt.gz")
+pax5_chr19 <- fread("impact_cell_specific/PAX5_IMPACT_scaled_predictions_chr19_bedgraph.txt.gz")
+pax5_chr20 <- fread("impact_cell_specific/PAX5_IMPACT_scaled_predictions_chr20_bedgraph.txt.gz")
+pax5_chr21 <- fread("impact_cell_specific/PAX5_IMPACT_scaled_predictions_chr21_bedgraph.txt.gz")
+pax5_chr22 <- fread("impact_cell_specific/PAX5_IMPACT_scaled_predictions_chr22_bedgraph.txt.gz")
+pax5_chrx <- fread("impact_cell_specific/PAX5_IMPACT_scaled_predictions_chrX_bedgraph.txt.gz")
+pax5_chry <- fread("impact_cell_specific/PAX5_IMPACT_scaled_predictions_chrY_bedgraph.txt.gz")
+
+colnames(pax5_chr1) <- c("chr", "start", "end", "score")
+colnames(pax5_chr2) <- c("chr", "start", "end", "score")
+colnames(pax5_chr3) <- c("chr", "start", "end", "score")
+colnames(pax5_chr4) <- c("chr", "start", "end", "score")
+colnames(pax5_chr5) <- c("chr", "start", "end", "score")
+colnames(pax5_chr6) <- c("chr", "start", "end", "score")
+colnames(pax5_chr7) <- c("chr", "start", "end", "score")
+colnames(pax5_chr8) <- c("chr", "start", "end", "score")
+colnames(pax5_chr9) <- c("chr", "start", "end", "score")
+colnames(pax5_chr10) <- c("chr", "start", "end", "score")
+colnames(pax5_chr11) <- c("chr", "start", "end", "score")
+colnames(pax5_chr12) <- c("chr", "start", "end", "score")
+colnames(pax5_chr13) <- c("chr", "start", "end", "score")
+colnames(pax5_chr14) <- c("chr", "start", "end", "score")
+colnames(pax5_chr15) <- c("chr", "start", "end", "score")
+colnames(pax5_chr16) <- c("chr", "start", "end", "score")
+colnames(pax5_chr17) <- c("chr", "start", "end", "score")
+colnames(pax5_chr18) <- c("chr", "start", "end", "score")
+colnames(pax5_chr19) <- c("chr", "start", "end", "score")
+colnames(pax5_chr20) <- c("chr", "start", "end", "score")
+colnames(pax5_chr21) <- c("chr", "start", "end", "score")
+colnames(pax5_chr22) <- c("chr", "start", "end", "score")
+colnames(pax5_chrx) <- c("chr", "start", "end", "score")
+colnames(pax5_chry) <- c("chr", "start", "end", "score")
+
+tbet_chr1 <- fread("impact_cell_specific/Tbet_IMPACT_scaled_predictions_chr1_bedgraph.txt.gz")
+tbet_chr2 <- fread("impact_cell_specific/Tbet_IMPACT_scaled_predictions_chr2_bedgraph.txt.gz")
+tbet_chr3 <- fread("impact_cell_specific/Tbet_IMPACT_scaled_predictions_chr3_bedgraph.txt.gz")
+tbet_chr4 <- fread("impact_cell_specific/Tbet_IMPACT_scaled_predictions_chr4_bedgraph.txt.gz")
+tbet_chr5 <- fread("impact_cell_specific/Tbet_IMPACT_scaled_predictions_chr5_bedgraph.txt.gz")
+tbet_chr6 <- fread("impact_cell_specific/Tbet_IMPACT_scaled_predictions_chr6_bedgraph.txt.gz")
+tbet_chr7 <- fread("impact_cell_specific/Tbet_IMPACT_scaled_predictions_chr7_bedgraph.txt.gz")
+tbet_chr8 <- fread("impact_cell_specific/Tbet_IMPACT_scaled_predictions_chr8_bedgraph.txt.gz")
+tbet_chr9 <- fread("impact_cell_specific/Tbet_IMPACT_scaled_predictions_chr9_bedgraph.txt.gz")
+tbet_chr10 <- fread("impact_cell_specific/Tbet_IMPACT_scaled_predictions_chr10_bedgraph.txt.gz")
+tbet_chr11 <- fread("impact_cell_specific/Tbet_IMPACT_scaled_predictions_chr11_bedgraph.txt.gz")
+tbet_chr12 <- fread("impact_cell_specific/Tbet_IMPACT_scaled_predictions_chr12_bedgraph.txt.gz")
+tbet_chr13 <- fread("impact_cell_specific/Tbet_IMPACT_scaled_predictions_chr13_bedgraph.txt.gz")
+tbet_chr14 <- fread("impact_cell_specific/Tbet_IMPACT_scaled_predictions_chr14_bedgraph.txt.gz")
+tbet_chr15 <- fread("impact_cell_specific/Tbet_IMPACT_scaled_predictions_chr15_bedgraph.txt.gz")
+tbet_chr16 <- fread("impact_cell_specific/Tbet_IMPACT_scaled_predictions_chr16_bedgraph.txt.gz")
+tbet_chr17 <- fread("impact_cell_specific/Tbet_IMPACT_scaled_predictions_chr17_bedgraph.txt.gz")
+tbet_chr18 <- fread("impact_cell_specific/Tbet_IMPACT_scaled_predictions_chr18_bedgraph.txt.gz")
+tbet_chr19 <- fread("impact_cell_specific/Tbet_IMPACT_scaled_predictions_chr19_bedgraph.txt.gz")
+tbet_chr20 <- fread("impact_cell_specific/Tbet_IMPACT_scaled_predictions_chr20_bedgraph.txt.gz")
+tbet_chr21 <- fread("impact_cell_specific/Tbet_IMPACT_scaled_predictions_chr21_bedgraph.txt.gz")
+tbet_chr22 <- fread("impact_cell_specific/Tbet_IMPACT_scaled_predictions_chr22_bedgraph.txt.gz")
+tbet_chrx <- fread("impact_cell_specific/Tbet_IMPACT_scaled_predictions_chrX_bedgraph.txt.gz")
+tbet_chry <- fread("impact_cell_specific/Tbet_IMPACT_scaled_predictions_chrY_bedgraph.txt.gz")
+
+colnames(tbet_chr1) <- c("chr", "start", "end", "score")
+colnames(tbet_chr2) <- c("chr", "start", "end", "score")
+colnames(tbet_chr3) <- c("chr", "start", "end", "score")
+colnames(tbet_chr4) <- c("chr", "start", "end", "score")
+colnames(tbet_chr5) <- c("chr", "start", "end", "score")
+colnames(tbet_chr6) <- c("chr", "start", "end", "score")
+colnames(tbet_chr7) <- c("chr", "start", "end", "score")
+colnames(tbet_chr8) <- c("chr", "start", "end", "score")
+colnames(tbet_chr9) <- c("chr", "start", "end", "score")
+colnames(tbet_chr10) <- c("chr", "start", "end", "score")
+colnames(tbet_chr11) <- c("chr", "start", "end", "score")
+colnames(tbet_chr12) <- c("chr", "start", "end", "score")
+colnames(tbet_chr13) <- c("chr", "start", "end", "score")
+colnames(tbet_chr14) <- c("chr", "start", "end", "score")
+colnames(tbet_chr15) <- c("chr", "start", "end", "score")
+colnames(tbet_chr16) <- c("chr", "start", "end", "score")
+colnames(tbet_chr17) <- c("chr", "start", "end", "score")
+colnames(tbet_chr18) <- c("chr", "start", "end", "score")
+colnames(tbet_chr19) <- c("chr", "start", "end", "score")
+colnames(tbet_chr20) <- c("chr", "start", "end", "score")
+colnames(tbet_chr21) <- c("chr", "start", "end", "score")
+colnames(tbet_chr22) <- c("chr", "start", "end", "score")
+colnames(tbet_chrx) <- c("chr", "start", "end", "score")
+colnames(tbet_chry) <- c("chr", "start", "end", "score")
+
+
+```
+
+```{r more_tracks}
+irf5_chr1 <- fread("impact_cell_specific/IRF5_IMPACT_scaled_predictions_chr1_bedgraph.txt.gz")
+irf5_chr2 <- fread("impact_cell_specific/IRF5_IMPACT_scaled_predictions_chr2_bedgraph.txt.gz")
+irf5_chr3 <- fread("impact_cell_specific/IRF5_IMPACT_scaled_predictions_chr3_bedgraph.txt.gz")
+irf5_chr4 <- fread("impact_cell_specific/IRF5_IMPACT_scaled_predictions_chr4_bedgraph.txt.gz")
+irf5_chr5 <- fread("impact_cell_specific/IRF5_IMPACT_scaled_predictions_chr5_bedgraph.txt.gz")
+irf5_chr6 <- fread("impact_cell_specific/IRF5_IMPACT_scaled_predictions_chr6_bedgraph.txt.gz")
+irf5_chr7 <- fread("impact_cell_specific/IRF5_IMPACT_scaled_predictions_chr7_bedgraph.txt.gz")
+irf5_chr8 <- fread("impact_cell_specific/IRF5_IMPACT_scaled_predictions_chr8_bedgraph.txt.gz")
+irf5_chr9 <- fread("impact_cell_specific/IRF5_IMPACT_scaled_predictions_chr9_bedgraph.txt.gz")
+irf5_chr10 <- fread("impact_cell_specific/IRF5_IMPACT_scaled_predictions_chr10_bedgraph.txt.gz")
+irf5_chr11 <- fread("impact_cell_specific/IRF5_IMPACT_scaled_predictions_chr11_bedgraph.txt.gz")
+irf5_chr12 <- fread("impact_cell_specific/IRF5_IMPACT_scaled_predictions_chr12_bedgraph.txt.gz")
+irf5_chr13 <- fread("impact_cell_specific/IRF5_IMPACT_scaled_predictions_chr13_bedgraph.txt.gz")
+irf5_chr14 <- fread("impact_cell_specific/IRF5_IMPACT_scaled_predictions_chr14_bedgraph.txt.gz")
+irf5_chr15 <- fread("impact_cell_specific/IRF5_IMPACT_scaled_predictions_chr15_bedgraph.txt.gz")
+irf5_chr16 <- fread("impact_cell_specific/IRF5_IMPACT_scaled_predictions_chr16_bedgraph.txt.gz")
+irf5_chr17 <- fread("impact_cell_specific/IRF5_IMPACT_scaled_predictions_chr17_bedgraph.txt.gz")
+irf5_chr18 <- fread("impact_cell_specific/IRF5_IMPACT_scaled_predictions_chr18_bedgraph.txt.gz")
+irf5_chr19 <- fread("impact_cell_specific/IRF5_IMPACT_scaled_predictions_chr19_bedgraph.txt.gz")
+irf5_chr20 <- fread("impact_cell_specific/IRF5_IMPACT_scaled_predictions_chr20_bedgraph.txt.gz")
+irf5_chr21 <- fread("impact_cell_specific/IRF5_IMPACT_scaled_predictions_chr21_bedgraph.txt.gz")
+irf5_chr22 <- fread("impact_cell_specific/IRF5_IMPACT_scaled_predictions_chr22_bedgraph.txt.gz")
+irf5_chrx <- fread("impact_cell_specific/IRF5_IMPACT_scaled_predictions_chrX_bedgraph.txt.gz")
+irf5_chry <- fread("impact_cell_specific/IRF5_IMPACT_scaled_predictions_chrY_bedgraph.txt.gz")
+
+colnames(irf5_chr1) <- c("chr", "start", "end", "score")
+colnames(irf5_chr2) <- c("chr", "start", "end", "score")
+colnames(irf5_chr3) <- c("chr", "start", "end", "score")
+colnames(irf5_chr4) <- c("chr", "start", "end", "score")
+colnames(irf5_chr5) <- c("chr", "start", "end", "score")
+colnames(irf5_chr6) <- c("chr", "start", "end", "score")
+colnames(irf5_chr7) <- c("chr", "start", "end", "score")
+colnames(irf5_chr8) <- c("chr", "start", "end", "score")
+colnames(irf5_chr9) <- c("chr", "start", "end", "score")
+colnames(irf5_chr10) <- c("chr", "start", "end", "score")
+colnames(irf5_chr11) <- c("chr", "start", "end", "score")
+colnames(irf5_chr12) <- c("chr", "start", "end", "score")
+colnames(irf5_chr13) <- c("chr", "start", "end", "score")
+colnames(irf5_chr14) <- c("chr", "start", "end", "score")
+colnames(irf5_chr15) <- c("chr", "start", "end", "score")
+colnames(irf5_chr16) <- c("chr", "start", "end", "score")
+colnames(irf5_chr17) <- c("chr", "start", "end", "score")
+colnames(irf5_chr18) <- c("chr", "start", "end", "score")
+colnames(irf5_chr19) <- c("chr", "start", "end", "score")
+colnames(irf5_chr20) <- c("chr", "start", "end", "score")
+colnames(irf5_chr21) <- c("chr", "start", "end", "score")
+colnames(irf5_chr22) <- c("chr", "start", "end", "score")
+colnames(irf5_chrx) <- c("chr", "start", "end", "score")
+colnames(irf5_chry) <- c("chr", "start", "end", "score")
+
+foxp3_chr1 <- fread("impact_cell_specific/Foxp3_IMPACT_scaled_predictions_chr1_bedgraph.txt.gz")
+foxp3_chr2 <- fread("impact_cell_specific/Foxp3_IMPACT_scaled_predictions_chr2_bedgraph.txt.gz")
+foxp3_chr3 <- fread("impact_cell_specific/Foxp3_IMPACT_scaled_predictions_chr3_bedgraph.txt.gz")
+foxp3_chr4 <- fread("impact_cell_specific/Foxp3_IMPACT_scaled_predictions_chr4_bedgraph.txt.gz")
+foxp3_chr5 <- fread("impact_cell_specific/Foxp3_IMPACT_scaled_predictions_chr5_bedgraph.txt.gz")
+foxp3_chr6 <- fread("impact_cell_specific/Foxp3_IMPACT_scaled_predictions_chr6_bedgraph.txt.gz")
+foxp3_chr7 <- fread("impact_cell_specific/Foxp3_IMPACT_scaled_predictions_chr7_bedgraph.txt.gz")
+foxp3_chr8 <- fread("impact_cell_specific/Foxp3_IMPACT_scaled_predictions_chr8_bedgraph.txt.gz")
+foxp3_chr9 <- fread("impact_cell_specific/Foxp3_IMPACT_scaled_predictions_chr9_bedgraph.txt.gz")
+foxp3_chr10 <- fread("impact_cell_specific/Foxp3_IMPACT_scaled_predictions_chr10_bedgraph.txt.gz")
+foxp3_chr11 <- fread("impact_cell_specific/Foxp3_IMPACT_scaled_predictions_chr11_bedgraph.txt.gz")
+foxp3_chr12 <- fread("impact_cell_specific/Foxp3_IMPACT_scaled_predictions_chr12_bedgraph.txt.gz")
+foxp3_chr13 <- fread("impact_cell_specific/Foxp3_IMPACT_scaled_predictions_chr13_bedgraph.txt.gz")
+foxp3_chr14 <- fread("impact_cell_specific/Foxp3_IMPACT_scaled_predictions_chr14_bedgraph.txt.gz")
+foxp3_chr15 <- fread("impact_cell_specific/Foxp3_IMPACT_scaled_predictions_chr15_bedgraph.txt.gz")
+foxp3_chr16 <- fread("impact_cell_specific/Foxp3_IMPACT_scaled_predictions_chr16_bedgraph.txt.gz")
+foxp3_chr17 <- fread("impact_cell_specific/Foxp3_IMPACT_scaled_predictions_chr17_bedgraph.txt.gz")
+foxp3_chr18 <- fread("impact_cell_specific/Foxp3_IMPACT_scaled_predictions_chr18_bedgraph.txt.gz")
+foxp3_chr19 <- fread("impact_cell_specific/Foxp3_IMPACT_scaled_predictions_chr19_bedgraph.txt.gz")
+foxp3_chr20 <- fread("impact_cell_specific/Foxp3_IMPACT_scaled_predictions_chr20_bedgraph.txt.gz")
+foxp3_chr21 <- fread("impact_cell_specific/Foxp3_IMPACT_scaled_predictions_chr21_bedgraph.txt.gz")
+foxp3_chr22 <- fread("impact_cell_specific/Foxp3_IMPACT_scaled_predictions_chr22_bedgraph.txt.gz")
+foxp3_chrx <- fread("impact_cell_specific/Foxp3_IMPACT_scaled_predictions_chrX_bedgraph.txt.gz")
+foxp3_chry <- fread("impact_cell_specific/Foxp3_IMPACT_scaled_predictions_chrY_bedgraph.txt.gz")
+
+colnames(foxp3_chr1) <- c("chr", "start", "end", "score")
+colnames(foxp3_chr2) <- c("chr", "start", "end", "score")
+colnames(foxp3_chr3) <- c("chr", "start", "end", "score")
+colnames(foxp3_chr4) <- c("chr", "start", "end", "score")
+colnames(foxp3_chr5) <- c("chr", "start", "end", "score")
+colnames(foxp3_chr6) <- c("chr", "start", "end", "score")
+colnames(foxp3_chr7) <- c("chr", "start", "end", "score")
+colnames(foxp3_chr8) <- c("chr", "start", "end", "score")
+colnames(foxp3_chr9) <- c("chr", "start", "end", "score")
+colnames(foxp3_chr10) <- c("chr", "start", "end", "score")
+colnames(foxp3_chr11) <- c("chr", "start", "end", "score")
+colnames(foxp3_chr12) <- c("chr", "start", "end", "score")
+colnames(foxp3_chr13) <- c("chr", "start", "end", "score")
+colnames(foxp3_chr14) <- c("chr", "start", "end", "score")
+colnames(foxp3_chr15) <- c("chr", "start", "end", "score")
+colnames(foxp3_chr16) <- c("chr", "start", "end", "score")
+colnames(foxp3_chr17) <- c("chr", "start", "end", "score")
+colnames(foxp3_chr18) <- c("chr", "start", "end", "score")
+colnames(foxp3_chr19) <- c("chr", "start", "end", "score")
+colnames(foxp3_chr20) <- c("chr", "start", "end", "score")
+colnames(foxp3_chr21) <- c("chr", "start", "end", "score")
+colnames(foxp3_chr22) <- c("chr", "start", "end", "score")
+colnames(foxp3_chrx) <- c("chr", "start", "end", "score")
+colnames(foxp3_chry) <- c("chr", "start", "end", "score")
+
+cebpb_chr1 <- fread("impact_cell_specific/CEBPB_IMPACT_scaled_predictions_chr1_bedgraph.txt.gz")
+cebpb_chr2 <- fread("impact_cell_specific/CEBPB_IMPACT_scaled_predictions_chr2_bedgraph.txt.gz")
+cebpb_chr3 <- fread("impact_cell_specific/CEBPB_IMPACT_scaled_predictions_chr3_bedgraph.txt.gz")
+cebpb_chr4 <- fread("impact_cell_specific/CEBPB_IMPACT_scaled_predictions_chr4_bedgraph.txt.gz")
+cebpb_chr5 <- fread("impact_cell_specific/CEBPB_IMPACT_scaled_predictions_chr5_bedgraph.txt.gz")
+cebpb_chr6 <- fread("impact_cell_specific/CEBPB_IMPACT_scaled_predictions_chr6_bedgraph.txt.gz")
+cebpb_chr7 <- fread("impact_cell_specific/CEBPB_IMPACT_scaled_predictions_chr7_bedgraph.txt.gz")
+cebpb_chr8 <- fread("impact_cell_specific/CEBPB_IMPACT_scaled_predictions_chr8_bedgraph.txt.gz")
+cebpb_chr9 <- fread("impact_cell_specific/CEBPB_IMPACT_scaled_predictions_chr9_bedgraph.txt.gz")
+cebpb_chr10 <- fread("impact_cell_specific/CEBPB_IMPACT_scaled_predictions_chr10_bedgraph.txt.gz")
+cebpb_chr11 <- fread("impact_cell_specific/CEBPB_IMPACT_scaled_predictions_chr11_bedgraph.txt.gz")
+cebpb_chr12 <- fread("impact_cell_specific/CEBPB_IMPACT_scaled_predictions_chr12_bedgraph.txt.gz")
+cebpb_chr13 <- fread("impact_cell_specific/CEBPB_IMPACT_scaled_predictions_chr13_bedgraph.txt.gz")
+cebpb_chr14 <- fread("impact_cell_specific/CEBPB_IMPACT_scaled_predictions_chr14_bedgraph.txt.gz")
+cebpb_chr15 <- fread("impact_cell_specific/CEBPB_IMPACT_scaled_predictions_chr15_bedgraph.txt.gz")
+cebpb_chr16 <- fread("impact_cell_specific/CEBPB_IMPACT_scaled_predictions_chr16_bedgraph.txt.gz")
+cebpb_chr17 <- fread("impact_cell_specific/CEBPB_IMPACT_scaled_predictions_chr17_bedgraph.txt.gz")
+cebpb_chr18 <- fread("impact_cell_specific/CEBPB_IMPACT_scaled_predictions_chr18_bedgraph.txt.gz")
+cebpb_chr19 <- fread("impact_cell_specific/CEBPB_IMPACT_scaled_predictions_chr19_bedgraph.txt.gz")
+cebpb_chr20 <- fread("impact_cell_specific/CEBPB_IMPACT_scaled_predictions_chr20_bedgraph.txt.gz")
+cebpb_chr21 <- fread("impact_cell_specific/CEBPB_IMPACT_scaled_predictions_chr21_bedgraph.txt.gz")
+cebpb_chr22 <- fread("impact_cell_specific/CEBPB_IMPACT_scaled_predictions_chr22_bedgraph.txt.gz")
+cebpb_chrx <- fread("impact_cell_specific/CEBPB_IMPACT_scaled_predictions_chrX_bedgraph.txt.gz")
+cebpb_chry <- fread("impact_cell_specific/CEBPB_IMPACT_scaled_predictions_chrY_bedgraph.txt.gz")
+
+colnames(cebpb_chr1) <- c("chr", "start", "end", "score")
+colnames(cebpb_chr2) <- c("chr", "start", "end", "score")
+colnames(cebpb_chr3) <- c("chr", "start", "end", "score")
+colnames(cebpb_chr4) <- c("chr", "start", "end", "score")
+colnames(cebpb_chr5) <- c("chr", "start", "end", "score")
+colnames(cebpb_chr6) <- c("chr", "start", "end", "score")
+colnames(cebpb_chr7) <- c("chr", "start", "end", "score")
+colnames(cebpb_chr8) <- c("chr", "start", "end", "score")
+colnames(cebpb_chr9) <- c("chr", "start", "end", "score")
+colnames(cebpb_chr10) <- c("chr", "start", "end", "score")
+colnames(cebpb_chr11) <- c("chr", "start", "end", "score")
+colnames(cebpb_chr12) <- c("chr", "start", "end", "score")
+colnames(cebpb_chr13) <- c("chr", "start", "end", "score")
+colnames(cebpb_chr14) <- c("chr", "start", "end", "score")
+colnames(cebpb_chr15) <- c("chr", "start", "end", "score")
+colnames(cebpb_chr16) <- c("chr", "start", "end", "score")
+colnames(cebpb_chr17) <- c("chr", "start", "end", "score")
+colnames(cebpb_chr18) <- c("chr", "start", "end", "score")
+colnames(cebpb_chr19) <- c("chr", "start", "end", "score")
+colnames(cebpb_chr20) <- c("chr", "start", "end", "score")
+colnames(cebpb_chr21) <- c("chr", "start", "end", "score")
+colnames(cebpb_chr22) <- c("chr", "start", "end", "score")
+colnames(cebpb_chrx) <- c("chr", "start", "end", "score")
+colnames(cebpb_chry) <- c("chr", "start", "end", "score")
+
+
+```
+
+```{r}
+sc_eqtl <- read_xlsx("/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/IMPACT/NIHMS76345-supplement-Supplementary_table_2_vanderWijst.xlsx", skip=1)
+
+```
+
+```{r investigate, include=F}
+
+z <- anti_join(sc_eqtl, franke_cis_data, by="SNP")
+dim(z)
+# 13 snps not included in this
+
+dim(sc_eqtl)
+# 398 x 34
+```
+
+```{r get_genome, include=F}
+
+genome <- getBSgenome("hg19")
+snps <- SNPlocs.Hsapiens.dbSNP144.GRCh37
+class(genome) # BSgenome object
+providerVersion(genome)
+genome$chrM
+
+SNPlocs_pkgname(genome)
+
+```
+
+```{r fix_locations, include=F}
+
+sc_snps <- as.character(sc_eqtl$SNP)
+snps_by_id <- snpsById(snps, sc_snps, ifnotfound="warning") # 372/352/372, 26 not included
+
+snps_location <- data.table(elementMetadata(snps_by_id)[,"RefSNP_id"], data.table(seqnames(snps_by_id)@values), pos(snps_by_id))
+colnames(snps_location) <- c("snp", "chr", "position")
+
+# SNP ids not found: rs116858919, rs116682974, rs111631325, rs2647024,
+#  rs114327456, rs34883216, rs116457857, rs115318240, rs116781730, ...
+
+```
+
+```{r fix_locations_better}
+
+z <- inner_join(sc_eqtl, franke_cis_data[!duplicated(franke_cis_data$SNP), c("SNP", "SNPChr", "SNPPos")], by="SNP")
+dim(z) # 385 snps total
+fwrite(z, "sc_eqtl_with_snp_pos.txt",sep="\t")
+
+yy <- anti_join(sc_eqtl, franke_cis_data[!duplicated(franke_cis_data$SNP), c("SNP", "SNPChr", "SNPPos")], by="SNP")
+dim(yy) # exclude 13 snps because I cannot get their locations
+
+```
+
+```{r make_tables}
+
+pax5 <- rbind(pax5_chr1, pax5_chr2, pax5_chr3, pax5_chr4, pax5_chr5, pax5_chr6, pax5_chr7, pax5_chr8, pax5_chr9, pax5_chr10, pax5_chr11, pax5_chr12, pax5_chr13, pax5_chr14, pax5_chr15, pax5_chr16, pax5_chr17, pax5_chr18, pax5_chr19, pax5_chr20, pax5_chr21, pax5_chr22, pax5_chrx, pax5_chry, fill=T)
+
+tbet <- rbind(tbet_chr1, tbet_chr2, tbet_chr3, tbet_chr4, tbet_chr5, tbet_chr6, tbet_chr7, tbet_chr8, tbet_chr9, tbet_chr10, tbet_chr11, tbet_chr12, tbet_chr13, tbet_chr14, tbet_chr15, tbet_chr16, tbet_chr17, tbet_chr18, tbet_chr19, tbet_chr20, tbet_chr21, tbet_chr22, tbet_chrx, tbet_chry, fill=T)
+
+cebpb <- rbind(cebpb_chr1, cebpb_chr2, cebpb_chr3, cebpb_chr4, cebpb_chr5, cebpb_chr6, cebpb_chr7, cebpb_chr8, cebpb_chr9, cebpb_chr10, cebpb_chr11, cebpb_chr12, cebpb_chr13, cebpb_chr14, cebpb_chr15, cebpb_chr16, cebpb_chr17, cebpb_chr18, cebpb_chr19, cebpb_chr20, cebpb_chr21, cebpb_chr22, cebpb_chrx, cebpb_chry, fill=T)
+
+foxp3 <- rbind(foxp3_chr1, foxp3_chr2, foxp3_chr3, foxp3_chr4, foxp3_chr5, foxp3_chr6, foxp3_chr7, foxp3_chr8, foxp3_chr9, foxp3_chr10, foxp3_chr11, foxp3_chr12, foxp3_chr13, foxp3_chr14, foxp3_chr15, foxp3_chr16, foxp3_chr17, foxp3_chr18, foxp3_chr19, foxp3_chr20, foxp3_chr21, foxp3_chr22, foxp3_chrx, foxp3_chry, fill=T)
+
+irf5 <- rbind(irf5_chr1, irf5_chr2, irf5_chr3, irf5_chr4, irf5_chr5, irf5_chr6, irf5_chr7, irf5_chr8, irf5_chr9, irf5_chr10, irf5_chr11, irf5_chr12, irf5_chr13, irf5_chr14, irf5_chr15, irf5_chr16, irf5_chr17, irf5_chr18, irf5_chr19, irf5_chr20, irf5_chr21, irf5_chr22, irf5_chrx, irf5_chry, fill=T)
+
+```
+
+# TBET
+
+```{r t_cell_correlation}
+
+z$SNPChrPos <- paste0("chr", z$SNPChr, ":", z$SNPPos)
+zz <- data.frame(0, 0, 0, 0, 0)
+colnames(zz) <- c("z$SNP[i]", "chr", "start", "end", "score")
+
+for(i in 1:nrow(z)){
+  zz <- rbind(zz, 
+              cbind(z$SNP[i], 
+                    tbet %>% 
+                      filter(chr==paste0("chr", z$SNPChr[i])) %>%
+                      filter(as.numeric(z$SNPPos[i]) >= as.numeric(start)) %>%
+                      filter(as.numeric(z$SNPPos[i]) <= as.numeric(end))
+                    )
+              )
+}
+
+colnames(zz) <- c("snp", "tchr", "tstart", "tend", "tscore")
+z <- cbind(z, zz[2:nrow(zz),])
+
+t_cell_comp <- z[, c("SNP", "Gene", "Symbol", "AlleleAssessed", "T CD4+", "T CD4+__1", "T CD4+__2", "Z-score RNA-seq", "tscore")]
+colnames(t_cell_comp) <- c("SNP", "Gene", "Symbol", "AlleleAssessed", "P value", "Significant", "Correlation", "Z-score RNA-seq", "tscore")
+
+t_cell_comp
+
+```
+
+```{r t_cell_evaluation}
+
+tsamp <- t_cell_comp %>% sample_n(20)
+tsamp_sig <- t_cell_comp %>% filter(!is.na(Significant)) %>% sample_n(3)
+# 209 total
+tsamp_nonsig <- t_cell_comp %>% filter(is.na(Significant)) %>% sample_n(3)
+# 176 total
+
+tsamp_sig_avg <- mean(tsamp_sig$`P value` * tsamp_sig$tscore)
+ttotal_sig <- data.frame(tsamp_sig_avg)
+tsamp_nonsig_avg <- mean(tsamp_nonsig$`P value` * tsamp_nonsig$tscore)
+ttotal_nonsig <- data.frame(tsamp_nonsig_avg)
+
+for (i in 1:10000)
+{
+  tsamp_sig <- t_cell_comp %>% filter(!is.na(Significant)) %>% sample_n(3)
+  tsamp_nonsig <- t_cell_comp %>% filter(is.na(Significant)) %>% sample_n(3)
+  tsamp_sig_avg <- mean(tsamp_sig$`P value` * tsamp_sig$tscore)
+  tsamp_nonsig_avg <- mean(tsamp_nonsig$`P value` * tsamp_nonsig$tscore)
+  ttotal_sig <- rbind(ttotal_sig, tsamp_sig_avg)
+  ttotal_nonsig <- rbind(ttotal_nonsig, tsamp_nonsig_avg)
+}
+ 
+ggplot() +
+  geom_histogram(aes(as.numeric(ttotal_nonsig$tsamp_nonsig_avg), fill="blue", alpha=0.5)) +
+  geom_histogram(aes(as.numeric(ttotal_sig$tsamp_sig_avg), fill="red", alpha=0.5)) + 
+  xlab("Averages") + 
+  ylab("Frequency") + 
+  ggtitle("T-Cell IMPACT/sc-eQTLs - Averages") + 
+  scale_alpha_continuous(name = "Alpha", guide = FALSE) +
+  scale_fill_discrete(name="Data", 
+                        labels = c("Significant", "Nonsignificant"))
+
+ggplot() + 
+  geom_histogram(aes(as.numeric(log(ttotal_nonsig$tsamp_nonsig_avg)), fill="blue", alpha=0.5)) +
+  geom_histogram(aes(as.numeric(log(ttotal_sig$tsamp_sig_avg)), fill="red", alpha=0.5)) + 
+  xlab("Log(Averages)") + 
+  ylab("Frequency") + 
+  ggtitle("T-Cell IMPACT/sc-eQTLs - Log Averages") + 
+  scale_alpha_continuous(name = "Alpha", guide = FALSE) +
+  scale_fill_discrete(name="Data", 
+                        labels = c("Significant", "Nonsignificant"))
+
+
+```
+
+```{r}
+t_sig <- t_cell_comp %>% filter(!is.na(Significant))
+t_nonsig <- t_cell_comp %>% filter(is.na(Significant))
+
+```
+
+```{r p_val_and_impact_avg_t_cell}
+tsamp_sig <- t_cell_comp %>% filter(!is.na(Significant)) %>% sample_n(10)
+# 209 total
+tsamp_nonsig <- t_cell_comp %>% filter(is.na(Significant)) %>% sample_n(10)
+# 176 total
+
+tsamp_sig_avg <- mean(tsamp_sig$tscore)
+ttotal_sig <- data.frame(tsamp_sig_avg)
+tsamp_nonsig_avg <- mean(tsamp_nonsig$tscore)
+ttotal_nonsig <- data.frame(tsamp_nonsig_avg)
+
+for (i in 1:1000)
+{
+  tsamp_sig <- t_cell_comp %>% filter(!is.na(Significant)) %>% sample_n(10)
+  tsamp_nonsig <- t_cell_comp %>% filter(is.na(Significant)) %>% sample_n(10)
+  tsamp_sig_avg <- mean(tsamp_sig$tscore)
+  tsamp_nonsig_avg <- mean(tsamp_nonsig$tscore)
+  ttotal_sig <- rbind(ttotal_sig, tsamp_sig_avg)
+  ttotal_nonsig <- rbind(ttotal_nonsig, tsamp_nonsig_avg)
+}
+
+ggplot() + 
+    geom_histogram(aes(as.numeric(log(t_sig$`P value`)), fill="blue", alpha=0.5)) +
+    geom_histogram(aes(as.numeric(log(t_nonsig$`P value`)), fill="red", alpha=0.5))  + 
+    xlab("Log(Averages)") + 
+    ylab("Frequency") + 
+    ggtitle("T-Cell P-values sc-eQTLs") + 
+    scale_alpha_continuous(name = "Alpha", guide = FALSE) +
+    scale_fill_discrete(name="Data", 
+                        labels = c("Significant", "Nonsignificant"))
+
+ggplot() + 
+    geom_histogram(aes(as.numeric(log(t_sig$`tscore`)), fill="blue", alpha=0.5)) +
+    geom_histogram(aes(as.numeric(log(t_nonsig$`tscore`)), fill="red", alpha=0.5))  + 
+    xlab("Log(Averages)") + 
+    ylab("Frequency") + 
+    ggtitle("T-Cell IMPACT scores - Overall") + 
+    scale_alpha_continuous(name = "Alpha", guide = FALSE) +
+    scale_fill_discrete(name="Data", 
+                        labels = c("Significant", "Nonsignificant"))
+ggplot() + 
+    geom_histogram(aes(as.numeric((ttotal_sig$tsamp_sig_avg)), fill="blue", alpha=0.5)) +
+    geom_histogram(aes(as.numeric((ttotal_nonsig$tsamp_nonsig_avg)), fill="red", alpha=0.5))  + 
+    xlab("Averages") + 
+    ylab("Frequency") + 
+    ggtitle("T-Cell IMPACT - Averages") + 
+    scale_alpha_continuous(name = "Alpha", guide = FALSE) +
+    scale_fill_discrete(name="Data", 
+                        labels = c("Significant", "Nonsignificant"))
+
+ggplot() + 
+    geom_histogram(aes(as.numeric(log(ttotal_sig$tsamp_sig_avg)), fill="blue", alpha=0.5)) +
+    geom_histogram(aes(as.numeric(log(ttotal_nonsig$tsamp_nonsig_avg)), fill="red", alpha=0.5))  + 
+    xlab("Log(Averages)") + 
+    ylab("Frequency") + 
+    ggtitle("T-Cell IMPACT - Log Averages") + 
+    scale_alpha_continuous(name = "Alpha", guide = FALSE) +
+    scale_fill_discrete(name="Data", 
+                        labels = c("Significant", "Nonsignificant"))
+
+```
+
+# PAX5
+
+```{r b_cell_correlation}
+
+z$SNPChrPos <- paste0("chr", z$SNPChr, ":", z$SNPPos)
+zz_b <- data.frame(0, 0, 0, 0, 0)
+colnames(zz_b) <- c("z$SNP[i]", "chr", "start", "end", "score")
+
+for(i in 1:nrow(z)){
+  zz_b <- rbind(zz_b, 
+              cbind(z$SNP[i], pax5 %>% 
+                      filter(chr==paste0("chr", z$SNPChr[i])) %>%
+                      filter(as.numeric(z$SNPPos[i]) >= as.numeric(start)) %>%
+                      filter(as.numeric(z$SNPPos[i]) <= as.numeric(end))
+                    )
+              )
+}
+colnames(zz_b) <- c("bsnp", "bchr", "bstart", "bend", "bscore")
+z <- cbind(z, zz_b[2:nrow(zz_b),])
+
+b_cell_comp <- z[, c("SNP", "Gene", "Symbol", "AlleleAssessed", "B", "B__1", "B__2", "Z-score RNA-seq", "bscore")]
+colnames(b_cell_comp) <- c("SNP", "Gene", "Symbol", "AlleleAssessed", "P value", "Significant", "Correlation", "Z-score RNA-seq", "bscore")
+
+b_cell_comp
+
+```
+
+```{r b_cell_evaluation}
+
+bsamp <- b_cell_comp %>% sample_n(20)
+bsamp_sig <- b_cell_comp %>% filter(!is.na(Significant)) %>% sample_n(3)
+# 16 total
+bsamp_nonsig <- b_cell_comp %>% filter(is.na(Significant)) %>% sample_n(3)
+# 369 total
+
+bsamp_sig_avg <- mean(bsamp_sig$`P value` * bsamp_sig$bscore)
+btotal_sig <- data.frame(bsamp_sig_avg)
+bsamp_nonsig_avg <- mean(bsamp_nonsig$`P value` * bsamp_nonsig$bscore)
+btotal_nonsig <- data.frame(bsamp_nonsig_avg)
+
+for (i in 1:10000)
+{
+  bsamp_sig <- b_cell_comp %>% filter(!is.na(Significant)) %>% sample_n(3)
+  bsamp_nonsig <- b_cell_comp %>% filter(is.na(Significant)) %>% sample_n(3)
+  bsamp_sig_avg <- mean(bsamp_sig$`P value` * bsamp_sig$bscore)
+  bsamp_nonsig_avg <- mean(bsamp_nonsig$`P value` * bsamp_nonsig$bscore)
+  if (bsamp_nonsig_avg == 0) { print(bsamp_nonsig_avg) }
+  btotal_sig <- rbind(btotal_sig, bsamp_sig_avg)
+  btotal_nonsig <- rbind(btotal_nonsig, bsamp_nonsig_avg)
+}
+
+```
+
+```{r plot_test}
+
+ggplot() + 
+  geom_histogram(aes(as.numeric(btotal_nonsig$bsamp_nonsig_avg), fill="blue", alpha=0.5)) +
+  geom_histogram(aes(as.numeric(btotal_sig$bsamp_sig_avg), fill="red", alpha=0.5)) + 
+  xlab("Averages") + 
+  ylab("Frequency") + 
+  ggtitle("B-Cell IMPACT/sc-eQTLs - Averages") + 
+  scale_alpha_continuous(name = "Alpha", guide = FALSE) +
+  scale_fill_discrete(name="Data", 
+                        labels = c("Significant", "Nonsignificant"))
+
+ggplot() + 
+  geom_histogram(aes(as.numeric(log(btotal_nonsig$bsamp_nonsig_avg)), fill="blue", alpha=0.5)) +
+  geom_histogram(aes(as.numeric(log(btotal_sig$bsamp_sig_avg)), fill="red", alpha=0.5)) + 
+  xlab("Log(Averages)") + 
+  ylab("Frequency") + 
+  ggtitle("B-Cell IMPACT/sc-eQTLs - Log Averages") + 
+  scale_alpha_continuous(name = "Alpha", guide = FALSE) +
+  scale_fill_discrete(name="Data", 
+                        labels = c("Significant", "Nonsignificant"))
+```
+
+```{r}
+b_sig <- b_cell_comp %>% filter(!is.na(Significant))
+b_nonsig <- b_cell_comp %>% filter(is.na(Significant))
+
+```
+
+```{r p_val_and_impact_avg_b_cell}
+bsamp_sig <- b_cell_comp %>% filter(!is.na(Significant)) %>% sample_n(3)
+# 16 total
+bsamp_nonsig <- b_cell_comp %>% filter(is.na(Significant)) %>% sample_n(3)
+# 369 total
+
+bsamp_sig_avg <- mean(bsamp_sig$bscore)
+btotal_sig <- data.frame(bsamp_sig_avg)
+bsamp_nonsig_avg <- mean(bsamp_nonsig$bscore)
+btotal_nonsig <- data.frame(bsamp_nonsig_avg)
+
+for (i in 1:10000)
+{
+  bsamp_sig <- b_cell_comp %>% filter(!is.na(Significant)) %>% sample_n(3)
+  bsamp_nonsig <- b_cell_comp %>% filter(is.na(Significant)) %>% sample_n(3)
+  bsamp_sig_avg <- mean(bsamp_sig$bscore)
+  bsamp_nonsig_avg <- mean(bsamp_nonsig$bscore)
+  btotal_sig <- rbind(btotal_sig, bsamp_sig_avg)
+  btotal_nonsig <- rbind(btotal_nonsig, bsamp_nonsig_avg)
+}
+
+```
+
+```{r}
+ggplot() + 
+    geom_histogram(aes(as.numeric(log(b_sig$`P value`)), fill="blue", alpha=0.5)) +
+    geom_histogram(aes(as.numeric(log(b_nonsig$`P value`)), fill="red", alpha=0.5))  + 
+    xlab("Log(Averages)") + 
+    ylab("Frequency") + 
+    ggtitle("B-Cell P-values sc-eQTLs") + 
+    scale_alpha_continuous(name = "Alpha", guide = FALSE) +
+    scale_fill_discrete(name="Data", 
+                        labels = c("Significant", "Nonsignificant"))
+
+ggplot() + 
+    geom_histogram(aes(as.numeric(log(b_sig$`bscore`)), fill="blue", alpha=0.5)) +
+    geom_histogram(aes(as.numeric(log(b_nonsig$`bscore`)), fill="red", alpha=0.5))  + 
+    xlab("Log(Averages)") + 
+    ylab("Frequency") + 
+    ggtitle("B-Cell IMPACT scores overall") + 
+    scale_alpha_continuous(name = "Alpha", guide = FALSE) +
+    scale_fill_discrete(name="Data", 
+                        labels = c("Significant", "Nonsignificant"))
+
+ggplot() + 
+    geom_histogram(aes(as.numeric((btotal_sig$bsamp_sig_avg)), fill="blue", alpha=0.5)) +
+    geom_histogram(aes(as.numeric((btotal_nonsig$bsamp_nonsig_avg)), fill="red", alpha=0.5))  + 
+    xlab("Averages") + 
+    ylab("Frequency") + 
+    ggtitle("B-Cell IMPACT scores Averages") + 
+    scale_alpha_continuous(name = "Alpha", guide = FALSE) +
+    scale_fill_discrete(name="Data", 
+                        labels = c("Significant", "Nonsignificant"))
+
+q25 <- ggplot() + 
+    geom_vline(xintercept = (as.numeric(mean(btotal_sig$bsamp_sig_avg)))) +
+    geom_histogram(aes(as.numeric((btotal_nonsig$bsamp_nonsig_avg)), fill="red", alpha=0.5))  + 
+    xlab("Averages") + 
+    ylab("Frequency") + 
+    ggtitle("B-Cell IMPACT - Averages") + 
+    scale_alpha_continuous(name = "Alpha", guide = FALSE) +
+    scale_fill_discrete(name="Data", 
+                        labels = c("Nonsignificant"))
+
+q3 <- ggplot() + 
+    #geom_histogram(aes(as.numeric(log(btotal_sig$bsamp_sig_avg)), fill="blue", alpha=0.5)) +
+    geom_vline(xintercept = (mean(as.numeric(log(btotal_sig$bsamp_sig_avg))))) + 
+    geom_histogram(aes(as.numeric(log(btotal_nonsig$bsamp_nonsig_avg)), fill="red", alpha=0.5))  + 
+    xlab("Log(Averages)") + 
+    ylab("Frequency") + 
+    ggtitle("B-Cell IMPACT - Log Averages") + 
+    scale_alpha_continuous(name = "Alpha", guide = FALSE) +
+    scale_fill_discrete(name="Data", 
+                        labels = "Nonsignificant")
+
+# Incorrect graph
+q4 <- ggplot() + 
+    geom_histogram(aes(as.numeric(log(btotal_sig$bsamp_sig_avg)), fill="blue", alpha=0.5)) +
+    #geom_vline(xintercept = (mean(as.numeric(log(btotal_sig$bsamp_sig_avg))))) + 
+    geom_histogram(aes(as.numeric(log(btotal_nonsig$bsamp_nonsig_avg)), fill="red", alpha=0.5))  + 
+    xlab("Log(Averages)") + 
+    ylab("Frequency") + 
+    ggtitle("B-Cell IMPACT - Log Averages") + 
+    scale_alpha_continuous(name = "Alpha", guide = FALSE) +
+    scale_fill_discrete(name="Data", 
+                        labels = "Nonsignificant")
+
+
+```
+
+# TBET/PAX5
+
+```{r}
+a1 <- ggplot(label_size=1.5) + geom_boxplot(aes(y=t_sig$tscore)) + ggtitle("Sig T-cells") + ylab("IMPACT Score") + ylim(0, 1)
+a2 <- ggplot(label_size=1.5) + geom_boxplot(aes(y=t_nonsig$tscore)) + ggtitle("Non-sig T-cells") + ylab("IMPACT Score") + ylim(0, 1)
+a3 <- ggplot(label_size=1.5) + geom_boxplot(aes(y=b_sig$bscore)) + ggtitle("Sig B-cells") + ylab("IMPACT Score") + ylim(0, 1)
+a4 <- ggplot(label_size=1.5) + geom_boxplot(aes(y=b_nonsig$bscore)) + ggtitle("Non-sig B-cells") + ylab("IMPACT Score") + ylim(0, 1)
+
+mean(t_sig$tscore)
+sd(t_sig$tscore)
+
+mean(t_nonsig$tscore)
+sd(t_nonsig$tscore)
+
+mean(b_sig$bscore)
+sd(b_sig$bscore)
+
+mean(b_nonsig$bscore)
+sd(b_nonsig$bscore)
+
+library(gridExtra)
+grid.arrange(a1, a2, a3, a4, nrow=1)
+
+
+```
+
+
+```{r t_test}
+t.test(t_sig$tscore, t_nonsig$tscore, paired = F)
+t.test(b_sig$bscore, b_nonsig$bscore, paired = F)
+```
+
+
+# IRF5 (MACROPHAGES)
+
+```{r mp_cell_correlation}
+
+z$SNPChrPos <- paste0("chr", z$SNPChr, ":", z$SNPPos)
+zz <- data.frame(0, 0, 0, 0, 0)
+colnames(zz) <- c("z$SNP[i]", "chr", "start", "end", "score")
+
+for(i in 1:nrow(z)){
+  zz <- rbind(zz, 
+              cbind(z$SNP[i], 
+                    irf5 %>% 
+                      filter(chr==paste0("chr", z$SNPChr[i])) %>%
+                      filter(as.numeric(z$SNPPos[i]) >= as.numeric(start)) %>%
+                      filter(as.numeric(z$SNPPos[i]) <= as.numeric(end))
+                    )
+              )
+}
+
+colnames(zz) <- c("snp", "tchr", "tstart", "tend", "tscore")
+z <- cbind(z, zz[2:nrow(zz),])
+
+t_cell_comp <- z[, c("SNP", "Gene", "Symbol", "AlleleAssessed", "T CD4+", "T CD4+__1", "T CD4+__2", "Z-score RNA-seq", "tscore")]
+colnames(t_cell_comp) <- c("SNP", "Gene", "Symbol", "AlleleAssessed", "P value", "Significant", "Correlation", "Z-score RNA-seq", "tscore")
+
+t_cell_comp
+
+```
+
+```{r mp_cell_evaluation}
+
+tsamp <- t_cell_comp %>% sample_n(20)
+tsamp_sig <- t_cell_comp %>% filter(!is.na(Significant)) %>% sample_n(3)
+# 209 total
+tsamp_nonsig <- t_cell_comp %>% filter(is.na(Significant)) %>% sample_n(3)
+# 176 total
+
+tsamp_sig_avg <- mean(tsamp_sig$`P value` * tsamp_sig$tscore)
+ttotal_sig <- data.frame(tsamp_sig_avg)
+tsamp_nonsig_avg <- mean(tsamp_nonsig$`P value` * tsamp_nonsig$tscore)
+ttotal_nonsig <- data.frame(tsamp_nonsig_avg)
+
+for (i in 1:10000)
+{
+  tsamp_sig <- t_cell_comp %>% filter(!is.na(Significant)) %>% sample_n(3)
+  tsamp_nonsig <- t_cell_comp %>% filter(is.na(Significant)) %>% sample_n(3)
+  tsamp_sig_avg <- mean(tsamp_sig$`P value` * tsamp_sig$tscore)
+  tsamp_nonsig_avg <- mean(tsamp_nonsig$`P value` * tsamp_nonsig$tscore)
+  ttotal_sig <- rbind(ttotal_sig, tsamp_sig_avg)
+  ttotal_nonsig <- rbind(ttotal_nonsig, tsamp_nonsig_avg)
+}
+ 
+ggplot() +
+  geom_histogram(aes(as.numeric(ttotal_nonsig$tsamp_nonsig_avg), fill="blue", alpha=0.5)) +
+  geom_histogram(aes(as.numeric(ttotal_sig$tsamp_sig_avg), fill="red", alpha=0.5)) + 
+  xlab("Averages") + 
+  ylab("Frequency") + 
+  ggtitle("T-Cell IMPACT/sc-eQTLs - Averages") + 
+  scale_alpha_continuous(name = "Alpha", guide = FALSE) +
+  scale_fill_discrete(name="Data", 
+                        labels = c("Significant", "Nonsignificant"))
+
+ggplot() + 
+  geom_histogram(aes(as.numeric(log(ttotal_nonsig$tsamp_nonsig_avg)), fill="blue", alpha=0.5)) +
+  geom_histogram(aes(as.numeric(log(ttotal_sig$tsamp_sig_avg)), fill="red", alpha=0.5)) + 
+  xlab("Log(Averages)") + 
+  ylab("Frequency") + 
+  ggtitle("T-Cell IMPACT/sc-eQTLs - Log Averages") + 
+  scale_alpha_continuous(name = "Alpha", guide = FALSE) +
+  scale_fill_discrete(name="Data", 
+                        labels = c("Significant", "Nonsignificant"))
+
+
+```
+
+```{r mp}
+t_sig <- t_cell_comp %>% filter(!is.na(Significant))
+t_nonsig <- t_cell_comp %>% filter(is.na(Significant))
+
+```
+
+```{r mp_cell_p_val_and_impact_avg}
+tsamp_sig <- t_cell_comp %>% filter(!is.na(Significant)) %>% sample_n(10)
+# 209 total
+tsamp_nonsig <- t_cell_comp %>% filter(is.na(Significant)) %>% sample_n(10)
+# 176 total
+
+tsamp_sig_avg <- mean(tsamp_sig$tscore)
+ttotal_sig <- data.frame(tsamp_sig_avg)
+tsamp_nonsig_avg <- mean(tsamp_nonsig$tscore)
+ttotal_nonsig <- data.frame(tsamp_nonsig_avg)
+
+for (i in 1:1000)
+{
+  tsamp_sig <- t_cell_comp %>% filter(!is.na(Significant)) %>% sample_n(10)
+  tsamp_nonsig <- t_cell_comp %>% filter(is.na(Significant)) %>% sample_n(10)
+  tsamp_sig_avg <- mean(tsamp_sig$tscore)
+  tsamp_nonsig_avg <- mean(tsamp_nonsig$tscore)
+  ttotal_sig <- rbind(ttotal_sig, tsamp_sig_avg)
+  ttotal_nonsig <- rbind(ttotal_nonsig, tsamp_nonsig_avg)
+}
+
+ggplot() + 
+    geom_histogram(aes(as.numeric(log(t_sig$`P value`)), fill="blue", alpha=0.5)) +
+    geom_histogram(aes(as.numeric(log(t_nonsig$`P value`)), fill="red", alpha=0.5))  + 
+    xlab("Log(Averages)") + 
+    ylab("Frequency") + 
+    ggtitle("T-Cell P-values sc-eQTLs") + 
+    scale_alpha_continuous(name = "Alpha", guide = FALSE) +
+    scale_fill_discrete(name="Data", 
+                        labels = c("Significant", "Nonsignificant"))
+ggplot() + 
+    geom_histogram(aes(as.numeric((ttotal_sig$tsamp_sig_avg)), fill="blue", alpha=0.5)) +
+    geom_histogram(aes(as.numeric((ttotal_nonsig$tsamp_nonsig_avg)), fill="red", alpha=0.5))  + 
+    xlab("Averages") + 
+    ylab("Frequency") + 
+    ggtitle("T-Cell IMPACT - Averages") + 
+    scale_alpha_continuous(name = "Alpha", guide = FALSE) +
+    scale_fill_discrete(name="Data", 
+                        labels = c("Significant", "Nonsignificant"))
+
+ggplot() + 
+    geom_histogram(aes(as.numeric(log(ttotal_sig$tsamp_sig_avg)), fill="blue", alpha=0.5)) +
+    geom_histogram(aes(as.numeric(log(ttotal_nonsig$tsamp_nonsig_avg)), fill="red", alpha=0.5))  + 
+    xlab("Log(Averages)") + 
+    ylab("Frequency") + 
+    ggtitle("T-Cell IMPACT - Log Averages") + 
+    scale_alpha_continuous(name = "Alpha", guide = FALSE) +
+    scale_fill_discrete(name="Data", 
+                        labels = c("Significant", "Nonsignificant"))
+
+```
+
+# CEBPB (MONOCYTES)
+
+```{r mc_cell_correlation}
+
+z$SNPChrPos <- paste0("chr", z$SNPChr, ":", z$SNPPos)
+zz <- data.frame(0, 0, 0, 0, 0)
+colnames(zz) <- c("z$SNP[i]", "chr", "start", "end", "score")
+
+for(i in 1:nrow(z)){
+  zz <- rbind(zz, 
+              cbind(z$SNP[i], 
+                    tbet %>% 
+                      filter(chr==paste0("chr", z$SNPChr[i])) %>%
+                      filter(as.numeric(z$SNPPos[i]) >= as.numeric(start)) %>%
+                      filter(as.numeric(z$SNPPos[i]) <= as.numeric(end))
+                    )
+              )
+}
+
+colnames(zz) <- c("snp", "tchr", "tstart", "tend", "tscore")
+z <- cbind(z, zz[2:nrow(zz),])
+
+t_cell_comp <- z[, c("SNP", "Gene", "Symbol", "AlleleAssessed", "T CD4+", "T CD4+__1", "T CD4+__2", "Z-score RNA-seq", "tscore")]
+colnames(t_cell_comp) <- c("SNP", "Gene", "Symbol", "AlleleAssessed", "P value", "Significant", "Correlation", "Z-score RNA-seq", "tscore")
+
+t_cell_comp
+
+```
+
+```{r mc_cell_evaluation}
+
+tsamp <- t_cell_comp %>% sample_n(20)
+tsamp_sig <- t_cell_comp %>% filter(!is.na(Significant)) %>% sample_n(3)
+# 209 total
+tsamp_nonsig <- t_cell_comp %>% filter(is.na(Significant)) %>% sample_n(3)
+# 176 total
+
+tsamp_sig_avg <- mean(tsamp_sig$`P value` * tsamp_sig$tscore)
+ttotal_sig <- data.frame(tsamp_sig_avg)
+tsamp_nonsig_avg <- mean(tsamp_nonsig$`P value` * tsamp_nonsig$tscore)
+ttotal_nonsig <- data.frame(tsamp_nonsig_avg)
+
+for (i in 1:10000)
+{
+  tsamp_sig <- t_cell_comp %>% filter(!is.na(Significant)) %>% sample_n(3)
+  tsamp_nonsig <- t_cell_comp %>% filter(is.na(Significant)) %>% sample_n(3)
+  tsamp_sig_avg <- mean(tsamp_sig$`P value` * tsamp_sig$tscore)
+  tsamp_nonsig_avg <- mean(tsamp_nonsig$`P value` * tsamp_nonsig$tscore)
+  ttotal_sig <- rbind(ttotal_sig, tsamp_sig_avg)
+  ttotal_nonsig <- rbind(ttotal_nonsig, tsamp_nonsig_avg)
+}
+ 
+ggplot() +
+  geom_histogram(aes(as.numeric(ttotal_nonsig$tsamp_nonsig_avg), fill="blue", alpha=0.5)) +
+  geom_histogram(aes(as.numeric(ttotal_sig$tsamp_sig_avg), fill="red", alpha=0.5)) + 
+  xlab("Averages") + 
+  ylab("Frequency") + 
+  ggtitle("T-Cell IMPACT/sc-eQTLs - Averages") + 
+  scale_alpha_continuous(name = "Alpha", guide = FALSE) +
+  scale_fill_discrete(name="Data", 
+                        labels = c("Significant", "Nonsignificant"))
+
+ggplot() + 
+  geom_histogram(aes(as.numeric(log(ttotal_nonsig$tsamp_nonsig_avg)), fill="blue", alpha=0.5)) +
+  geom_histogram(aes(as.numeric(log(ttotal_sig$tsamp_sig_avg)), fill="red", alpha=0.5)) + 
+  xlab("Log(Averages)") + 
+  ylab("Frequency") + 
+  ggtitle("T-Cell IMPACT/sc-eQTLs - Log Averages") + 
+  scale_alpha_continuous(name = "Alpha", guide = FALSE) +
+  scale_fill_discrete(name="Data", 
+                        labels = c("Significant", "Nonsignificant"))
+
+
+```
+
+```{r mc}
+t_sig <- t_cell_comp %>% filter(!is.na(Significant))
+t_nonsig <- t_cell_comp %>% filter(is.na(Significant))
+
+```
+
+```{r mc_cell_p_val_and_impact_avg}
+tsamp_sig <- t_cell_comp %>% filter(!is.na(Significant)) %>% sample_n(10)
+# 209 total
+tsamp_nonsig <- t_cell_comp %>% filter(is.na(Significant)) %>% sample_n(10)
+# 176 total
+
+tsamp_sig_avg <- mean(tsamp_sig$tscore)
+ttotal_sig <- data.frame(tsamp_sig_avg)
+tsamp_nonsig_avg <- mean(tsamp_nonsig$tscore)
+ttotal_nonsig <- data.frame(tsamp_nonsig_avg)
+
+for (i in 1:1000)
+{
+  tsamp_sig <- t_cell_comp %>% filter(!is.na(Significant)) %>% sample_n(10)
+  tsamp_nonsig <- t_cell_comp %>% filter(is.na(Significant)) %>% sample_n(10)
+  tsamp_sig_avg <- mean(tsamp_sig$tscore)
+  tsamp_nonsig_avg <- mean(tsamp_nonsig$tscore)
+  ttotal_sig <- rbind(ttotal_sig, tsamp_sig_avg)
+  ttotal_nonsig <- rbind(ttotal_nonsig, tsamp_nonsig_avg)
+}
+
+ggplot() + 
+    geom_histogram(aes(as.numeric(log(t_sig$`P value`)), fill="blue", alpha=0.5)) +
+    geom_histogram(aes(as.numeric(log(t_nonsig$`P value`)), fill="red", alpha=0.5))  + 
+    xlab("Log(Averages)") + 
+    ylab("Frequency") + 
+    ggtitle("T-Cell P-values sc-eQTLs") + 
+    scale_alpha_continuous(name = "Alpha", guide = FALSE) +
+    scale_fill_discrete(name="Data", 
+                        labels = c("Significant", "Nonsignificant"))
+ggplot() + 
+    geom_histogram(aes(as.numeric((ttotal_sig$tsamp_sig_avg)), fill="blue", alpha=0.5)) +
+    geom_histogram(aes(as.numeric((ttotal_nonsig$tsamp_nonsig_avg)), fill="red", alpha=0.5))  + 
+    xlab("Averages") + 
+    ylab("Frequency") + 
+    ggtitle("T-Cell IMPACT - Averages") + 
+    scale_alpha_continuous(name = "Alpha", guide = FALSE) +
+    scale_fill_discrete(name="Data", 
+                        labels = c("Significant", "Nonsignificant"))
+
+ggplot() + 
+    geom_histogram(aes(as.numeric(log(ttotal_sig$tsamp_sig_avg)), fill="blue", alpha=0.5)) +
+    geom_histogram(aes(as.numeric(log(ttotal_nonsig$tsamp_nonsig_avg)), fill="red", alpha=0.5))  + 
+    xlab("Log(Averages)") + 
+    ylab("Frequency") + 
+    ggtitle("T-Cell IMPACT - Log Averages") + 
+    scale_alpha_continuous(name = "Alpha", guide = FALSE) +
+    scale_fill_discrete(name="Data", 
+                        labels = c("Significant", "Nonsignificant"))
+
+```
+
+
+# FOXP3 - TREGS(T CELLS)
+
+```{r treg_cell_correlation}
+
+z$SNPChrPos <- paste0("chr", z$SNPChr, ":", z$SNPPos)
+zz <- data.frame(0, 0, 0, 0, 0)
+colnames(zz) <- c("z$SNP[i]", "chr", "start", "end", "score")
+
+for(i in 1:nrow(z)){
+  zz <- rbind(zz, 
+              cbind(z$SNP[i], 
+                    tbet %>% 
+                      filter(chr==paste0("chr", z$SNPChr[i])) %>%
+                      filter(as.numeric(z$SNPPos[i]) >= as.numeric(start)) %>%
+                      filter(as.numeric(z$SNPPos[i]) <= as.numeric(end))
+                    )
+              )
+}
+
+colnames(zz) <- c("snp", "tchr", "tstart", "tend", "tscore")
+z <- cbind(z, zz[2:nrow(zz),])
+
+t_cell_comp <- z[, c("SNP", "Gene", "Symbol", "AlleleAssessed", "T CD4+", "T CD4+__1", "T CD4+__2", "Z-score RNA-seq", "tscore")]
+colnames(t_cell_comp) <- c("SNP", "Gene", "Symbol", "AlleleAssessed", "P value", "Significant", "Correlation", "Z-score RNA-seq", "tscore")
+
+t_cell_comp
+
+```
+
+```{r treg_cell_evaluation}
+
+tsamp <- t_cell_comp %>% sample_n(20)
+tsamp_sig <- t_cell_comp %>% filter(!is.na(Significant)) %>% sample_n(3)
+# 209 total
+tsamp_nonsig <- t_cell_comp %>% filter(is.na(Significant)) %>% sample_n(3)
+# 176 total
+
+tsamp_sig_avg <- mean(tsamp_sig$`P value` * tsamp_sig$tscore)
+ttotal_sig <- data.frame(tsamp_sig_avg)
+tsamp_nonsig_avg <- mean(tsamp_nonsig$`P value` * tsamp_nonsig$tscore)
+ttotal_nonsig <- data.frame(tsamp_nonsig_avg)
+
+for (i in 1:10000)
+{
+  tsamp_sig <- t_cell_comp %>% filter(!is.na(Significant)) %>% sample_n(3)
+  tsamp_nonsig <- t_cell_comp %>% filter(is.na(Significant)) %>% sample_n(3)
+  tsamp_sig_avg <- mean(tsamp_sig$`P value` * tsamp_sig$tscore)
+  tsamp_nonsig_avg <- mean(tsamp_nonsig$`P value` * tsamp_nonsig$tscore)
+  ttotal_sig <- rbind(ttotal_sig, tsamp_sig_avg)
+  ttotal_nonsig <- rbind(ttotal_nonsig, tsamp_nonsig_avg)
+}
+ 
+ggplot() +
+  geom_histogram(aes(as.numeric(ttotal_nonsig$tsamp_nonsig_avg), fill="blue", alpha=0.5)) +
+  geom_histogram(aes(as.numeric(ttotal_sig$tsamp_sig_avg), fill="red", alpha=0.5)) + 
+  xlab("Averages") + 
+  ylab("Frequency") + 
+  ggtitle("T-Cell IMPACT/sc-eQTLs - Averages") + 
+  scale_alpha_continuous(name = "Alpha", guide = FALSE) +
+  scale_fill_discrete(name="Data", 
+                        labels = c("Significant", "Nonsignificant"))
+
+ggplot() + 
+  geom_histogram(aes(as.numeric(log(ttotal_nonsig$tsamp_nonsig_avg)), fill="blue", alpha=0.5)) +
+  geom_histogram(aes(as.numeric(log(ttotal_sig$tsamp_sig_avg)), fill="red", alpha=0.5)) + 
+  xlab("Log(Averages)") + 
+  ylab("Frequency") + 
+  ggtitle("T-Cell IMPACT/sc-eQTLs - Log Averages") + 
+  scale_alpha_continuous(name = "Alpha", guide = FALSE) +
+  scale_fill_discrete(name="Data", 
+                        labels = c("Significant", "Nonsignificant"))
+
+
+```
+
+```{r treg}
+t_sig <- t_cell_comp %>% filter(!is.na(Significant))
+t_nonsig <- t_cell_comp %>% filter(is.na(Significant))
+
+```
+
+```{r treg_cell_val_and_impact_avg}
+tsamp_sig <- t_cell_comp %>% filter(!is.na(Significant)) %>% sample_n(10)
+# 209 total
+tsamp_nonsig <- t_cell_comp %>% filter(is.na(Significant)) %>% sample_n(10)
+# 176 total
+
+tsamp_sig_avg <- mean(tsamp_sig$tscore)
+ttotal_sig <- data.frame(tsamp_sig_avg)
+tsamp_nonsig_avg <- mean(tsamp_nonsig$tscore)
+ttotal_nonsig <- data.frame(tsamp_nonsig_avg)
+
+for (i in 1:1000)
+{
+  tsamp_sig <- t_cell_comp %>% filter(!is.na(Significant)) %>% sample_n(10)
+  tsamp_nonsig <- t_cell_comp %>% filter(is.na(Significant)) %>% sample_n(10)
+  tsamp_sig_avg <- mean(tsamp_sig$tscore)
+  tsamp_nonsig_avg <- mean(tsamp_nonsig$tscore)
+  ttotal_sig <- rbind(ttotal_sig, tsamp_sig_avg)
+  ttotal_nonsig <- rbind(ttotal_nonsig, tsamp_nonsig_avg)
+}
+
+ggplot() + 
+    geom_histogram(aes(as.numeric(log(t_sig$`P value`)), fill="blue", alpha=0.5)) +
+    geom_histogram(aes(as.numeric(log(t_nonsig$`P value`)), fill="red", alpha=0.5))  + 
+    xlab("Log(Averages)") + 
+    ylab("Frequency") + 
+    ggtitle("T-Cell P-values sc-eQTLs") + 
+    scale_alpha_continuous(name = "Alpha", guide = FALSE) +
+    scale_fill_discrete(name="Data", 
+                        labels = c("Significant", "Nonsignificant"))
+ggplot() + 
+    geom_histogram(aes(as.numeric((ttotal_sig$tsamp_sig_avg)), fill="blue", alpha=0.5)) +
+    geom_histogram(aes(as.numeric((ttotal_nonsig$tsamp_nonsig_avg)), fill="red", alpha=0.5))  + 
+    xlab("Averages") + 
+    ylab("Frequency") + 
+    ggtitle("T-Cell IMPACT - Averages") + 
+    scale_alpha_continuous(name = "Alpha", guide = FALSE) +
+    scale_fill_discrete(name="Data", 
+                        labels = c("Significant", "Nonsignificant"))
+
+ggplot() + 
+    geom_histogram(aes(as.numeric(log(ttotal_sig$tsamp_sig_avg)), fill="blue", alpha=0.5)) +
+    geom_histogram(aes(as.numeric(log(ttotal_nonsig$tsamp_nonsig_avg)), fill="red", alpha=0.5))  + 
+    xlab("Log(Averages)") + 
+    ylab("Frequency") + 
+    ggtitle("T-Cell IMPACT - Log Averages") + 
+    scale_alpha_continuous(name = "Alpha", guide = FALSE) +
+    scale_fill_discrete(name="Data", 
+                        labels = c("Significant", "Nonsignificant"))
+
+```
+
+

@@ -1,0 +1,43 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r install_libraries}
+
+source("https://bioconductor.org/biocLite.R")
+biocLite("snpStats") # https://www.bioconductor.org/packages//2.10/bioc/html/snpStats.html
+
+library(BiocManager)
+library(biomaRt)
+library(snpEnrichment) # https://rdrr.io/cran/snpEnrichment/man/writeLD.html
+
+```
+
+```{r specify_data}
+
+# http://webcache.googleusercontent.com/search?q=cache:http://zzz.bwh.harvard.edu/plink/dosage.shtml#format
+
+chr1_cis <- franke_cis_data[which(GeneChr==1),]
+chr1_cis_split <- split(chr1_cis, chr1_cis$GeneSymbol)
+chr1_cis_useful <- chr1_cis_split[[11]] # ACBD6
+
+```
+
+
+```{r}
+
+map_file <- data.table(chr1_cis_useful$SNPChr, chr1_cis_useful$SNP, 0, chr1_cis_useful$SNPPos)
+fwrite(map_file, "acbd6.map", sep="\t", col.names = F, row.names=F)
+```
+plink --file acbd6 --make-bed --out acbd6
+
+```{r}
+bim_file <- data.table(chr1_cis_useful$SNPChr, chr1_cis_useful$SNP, 0, chr1_cis_useful$SNPPos, chr1_cis_useful$AssessedAllele, chr1_cis_useful$OtherAllele)
+fam_file <- data.table(chr1_cis_useful$SNP, 0, 0, 0, 0, 0)
+
+```
+
+Notes:
+plink --file test --make-bed --out test
+

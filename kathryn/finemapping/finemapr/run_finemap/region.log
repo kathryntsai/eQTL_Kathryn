@@ -1,0 +1,55 @@
+
+|---------------------------------|
+| Welcome to FINEMAP v1.1         |
+|                                 |
+| (c) 2015 University of Helsinki |
+|                                 |
+| Help / Documentation:           |
+| - ./finemap --help              |
+| - www.christianbenner.com       |
+|                                 |
+| Contact:                        |
+| - christian.benner@helsinki.fi  |
+| - matti.pirinen@helsinki.fi     |
+|---------------------------------|
+
+--------
+SETTINGS
+--------
+- regions         : 1 
+- n-causal-max    : 3
+- n-configs-top   : 50000
+- n-iterations    : 100000
+- n-convergence   : 1000
+- prob-tol        : 0.001
+- corr-config     : 0.95
+- prior-std       : 0.05
+- prior-k0        : 0
+
+---------------
+RUNNING FINEMAP (1/1)
+---------------
+- GWAS z-scores                   : region.z
+- SNP correlations                : region.ld
+- Causal SNP configurations       : region.config
+- Single-SNP statistics           : region.snp
+- Log file                        : region.log
+
+- Reading input                   : done!
+- Number of SNPs in region        : 410 SNPs
+- Number of individuals in GWAS   : 410 SNPs
+- Prior-Pr(# of causal SNPs is k) : 
+  (0 -> 0)
+   1 -> 0.600147
+   2 -> 0.300073
+   3 -> 0.0997799
+- 32570 configurations evaluated (1.006/100%) : converged after 1006 iterations
+- log10(Evidence of at least 1 causal SNP) : 82.5236
+- Post-Pr(# of causal SNPs is k)  : 
+   0 -> 0
+   1 -> 9.60789e-27
+   2 -> 4.09917e-10
+   3 -> 1
+- Writing output                  : done!
+- Run time                        : 0 hours, 0 minutes, 11 seconds
+

@@ -1,0 +1,85 @@
+---
+title: "Make a Plink file"
+output: html_notebook
+---
+
+https://github.com/bulik/ldsc
+
+Todo:
+- make plink files with each cis eQTL, organized by chromosome
+- run plink in system on each
+- if the matrix is too slow, take pairwise snp comparisons and make matrix in r
+
+```{r install_libraries}
+
+#source("https://bioconductor.org/biocLite.R")
+#biocLite("snpStats") # https://www.bioconductor.org/packages//2.10/bioc/html/snpStats.html
+
+library(snpStats)
+library(BiocManager)
+library(biomaRt)
+library(snpEnrichment) # https://rdrr.io/cran/snpEnrichment/man/writeLD.html
+
+```
+
+```{r specify_data}
+
+# http://webcache.googleusercontent.com/search?q=cache:http://zzz.bwh.harvard.edu/plink/dosage.shtml#format
+
+chr1_cis <- franke_cis_data[which(GeneChr==1),]
+chr1_cis_split <- split(chr1_cis, chr1_cis$GeneSymbol)
+sample_chr1_cis <- chr1_cis[1:50, ]
+```
+
+```{r create_snp_file_1_partial_chr}
+
+fwrite(data.table(sample_chr1_cis$SNP), "/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/finemapping/sample_chr1_cis_snps.txt", row.names=F, col.names=F)
+
+```
+
+```{r make_map_1_partial_chr}
+
+map_file <- data.table(sample_chr1_cis$SNPChr, sample_chr1_cis$SNP, 0, sample_chr1_cis$SNPPos)
+fwrite(map_file, "/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/finemapping/sample_chr1_cis.map", sep="\t", col.names = F, row.names=F)
+```
+
+https://web.archive.org/web/20190528204434/http://zzz.bwh.harvard.edu/plink/data.shtml
+Have to make up information for summary stats:
+     Family ID
+     Individual ID
+     Paternal ID
+     Maternal ID
+     Sex (1=male; 2=female; other=unknown)
+     Phenotype
+http://cubre.covenantuniversity.edu.ng/wp-content/uploads/2014/07/H3ABionet_2014_GWAS_2_Plink_Data_Format.pdf
+
+```{r make_ped_1_partial_chr}
+
+sample_chr1_cis_table <- data.table(sample_chr1_cis$SNP, sample_chr1_cis$OtherAllele, sample_chr1_cis$AssessedAllele)
+colnames(sample_chr1_cis_table) <- c("SNP", "Ref", "Alt")
+#ACBD6_table_melted <- melt(ACBD6_table, id.vars="SNP") 
+#ACBD6_table_melted_alleles <- ACBD6_table_melted[order(ACBD6_table_melted$SNP), "value"]
+
+#cbind(ACBD6_table[seq(1, nrow(ACBD6_table), by=2), -1], ACBD6_table[seq(2, nrow(ACBD6_table), by=2), -1])
+
+sample_chr1_cis_alleles <- strsplit(paste0(paste0(sample_chr1_cis_table$Ref, sample_chr1_cis_table$Alt), sep="", collapse=""), split="")
+
+ped_file <- data.table("chr1", "sample_chr1_cis", 0, 0, 3, -9, t(sample_chr1_cis_alleles[[1]]))
+fwrite(ped_file, "/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/finemapping/sample_chr1_cis.ped", sep="\t", col.names = F, row.names=F)
+```
+
+https://www.cog-genomics.org/plink/1.9/ld 
+https://www.cog-genomics.org/plink/1.9/data#make_bed
+https://web.archive.org/web/20181008145054/http://zzz.bwh.harvard.edu/plink/ld.shtml
+
+```{r run_plink_part1_for_1_partial_chr}
+
+# in /Users/kathryntsai/OneDrive - Villanova University/College/2018-2019/Summer 2019/TFs_eQTLs_Research/RProjects/Project2/finemapping
+system("/Users/kathryntsai/plink-1.07-mac-intel/plink --file sample_chr1_cis --allow-no-sex --make-bed --out sample_chr1_cis") 
+system("/Users/kathryntsai/plink-1.07-mac-intel/plink --bfile 1kg_phase1_chr1 --r2 --matrix --out sample_chr1_cis")
+```
+
+https://www.biostars.org/p/263373/
+https://www.biostars.org/p/274562/
+
+https://www.bioconductor.org/packages//2.10/bioc/manuals/snpStats/man/snpStats.pdf

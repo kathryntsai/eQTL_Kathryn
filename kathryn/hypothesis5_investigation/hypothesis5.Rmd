@@ -11,28 +11,40 @@ look at function
 Count number of times this happens
 
 ```{r}
-library(rsnps)
+#BiocManager::install("mygene")
+library(mygene)
+```
 
+
+```{r}
 conversion <- fread(paste0(my_path, "hypothesis5_input/ENSG_ENSP_conversion.txt"))
+gene.list = glue_collapse(unique(conversion$'Ensembl Gene ID'), sep=", ")
+gene_pos <- getGenes(gene.list, fields='symbol')
+conversion_pos <- merge(conversion, gene_pos[,c('query', 'symbol')], by.x = 'Ensembl Gene ID', by.y='query')
+colnames(conversion_pos)[3] <- "CommonGeneName"
+fwrite(as.list(conversion_pos), "allgeneswithsymbol.txt", sep="\t")
+
 stringdb <- fread(paste0(my_path, "hypothesis5_input/9606.protein.actions.v11.0.txt"))
+all_genes <- fread(paste0(my_path, "hypothesis5_input/allgenes.txt"))
 stringdb$item_id_a <- gsub("9606.", "", stringdb$item_id_a)
 stringdb$item_id_b <- gsub("9606.", "", stringdb$item_id_b)
 
-stringdb_ensga <- merge(stringdb, conversion, by.x="item_id_a", by.y="Ensembl Protein ID", all.y=F)
-colnames(stringdb_ensga)[8] <- "ENSG A" # check whether it's actually 8
-stringdb_ensgab <- merge(stringdb_ensga, conversion, by.x="item_id_b", by.y="Ensembl Protein ID", all.y=F)
-colnames(stringdb_ensgab)[9] <- "ENSG B"
+stringdb_ensga <- merge(stringdb, conversion_pos, by.x="item_id_a", by.y="Ensembl Protein ID", all.y=F)
+colnames(stringdb_ensga)[8:9] <- c("ENSG_A", "CommonGeneNameA") # check whether it's actually 8
+stringdb_ensga <- unlist(stringdb_ensga)
+stringdb_ensgab <- merge(data.table(stringdb_ensga), conversion_pos, by.x='item_id_b', by.y='Ensembl Protein ID')
+colnames(stringdb_ensgab)[10:11] <- c("ENSG_B", "CommonGeneNameB")
+
 
 # gene_positions <- system(paste0('mysql  --user=genome --host=genome-mysql.cse.ucsc.edu -A -D hg19
 # mysql> select distinct G.gene,N.value from ensGtp as G, ensemblToGeneName as N where 
 #   G.transcript=N.name and
 #   G.gene in (', ENSG00000197021, ENSG00000204379, ') ;'))
 
-match_a <- merge(franke_trans_data[1:10,], stringdb_ensgab, by.y = "ENSG A", by.x = "Gene")
-match_a_snp <- match_a %>% filter(SNPGene == "ENSG B")
+match_a <- merge(franke_trans_data, stringdb_ensgab, by.y = "ENSG_A", by.x = "Gene", allow.cartesian =T) # 1950515
+match_a_snp <- match_a %>% filter(SNP == ENSG_B) # of course it won't --> find gene in which snp falls
   
-match_b <- inner_join(stringdb_ensgab, franke_trans_data, by.x = "ENSG B", by.y = "Gene")
-match_b_snp <- match_b %>% filter(SNPGene == "ENSG A")
+match_b <- merge(franke_trans_data, stringdb_ensgab, by.y = "ENSG_B", by.x = "Gene", allow.cartesian = T)
+match_b_snp <- match_b %>% filter(SNP == ENSG_A) # of course it won't --> find gene in which snp falls
 
 ```
-

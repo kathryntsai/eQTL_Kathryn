@@ -1,3 +1,9 @@
+---
+title: "Single Cell Investigation"
+output: html_notebook
+---
+
+```{r load_libraries}
 library(ggthemes)
 theme_set(theme_stata())
 library(reshape2)
@@ -5,10 +11,15 @@ library(dplyr)
 library(readxl)
 library(gridExtra)
 
+```
+
+```{r load_sc_data}
 sc_eqtl <- read_xlsx("/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/IMPACT/NIHMS76345-supplement-Supplementary_table_2_vanderWijst.xlsx", skip=1)
+```
 
 # How many SNP-gene associations exist in both single cell and bulk datasets?
 
+```{r merge_data}
 g <-
   merge(
     sc_eqtl,
@@ -20,10 +31,11 @@ g <-
 
 dim(g)
 # 317 overlap
+```
 
-# Of these overlapping associations, are they more or less cell type specific than the associations that can 
-# only be detected in the single cell data?
+## Of these overlapping associations, are they more or less cell type specific than the associations that can only be detected in the single cell data?
 
+```{r create_plots_1}  
 gg9 <- melt(g, 
            id.vars=c("SNP", "Gene"), 
            #measure.vars = c("PBMC__1","T CD4+__1", "T CD8+__1", "NK__1", "B__1", "DC__1", "Mono__1", "cMono__1", "ncMono__1")
@@ -51,10 +63,6 @@ gg12 <- melt(g,
             #measure.vars = c("PBMC","T CD4+", "T CD8+", "NK", "B", "DC", "cMono")
 ) %>% 
   ggplot() + geom_bar(position="fill", alpha=.8, aes(x=value, fill=variable)) + ggtitle("Proportions of Cell Types eQTLs Significant at FDR < 0.05") # possibly take out position="identity" 
-
-
-library(gridExtra)
-grid.arrange(gg1, gg2, gg3, gg4)
 
 # No PBMCs
 
@@ -85,10 +93,18 @@ gg16 <- melt(g,
             #measure.vars = c("PBMC","T CD4+", "T CD8+", "NK", "B", "DC", "cMono")
 ) %>% 
   ggplot() + geom_bar(position="fill", alpha=.8, aes(x=value, fill=variable)) + ggtitle("Proportions of Cell Types eQTLs Significant at FDR < 0.05") # possibly take out position="identity" 
-grid.arrange(gg1, gg2, gg3, gg4)
 
-#================
+```
 
+
+```{r plot_overlapping_data}
+grid.arrange(gg9, gg10, gg11, gg12)
+grid.arrange(gg13, gg14, gg15, gg16)
+```
+
+# ALL SINGLE CELL DATA
+
+```{r create_plots_2}
 gg1 <- melt(sc_eqtl, 
             id.vars=c("SNP", "Gene"), 
             #measure.vars = c("PBMC__1","T CD4+__1", "T CD8+__1", "NK__1", "B__1", "DC__1", "Mono__1", "cMono__1", "ncMono__1")
@@ -147,21 +163,16 @@ gg8 <- melt(sc_eqtl,
             #measure.vars = c("PBMC","T CD4+", "T CD8+", "NK", "B", "DC", "cMono")
 ) %>% 
   ggplot() + geom_bar(position="fill", alpha=.8, aes(x=value, fill=variable)) + ggtitle("Proportions of Cell Types eQTLs Significant at FDR < 0.05 - all sc-eQTLs, no PBMCs") # possibly take out position="identity" 
-grid.arrange(gg1, gg2, gg3, gg4, gg5, gg6, gg7, gg8, ncol=2)
+```
 
 
-
-
-  # gg <- mutate(sc_eqtl, my_id=paste0(SNP, Gene)) %>% melt(sc_eqtl, id.vars=c("SNP", "Gene"))
-  # melt(g, 
-  #      id.vars="variable vars",
-  #      
-  #      ) 
+```{r plot_sc_data}
+grid.arrange(gg1, gg2, gg3, gg4, gg5, gg6, gg7, gg8, nrow=2)
+```
 
 # Do we even need sc-eQTLs if we can use IMPACT to identify the cell type?
 
-# Since Pfizer eQTLs are found in whole blood, can we use IMPACT to infer cell-type-specificity? Since eQTLgen eQTLs are found in 
-# peripheral blood, can we use IMPACT to infer cell-type-specificity?
+# Since Pfizer eQTLs are found in whole blood, can we use IMPACT to infer cell-type-specificity? Since eQTLgen eQTLs are found in peripheral blood, can we use IMPACT to infer cell-type-specificity?
 
 # After learning from the annotation analyses above, can we predict if a given SNP will participate in a cis or trans eQTL? 
 # Consider 3 groups of SNPs: only cis, only trans, both cis and trans (with two separate genes, of course)

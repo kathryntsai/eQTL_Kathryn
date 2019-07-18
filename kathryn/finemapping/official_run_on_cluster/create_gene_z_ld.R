@@ -1,7 +1,7 @@
-# n=3;
+# n=1;
 # max=22;
 # while [ "$n" -le "$max" ]; do
-# mkdir "chr$n"
+# rm "my_analysis_$n.Rout"
 # n=`expr "$n" + 1`;
 # done
 
@@ -14,13 +14,13 @@ franke_cis_data <- fread("input_data/cis-eQTL_significant_20181017.txt", header 
 my_path <- "/data/srlab/ktsai/"
 print("this works")
 
-for(j in 1:22){
+for(j in 2:22){
   
   print(paste0("j: ", j))
   chr1_cis <- franke_cis_data[which(GeneChr==j),]
   chr1_cis_split <- split(chr1_cis, chr1_cis$GeneSymbol)
   
-  for(i in 1:nrow(franke_cis_data)){
+  for(i in 1:length(chr1_cis_split)){
     print(paste0("i: ", i))
     ## WHICH GENE
     

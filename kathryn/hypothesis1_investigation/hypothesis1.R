@@ -16,10 +16,11 @@ franke_trans_data_copy$rank <- 1:nrow(franke_trans_data_copy)
 franke_trans_data <- merge(franke_trans_data_copy, allgenes[,c("GeneStart", "GeneEnd", "GeneSymbol")], by="GeneSymbol") # lose 59786 - 54178 = 5608 genes lost
 franke_trans_data$rank <- 1:nrow(franke_trans_data)
 
+error = 1000
 y <- HiC_data_2 %>%
   filter(franke_trans_data$SNPChr[1] == baitChr) %>%
-  filter(franke_trans_data$SNPPos[1] >= baitStart) %>%
-  filter(franke_trans_data$SNPPos[1] <= baitEnd)
+  filter(franke_trans_data$SNPPos[1] >= baitStart - error) %>%
+  filter(franke_trans_data$SNPPos[1] <= baitEnd + error)
 
 # if (dim(y)[1] != 0){
 #   z <- cbind(franke_trans_data[["rank"]], y[, c("baitChr", "baitStart", "baitEnd", "baitID", "baitName", "oeChr", "oeStart", "oeEnd", "oeID", "oeName")], franke_trans_data[["SNP"]], franke_trans_data[["SNPChr"]], franke_trans_data[["SNPPos"]], franke_trans_data[["Gene"]], franke_trans_data[["GeneSymbol"]], franke_trans_data[["GeneChr"]], franke_trans_data[["GeneStart"]], franke_trans_data[["GeneEnd"]])
@@ -53,7 +54,7 @@ y <- HiC_data_2 %>%
     }
   }
 
-for(i in 2:10){#nrow(franke_trans_data)){
+for(i in 2:nrow(franke_trans_data)){
   y <- HiC_data_2 %>%
     filter(franke_trans_data$SNPChr[i] == baitChr) %>%
     filter(franke_trans_data$SNPPos[i] >= baitStart) %>%

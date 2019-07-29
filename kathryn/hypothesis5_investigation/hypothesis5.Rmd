@@ -3,6 +3,8 @@ title: "Protein-Protein Interaction"
 output: html_notebook
 ---
 
+Run in Cluster
+
 <!--match stringDB protein ID with ENSG/ENSP conversion list-->
 match stringDB gene ID with franke_trans_data gene ID
 does SNP fall into a gene - match SNP with SNPChr, SNPPos is in GeneChr, GenePos - that matches another protein ID
@@ -10,13 +12,20 @@ look at function
 
 Count number of times this happens
 
-```{r}
+```{r run_on_cluster}
+
+
+library("data.table")
+library("glue")
+library("dplyr", lib="/apps/lib-osver/R/3.4.0/lib64/R/library")
+
+source("https://bioconductor.org/biocLite.R")
+biocLite("mygene")
 #BiocManager::install("mygene")
-library(mygene)
-```
+library("mygene")
 
+my_path=paste0(getwd(), "/")
 
-```{r}
 conversion <- fread(paste0(my_path, "hypothesis5_input/ENSG_ENSP_conversion.txt"))
 gene.list = glue_collapse(unique(conversion$'Ensembl Gene ID'), sep=", ")
 gene_pos <- getGenes(gene.list, fields='symbol')
@@ -25,22 +34,99 @@ colnames(conversion_pos)[3] <- "CommonGeneName"
 fwrite(as.list(conversion_pos), "allgeneswithsymbol.txt", sep="\t")
 
 stringdb <- fread(paste0(my_path, "hypothesis5_input/9606.protein.actions.v11.0.txt"))
-all_genes <- fread(paste0(my_path, "hypothesis5_input/allgenes.txt"))
 stringdb$item_id_a <- gsub("9606.", "", stringdb$item_id_a)
 stringdb$item_id_b <- gsub("9606.", "", stringdb$item_id_b)
 
 stringdb_ensga <- merge(stringdb, conversion_pos, by.x="item_id_a", by.y="Ensembl Protein ID", all.y=F)
 colnames(stringdb_ensga)[8:9] <- c("ENSG_A", "CommonGeneNameA") # check whether it's actually 8
-stringdb_ensga <- unlist(stringdb_ensga)
-stringdb_ensgab <- merge(data.table(stringdb_ensga), conversion_pos, by.x='item_id_b', by.y='Ensembl Protein ID')
+#stringdb_ensga <- unlist(stringdb_ensga)
+stringdb_ensgab <- merge(data.frame(stringdb_ensga), conversion_pos, by.x='item_id_b', by.y='Ensembl Protein ID')
 colnames(stringdb_ensgab)[10:11] <- c("ENSG_B", "CommonGeneNameB")
 
+all_genes <- fread(paste0(my_path, "hypothesis5_input/allgenes.txt"))
+colnames(all_genes) <- c("chr", "start", "end", "common", "0", "strand")
+stringdb_match_locs_a <- merge(all_genes[, c(1:4)], stringdb_ensgab, by.x="common", by.y="CommonGeneNameA", allow.cartesian=T)
+colnames(stringdb_match_locs_a)[1:4] <- c("common_a", "chr_a", "start_a", "end_a")
+stringdb_match_locs_ab <- merge(all_genes, stringdb_match_locs_a, by.x="common", by.y="CommonGeneNameB", allow.cartesian=T)
+colnames(stringdb_match_locs_ab)[1:4] <- c("common_b", "chr_b", "start_b", "end_b")
+
+error=1000000
+match_a <- merge(franke_trans_data, stringdb_match_locs_ab, by.y = "ENSG_A", by.x = "Gene", allow.cartesian =T) # 1950515
+match_a <- as.data.table(match_a)
+match_a_snp <- match_a %>% 
+  filter(SNPChr == chr_b) %>% 
+  filter(SNPPos >= start_b - error) %>%
+  filter(SNPPos <= end_b + error)
+  
+match_b <- merge(franke_trans_data, stringdb_match_locs_ab, by.y = "ENSG_B", by.x = "Gene", allow.cartesian = T)
+match_b <- as.data.table(match_b)
+match_b_snp <- match_b%>% 
+  filter(SNPChr == chr_a) %>% 
+  filter(SNPPos >= start_a - error) %>%
+  filter(SNPPos <= start_b + error) # of course it won't --> find gene in which snp falls
+
+fwrite(match_a, paste0(my_path, "match_a.txt"), sep="\t")
+fwrite(match_a_snp, paste0(my_path, "match_a_snp.txt"), sep="\t")
+fwrite(match_b, paste0(my_path, "match_b.txt"), sep="\t")
+fwrite(match_b_snp, paste0(my_path, "match_b_snp.txt"), sep="\t")
+
+```
+
+
+```{r}
+library("data.table")
+library("glue")
+library("dplyr")
+
+source("https://bioconductor.org/biocLite.R")
+biocLite("mygene")
+#BiocManager::install("mygene")
+suppressWarnings(library(mygene))
+```
+
+
+```{r}
+my_path=paste0(getwd(), "/")
+
+conversion <- fread(paste0(my_path, "hypothesis5_input/ENSG_ENSP_conversion.txt"))
+gene.list = glue_collapse(unique(conversion$'Ensembl Gene ID'), sep=", ")
+gene_pos <- getGenes(gene.list, fields='symbol')
+conversion_pos <- merge(conversion, gene_pos[,c('query', 'symbol')], by.x = 'Ensembl Gene ID', by.y='query')
+colnames(conversion_pos)[3] <- "CommonGeneName"
+fwrite(as.list(conversion_pos), "allgeneswithsymbol.txt", sep="\t")
+
+stringdb <- fread(paste0(my_path, "hypothesis5_input/9606.protein.actions.v11.0.txt"))
+stringdb$item_id_a <- gsub("9606.", "", stringdb$item_id_a)
+stringdb$item_id_b <- gsub("9606.", "", stringdb$item_id_b)
+```
+
+# CONVERT ENSP TO ENSG, ADD COMMON GENE NAME TO BOTH PROTEINS A AND B
+
+```{r}
+stringdb_ensga <- merge(stringdb, conversion_pos, by.x="item_id_a", by.y="Ensembl Protein ID", all.y=F)
+colnames(stringdb_ensga)[8:9] <- c("ENSG_A", "CommonGeneNameA") # check whether it's actually 8
+#stringdb_ensga <- unlist(stringdb_ensga)
+stringdb_ensgab <- merge(data.frame(stringdb_ensga), conversion_pos, by.x='item_id_b', by.y='Ensembl Protein ID')
+colnames(stringdb_ensgab)[10:11] <- c("ENSG_B", "CommonGeneNameB")
+```
+
+# ADD GENE LOCATIONS FROM COMMON GENE NAME TO STRING DB INFORMATION
+```{r}
+all_genes <- fread(paste0(my_path, "hypothesis5_input/allgenes.txt"))
+colnames(all_genes) <- c("chr", "start", "end", "common", "0", "strand")
+stringdb_match_locs_a <- merge(all_genes, stringdb_ensgab, by.x="common", by.y="CommonGeneNameA", allow.cartesian=T)
+stringdb_match_locs_ab <- merge(all_genes, stringdb_match_locs_a, by.x="common", by.y="CommonGeneNameB", allow.cartesian=T)
 
 # gene_positions <- system(paste0('mysql  --user=genome --host=genome-mysql.cse.ucsc.edu -A -D hg19
 # mysql> select distinct G.gene,N.value from ensGtp as G, ensemblToGeneName as N where 
 #   G.transcript=N.name and
 #   G.gene in (', ENSG00000197021, ENSG00000204379, ') ;'))
 
+```
+
+# Two ways to match
+
+```{r}
 match_a <- merge(franke_trans_data, stringdb_ensgab, by.y = "ENSG_A", by.x = "Gene", allow.cartesian =T) # 1950515
 match_a_snp <- match_a %>% filter(SNP == ENSG_B) # of course it won't --> find gene in which snp falls
   

@@ -64,7 +64,7 @@ Load_and_Train_Model_AUC_CVglmnet_LabeledData <- function(classifier_all, TP_tra
 	#CV
 	numiters <- 25
 	Sens_AUC_collection <- matrix(0,4,numiters) 
-	myclassifier <- read.table("/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/GitHub/eQTL_Kathryn/kathryn/bulk_data/q4_output/Classifier_binary_ENCODE_cis_v_trans_eQTLs.txt.gz",sep = "\t", header = F, stringsAsFactors = FALSE) #might need \t for classifiers that were made from data table (new version), needed " " for those made from Granges
+	myclassifier <- read.table("q4_output/Classifier_binary_ENCODE_cis_v_trans_eQTLs.txt.gz",sep = "\t", header = F, stringsAsFactors = FALSE) #might need \t for classifiers that were made from data table (new version), needed " " for those made from Granges
 	w <- which(is.na(myclassifier), arr.ind = T) #for tf = 254, NA is for conservation. can we go back and fix these? or are these signs that the genome is wrong? no, genome is definitely right. Perhaps conservation score couldn't be retrieved. 
 	if(length(w) > 0){myclassifier <- myclassifier[-w[,1],]}
 	count <- 0

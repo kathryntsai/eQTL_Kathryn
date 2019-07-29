@@ -6,7 +6,7 @@ output: html_notebook
 ---
 
 # Initial data creation
-```{r load_libraries}
+```{r load_libraries, message=FALSE, warning=FALSE}
 
 # library("BSgenome")
 # library(BiocManager)
@@ -940,7 +940,7 @@ ggplot() +
     geom_histogram(aes(as.numeric((ttotal_nonsig$tsamp_nonsig_avg)), fill="red", alpha=0.5))  + 
     xlab("Averages") + 
     ylab("Frequency") + 
-    ggtitle("Monocyte IMPACT - Averages") + 
+    ggtitle("Monocyte IMPACT scores Averages") + 
     scale_alpha_continuous(name = "Alpha", guide = FALSE) +
     scale_fill_discrete(name="Data", 
                         labels = c("Significant", "Nonsignificant"))
@@ -960,11 +960,11 @@ ggplot() +
 ```{r}
 t.test(ttotal_sig$tsamp_sig_avg, ttotal_nonsig$tsamp_nonsig_avg, paired=F)
 
-a3 <- ggplot(label_size=1.5) + geom_boxplot(aes(y=t_sig$tscore)) + ggtitle("Sig Monocytes") + ylab("IMPACT Score") + ylim(0, 1)
-a4 <- ggplot(label_size=1.5) + geom_boxplot(aes(y=t_nonsig$tscore)) + ggtitle("Non-sig Monocytes") + ylab("IMPACT Score") + ylim(0, 1)
+a3 <- ggplot(label_size=1.5) + geom_boxplot(aes(y=t_sig$tscore)) + ggtitle("Sig Mono.") + ylab("IMPACT Score") + ylim(0, 1)
+a4 <- ggplot(label_size=1.5) + geom_boxplot(aes(y=t_nonsig$tscore)) + ggtitle("Non-sig Mono.") + ylab("IMPACT Score") + ylim(0, 1)
 
 library(gridExtra)
-grid.arrange(a3, a4, nrow=1)
+grid.arrange(a3, a4, a3, a4, nrow=1)
 
 ```
 

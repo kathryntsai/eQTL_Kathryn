@@ -3,18 +3,86 @@ title: "Single Cell Investigation"
 output: html_notebook
 ---
 
-```{r load_libraries}
+```{r load_libraries, message=FALSE, warning=FALSE}
+library(ggplot2)
 library(ggthemes)
-theme_set(theme_stata())
 library(reshape2)
 library(dplyr)
 library(readxl)
 library(gridExtra)
+theme_set(theme_stata())
 
 ```
 
-```{r load_sc_data}
+```{r load_sc_data, message=FALSE, warning=FALSE}
 sc_eqtl <- read_xlsx("/Users/kathryntsai/OneDrive\ -\ Villanova\ University/College/2018-2019/Summer\ 2019/TFs_eQTLs_Research/RProjects/Project2/IMPACT/NIHMS76345-supplement-Supplementary_table_2_vanderWijst.xlsx", skip=1)
+```
+
+# ALL SINGLE CELL DATA
+
+```{r create_plots_2}
+gg1 <- melt(sc_eqtl, 
+            id.vars=c("SNP", "Gene"), 
+            #measure.vars = c("PBMC__1","T CD4+__1", "T CD8+__1", "NK__1", "B__1", "DC__1", "Mono__1", "cMono__1", "ncMono__1")
+            measure.vars = c("PBMC","T CD4+", "T CD8+", "NK", "B", "DC", "cMono")
+) %>% 
+  ggplot() + geom_histogram(alpha=.8, aes(x=-log(value), fill=variable)) + ggtitle("P-values of eQTLs, grouped by cell type - all sc-eQTLs") # possibly take out position="identity" 
+
+gg2 <- melt(sc_eqtl, 
+            id.vars=c("SNP", "Gene"), 
+            #measure.vars = c("PBMC__1","T CD4+__1", "T CD8+__1", "NK__1", "B__1", "DC__1", "Mono__1", "cMono__1", "ncMono__1")
+            measure.vars = c("PBMC","T CD4+", "T CD8+", "NK", "B", "DC", "cMono")
+) %>% 
+  ggplot() + geom_histogram(position="fill", alpha=.8, aes(x=value, fill=variable)) + ggtitle("Proportions of each cell type at each p-value - all sc-eQTLs") # possibly take out position="identity" 
+
+gg3 <- melt(sc_eqtl, 
+            id.vars=c("SNP", "Gene"), 
+            measure.vars = c("PBMC__1","T CD4+__1", "T CD8+__1", "NK__1", "B__1", "DC__1", "cMono__1")
+            #measure.vars = c("PBMC","T CD4+", "T CD8+", "NK", "B", "DC", "cMono")
+) %>% 
+  ggplot() + geom_bar(alpha=.8, aes(x=value, fill=variable)) + ggtitle("# eQTLs Significant at FDR < 0.05 by Cell Type - all sc-eQTLs") # possibly take out position="identity" 
+
+gg4 <- melt(sc_eqtl, 
+            id.vars=c("SNP", "Gene"), 
+            measure.vars = c("PBMC__1","T CD4+__1", "T CD8+__1", "NK__1", "B__1", "DC__1", "cMono__1")
+            #measure.vars = c("PBMC","T CD4+", "T CD8+", "NK", "B", "DC", "cMono")
+) %>% 
+  ggplot() + geom_bar(position="fill", alpha=.8, aes(x=value, fill=variable)) + ggtitle("Proportions of Cell Types eQTLs Significant at FDR < 0.05") # possibly take out position="identity" 
+
+
+# No PBMCs
+
+gg5 <- melt(sc_eqtl, 
+            id.vars=c("SNP", "Gene"), 
+            #measure.vars = c("PBMC__1","T CD4+__1", "T CD8+__1", "NK__1", "B__1", "DC__1", "Mono__1", "cMono__1", "ncMono__1")
+            measure.vars = c("T CD4+", "T CD8+", "NK", "B", "DC", "cMono")
+) %>% 
+  ggplot() + geom_histogram(alpha=.8, aes(x=-log(value), fill=variable)) + ggtitle("P-values of eQTLs, grouped by cell type - all sc-eQTLs, no PBMCs") # possibly take out position="identity" 
+
+gg6 <- melt(sc_eqtl, 
+            id.vars=c("SNP", "Gene"), 
+            #measure.vars = c("PBMC__1","T CD4+__1", "T CD8+__1", "NK__1", "B__1", "DC__1", "Mono__1", "cMono__1", "ncMono__1")
+            measure.vars = c("T CD4+", "T CD8+", "NK", "B", "DC", "cMono")
+) %>% 
+  ggplot() + geom_histogram(position="fill", alpha=.8, aes(x=value, fill=variable)) + ggtitle("Proportions of each cell type at each p-value - all sc-eQTLs, no PBMCs") # possibly take out position="identity" 
+
+gg7 <- melt(sc_eqtl, 
+            id.vars=c("SNP", "Gene"), 
+            measure.vars = c("T CD4+__1", "T CD8+__1", "NK__1", "B__1", "DC__1", "cMono__1")
+            #measure.vars = c("PBMC","T CD4+", "T CD8+", "NK", "B", "DC", "cMono")
+) %>% 
+  ggplot() + geom_bar(alpha=.8, aes(x=value, fill=variable)) + ggtitle("# eQTLs Significant at FDR < 0.05 by Cell Type - all sc-eQTLs, no PBMCs") # possibly take out position="identity" 
+
+gg8 <- melt(sc_eqtl, 
+            id.vars=c("SNP", "Gene"), 
+            measure.vars = c("T CD4+__1", "T CD8+__1", "NK__1", "B__1", "DC__1", "cMono__1")
+            #measure.vars = c("PBMC","T CD4+", "T CD8+", "NK", "B", "DC", "cMono")
+) %>% 
+  ggplot() + geom_bar(position="fill", alpha=.8, aes(x=value, fill=variable)) + ggtitle("Proportions of Cell Types eQTLs Significant at FDR < 0.05 - all sc-eQTLs, no PBMCs") # possibly take out position="identity" 
+```
+
+```{r plot_sc_data, fig.height=100, fig.width=200, warning=FALSE}
+grid.arrange(gg1, gg2, gg3, gg4, gg5, gg6, gg7, gg8, nrow=2)
 ```
 
 # How many SNP-gene associations exist in both single cell and bulk datasets?
@@ -96,79 +164,386 @@ gg16 <- melt(g,
 
 ```
 
-
 ```{r plot_overlapping_data}
+pdf("sc_eqtl_visualization.pdf", height=24, width=50)
 grid.arrange(gg9, gg10, gg11, gg12)
 grid.arrange(gg13, gg14, gg15, gg16)
+dev.off()
 ```
 
-# ALL SINGLE CELL DATA
+# Making a Heat Map
+https://slowkow.com/notes/pheatmap-tutorial/
 
-```{r create_plots_2}
-gg1 <- melt(sc_eqtl, 
+```{r sc_eqtl_heatmap_1}
+library(pheatmap)
+library(RColorBrewer)
+library(viridis)
+
+gg17 <- melt(sc_eqtl, 
             id.vars=c("SNP", "Gene"), 
             #measure.vars = c("PBMC__1","T CD4+__1", "T CD8+__1", "NK__1", "B__1", "DC__1", "Mono__1", "cMono__1", "ncMono__1")
-            measure.vars = c("PBMC","T CD4+", "T CD8+", "NK", "B", "DC", "cMono")
-) %>% 
-  ggplot() + geom_histogram(alpha=.8, aes(x=-log(value), fill=variable)) + ggtitle("P-values of eQTLs, grouped by cell type - all sc-eQTLs") # possibly take out position="identity" 
+            measure.vars = c("PBMC","T CD4+", "T CD8+", "NK", "B", "DC", "Mono")
+)
 
-gg2 <- melt(sc_eqtl, 
-            id.vars=c("SNP", "Gene"), 
-            #measure.vars = c("PBMC__1","T CD4+__1", "T CD8+__1", "NK__1", "B__1", "DC__1", "Mono__1", "cMono__1", "ncMono__1")
-            measure.vars = c("PBMC","T CD4+", "T CD8+", "NK", "B", "DC", "cMono")
-) %>% 
-  ggplot() + geom_histogram(position="fill", alpha=.8, aes(x=value, fill=variable)) + ggtitle("Proportions of each cell type at each p-value - all sc-eQTLs") # possibly take out position="identity" 
+mat_col <- data.table(gg17$variable)
+mat_colors <- list(group = brewer.pal(length(unique(gg17$variable)), "Set1"))
+names(mat_colors$group) <- unique(gg17$variable)
 
-gg3 <- melt(sc_eqtl, 
-            id.vars=c("SNP", "Gene"), 
-            measure.vars = c("PBMC__1","T CD4+__1", "T CD8+__1", "NK__1", "B__1", "DC__1", "cMono__1")
-            #measure.vars = c("PBMC","T CD4+", "T CD8+", "NK", "B", "DC", "cMono")
-) %>% 
-  ggplot() + geom_bar(alpha=.8, aes(x=value, fill=variable)) + ggtitle("# eQTLs Significant at FDR < 0.05 by Cell Type - all sc-eQTLs") # possibly take out position="identity" 
+quantile_breaks <- function(xs, n = 10) {
+  breaks <- quantile(xs, probs = seq(0, 1, length.out = n))
+  breaks[!duplicated(breaks)]
+}
 
-gg4 <- melt(sc_eqtl, 
-            id.vars=c("SNP", "Gene"), 
-            measure.vars = c("PBMC__1","T CD4+__1", "T CD8+__1", "NK__1", "B__1", "DC__1", "cMono__1")
-            #measure.vars = c("PBMC","T CD4+", "T CD8+", "NK", "B", "DC", "cMono")
-) %>% 
-  ggplot() + geom_bar(position="fill", alpha=.8, aes(x=value, fill=variable)) + ggtitle("Proportions of Cell Types eQTLs Significant at FDR < 0.05") # possibly take out position="identity" 
+mat_breaks <- quantile_breaks(mat, n = 11)
 
 
-# No PBMCs
+draw_colnames_45 <- function (coln, gaps, ...) {
+  coord <- pheatmap:::find_coordinates(length(coln), gaps)
+  x     <- coord$coord - 0.5 * coord$size
+  res   <- grid::textGrob(
+    coln, x = x, y = unit(1, "npc") - unit(3,"bigpts"),
+    vjust = 0.75, hjust = 1, rot = 45, gp = grid::gpar(...)
+  )
+  return(res)
+}
+assignInNamespace(
+  x = "draw_colnames",
+  value = "draw_colnames_45",
+  ns = asNamespace("pheatmap")
+)
 
-gg5 <- melt(sc_eqtl, 
-            id.vars=c("SNP", "Gene"), 
-            #measure.vars = c("PBMC__1","T CD4+__1", "T CD8+__1", "NK__1", "B__1", "DC__1", "Mono__1", "cMono__1", "ncMono__1")
-            measure.vars = c("T CD4+", "T CD8+", "NK", "B", "DC", "cMono")
-) %>% 
-  ggplot() + geom_histogram(alpha=.8, aes(x=-log(value), fill=variable)) + ggtitle("P-values of eQTLs, grouped by cell type - all sc-eQTLs, no PBMCs") # possibly take out position="identity" 
+gg17
 
-gg6 <- melt(sc_eqtl, 
-            id.vars=c("SNP", "Gene"), 
-            #measure.vars = c("PBMC__1","T CD4+__1", "T CD8+__1", "NK__1", "B__1", "DC__1", "Mono__1", "cMono__1", "ncMono__1")
-            measure.vars = c("T CD4+", "T CD8+", "NK", "B", "DC", "cMono")
-) %>% 
-  ggplot() + geom_histogram(position="fill", alpha=.8, aes(x=value, fill=variable)) + ggtitle("Proportions of each cell type at each p-value - all sc-eQTLs, no PBMCs") # possibly take out position="identity" 
-
-gg7 <- melt(sc_eqtl, 
-            id.vars=c("SNP", "Gene"), 
-            measure.vars = c("T CD4+__1", "T CD8+__1", "NK__1", "B__1", "DC__1", "cMono__1")
-            #measure.vars = c("PBMC","T CD4+", "T CD8+", "NK", "B", "DC", "cMono")
-) %>% 
-  ggplot() + geom_bar(alpha=.8, aes(x=value, fill=variable)) + ggtitle("# eQTLs Significant at FDR < 0.05 by Cell Type - all sc-eQTLs, no PBMCs") # possibly take out position="identity" 
-
-gg8 <- melt(sc_eqtl, 
-            id.vars=c("SNP", "Gene"), 
-            measure.vars = c("T CD4+__1", "T CD8+__1", "NK__1", "B__1", "DC__1", "cMono__1")
-            #measure.vars = c("PBMC","T CD4+", "T CD8+", "NK", "B", "DC", "cMono")
-) %>% 
-  ggplot() + geom_bar(position="fill", alpha=.8, aes(x=value, fill=variable)) + ggtitle("Proportions of Cell Types eQTLs Significant at FDR < 0.05 - all sc-eQTLs, no PBMCs") # possibly take out position="identity" 
+pdf("sc_eqtl_pheatmap.pdf", height=24, width=50)
+pheatmap(
+  mat               = -log10(sc_eqtl[, c("PBMC","T CD4+", "T CD8+", "NK", "B", "DC", "Mono")]),
+  color             = inferno(length(mat_breaks) -1),
+  breaks            = mat_breaks,
+  border_color      = F,
+  cellwidth = 15,
+  cellheight= 3,
+  legend = TRUE,
+  show_colnames     = T,
+  show_rownames     = F,
+  treeheight_row = 0,
+  treeheight_col = 0,
+  annotation_names_col    =  data.table(group = unique(gg17$variable)),
+  annotation_legend = TRUE,
+  #annotation_names_row = data.table(group = paste0(gg17$SNP, "-", gg17$Gene)),
+  annotation_colors = mat_colors,
+  drop_levels       = TRUE,
+  fontsize          = 3,
+  main              = "Quantile Color Scale with Log Values"
+)
+dev.off()
 ```
 
+```{r make_heatmap_2, include=F}
+library(scales)
+library(plyr)
+gg17 <- melt(sc_eqtl,
+             id.vars=c("SNP", "Gene"),
+             #measure.vars = c("PBMC__1","T CD4+__1", "T CD8+__1", "NK__1", "B__1", "DC__1", "Mono__1", "cMono__1", "ncMono__1")
+             measure.vars = c("PBMC","T CD4+", "T CD8+", "NK", "B", "DC", "Mono")
+)
+gg17 <- ddply(gg17, .(variable), transform, rescale = rescale(-log(value)))
+gg17$eQTL <- paste0(gg17$SNP, gg17$Gene)
+base_size <- 9
+gg17_plot <- ggplot(gg17, aes(variable, eQTL)) +
+  geom_tile(aes(fill = rescale), colour = "white") +
+  #scale_fill_gradient(low = "white", high = "steelblue") +
+  theme_grey(base_size = base_size) +
+  labs(x = "", y = "") +
+  scale_x_discrete(expand = c(0, 0)) +
+  scale_y_discrete(expand = c(0, 0)) +
+  theme_economist() +
+  theme(axis.text.y=element_text(size=3),
+        axis.text.x=element_text(size=8),
+        axis.title=element_text(size=8,face="bold"),
+        legend.title = element_text(size = 3),
+        legend.text = element_text(size = 3)
+       )
+# theme(legend.position = "none", axis.ticks = theme_blank(), axis.text.x = theme_text(size = base_size * 0.8, angle = 330, hjust = 0, colour = "grey50"))
 
-```{r plot_sc_data}
-grid.arrange(gg1, gg2, gg3, gg4, gg5, gg6, gg7, gg8, nrow=2)
+gg17_plot
+
 ```
+
+```{r make_heatmap_3}
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(ggplot2)
+library(RColorBrewer)
+
+gg19_old <- sc_eqtl[order(as.numeric(sc_eqtl$PBMC), decreasing=T),]
+gg19 <- melt(gg19_old,
+             id.vars=c("SNP", "Gene"),
+             #measure.vars = c("PBMC__1","T CD4+__1", "T CD8+__1", "NK__1", "B__1", "DC__1", "Mono__1", "cMono__1", "ncMono__1")
+             measure.vars = c("PBMC","T CD4+", "T CD8+", "NK", "B", "DC", "Mono")
+)
+gg19$eQTL <- paste0(gg19$SNP, gg19$Gene)
+# assign text colour
+textcol <- "grey40"
+
+gg19_new <- gg19 %>% 
+  # mutate(state=factor(state,levels=rev(sort(unique(state))))) %>%
+  mutate(new_value = cut(gg19$value,breaks=8, labels=c("<0.001", 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875))) #%>% 
+
+#gg19_brk <- gg19$new_value[1]:(gg19$new_value[2]-gg19$new_value[1])/8:gg19$new_value[2]
+
+gg19_plot <- ggplot(gg19_new,mapping=aes(x=eQTL,y=variable,fill=new_value))+
+  geom_tile(colour="white",size=0.3)+
+  guides(fill=guide_legend(title="-log10(P-value) of cis eQTL in each cell type"))+
+  #remove x and y axis labels
+  labs(x="",y="", title="cis eQTLs in each cell type")+
+  #remove extra space
+  #define new breaks on x-axis
+  scale_fill_manual(
+    values=rev(brewer.pal(8,"YlGnBu"))) +
+  scale_y_discrete(expand=c(0,0))+
+  scale_x_discrete(expand=c(0,0)) #breaks=seq(gg19$new_value[1], 
+                              #gg19$new_value[2], 
+                              #length=8)
+  #set a base size for all fonts
+  
+```
+
+```{r plot_heatmap_3}
+gg19_plot + theme_grey(base_size=8) +
+  #theme options
+  theme(
+    #bold font for legend text
+    legend.text=element_text(face="bold"),
+    #set thickness of axis ticks
+    axis.ticks=element_line(size=0.4),
+    axis.text.x = element_text(size=1, angle = 45, hjust = 1),
+    #remove plot background
+    plot.background=element_blank(),
+    #remove plot border
+    panel.border=element_blank()
+  )
+```
+
+```{r plot_heatmap_4}
+
+library(gplots)
+sc_eqtl_plot <- sc_eqtl[, c("PBMC", "T CD4+", "T CD8+", "NK", "B", "DC", "Mono")]
+sc_eqtl_plot <- data.matrix(sc_eqtl_plot)
+rows <- paste(sc_eqtl$"SNP", sc_eqtl$"Symbol", sep="-")
+#apply(sc_eqtl, 2, function(x) paste(x$"SNP", x$"Symbol", sep="-"))
+cols <- colnames(sc_eqtl_plot)
+
+png("test_heatmap.png") # height= 1000, width=1280
+y1 <- heatmap.2(-log10(sc_eqtl_plot), title(main = "cis eQTLs by Cell Type", 10), #ColSideColors = map_color_mat_ordered[,2],  labCol = map_color_mat_ordered[,3],
+              cex.main = 10, trace = "none", adjCol = 1, adjRow = 0, labCol = cols,cexRow=.1, 
+              labRow = rows, dendrogram = "none", Rowv = F, Colv = F, col = rev(brewer.pal(9,"YlGnBu")),
+              cexCol = 3, srtCol = 90, 
+              key = T, keysize=2,key.title = "P-value of eQTL for each cell type", key.xlab = "-log10(P-value)",
+              density.info = c("none"),margins=c(14, 14),
+              sepcolor = "gray", 
+              sepwidth=c(0.005,0.005), 
+              rowsep=1:ncol(sc_eqtl_plot),
+              colsep=1:nrow(sc_eqtl_plot))
+
+dev.off()
+
+fwrite(as.list(rows), "rows.txt", sep="\t")
+
+# OVERLAPPING CIS EQTL HEATMAP
+g <-
+  merge(
+    sc_eqtl,
+    franke_cis_data,
+    by = c("SNP", "Gene"),
+    all.x = F,
+    all.y = F
+  )
+
+sc_eqtl_plot2 <- g[, c("PBMC", "T CD4+", "T CD8+", "NK", "B", "DC", "Mono")]
+sc_eqtl_plot2 <- data.matrix(sc_eqtl_plot2)
+rows2 <- paste(g$"SNP", g$"Symbol", sep="-")
+#apply(sc_eqtl, 2, function(x) paste(x$"SNP", x$"Symbol", sep="-"))
+cols2 <- colnames(sc_eqtl_plot2)
+
+png("test_heatmap2.png")#, height = 1000, width = 1280)
+y2 <- heatmap.2(-log10(sc_eqtl_plot2), title(main = "cis eQTLs by Cell Type, overlap with cis eQTLs", 10), #ColSideColors = map_color_mat_ordered[,2],  labCol = map_color_mat_ordered[,3],
+              cex.main = .1, trace = "none", adjCol = 1, adjRow = 0, labCol = cols2,cexRow=.1, 
+              labRow = rows2, dendrogram = "none", Rowv = F, Colv = F, col = rev(brewer.pal(9,"YlGnBu")),
+              cexCol = .1, srtCol = 90, 
+              key = T, keysize=2,key.title = "P-value of eQTL for each cell type", key.xlab = "-log10(P-value)",
+              density.info = c("none"),margins=c(14, 14),
+              sepcolor = "gray", 
+              sepwidth=c(0.005,0.005), 
+              rowsep=1:ncol(sc_eqtl_plot2),
+              colsep=1:nrow(sc_eqtl_plot2))
+
+dev.off()
+
+fwrite(as.list(rows2), "rows2.txt", sep="\t")
+
+
+# EQTLS NOT IN IT
+g2 <-
+  anti_join(
+    sc_eqtl,
+    franke_cis_data,
+    by = c("SNP", "Gene")
+  )
+
+sc_eqtl_plot3 <- g2[, c("PBMC", "T CD4+", "T CD8+", "NK", "B", "DC", "Mono")]
+sc_eqtl_plot3 <- data.matrix(sc_eqtl_plot3)
+rows3 <- paste(g2$"SNP", g2$"Symbol", sep="-")
+#apply(sc_eqtl, 2, function(x) paste(x$"SNP", x$"Symbol", sep="-"))
+cols3 <- colnames(sc_eqtl_plot3)
+
+png("test_heatmap3.png")#, height = 1000, width = 1280)
+y3 <- heatmap.2(-log10(sc_eqtl_plot3), title(main = "cis eQTLs by Cell Type, non-overlap with cis eQTLs", 10), #ColSideColors = map_color_mat_ordered[,2],  labCol = map_color_mat_ordered[,3],
+              cex.main = 1, trace = "none", adjCol = 1, adjRow = 0, labCol = cols3,cexRow=1, 
+              labRow = rows3, dendrogram = "none", Rowv = F, Colv = F, col = rev(brewer.pal(9,"YlGnBu")),
+              cexCol = 1, srtCol = 90, 
+              key = T, keysize=2,key.title = "P-value of eQTL for each cell type", key.xlab = "-log10(P-value)",
+              density.info = c("none"),margins=c(14, 14),
+              sepcolor = "gray", 
+              sepwidth=c(0.005,0.005), 
+              rowsep=1:ncol(sc_eqtl_plot3),
+              colsep=1:nrow(sc_eqtl_plot3))
+
+dev.off()
+
+png("test_heatmap4.png")
+y1
+y2
+y3
+dev.off()
+
+
+```
+
+```{r plot_heatmap_5}
+
+library(gplots)
+sc_eqtl_plot <- sc_eqtl[, c("PBMC__1", "T CD4+__1", "T CD8+__1", "NK__1", "B__1", "DC__1", "Mono__1")]
+cols <- colnames(sc_eqtl_plot)
+sig_sc <- sapply(sc_eqtl_plot, sub, pattern='\\*', replacement=1)
+sig_sc[is.na(sig_sc)] <- 0
+sc_eqtl_plot <- data.matrix(sig_sc)
+sc_eqtl_plot <- sapply(sc_eqtl_plot, as.numeric)
+sc_eqtl_plot <- matrix(data=sc_eqtl_plot, ncol=7, nrow=398)
+rows <- paste(sc_eqtl$"SNP", sc_eqtl$"Symbol", sep="-")
+#apply(sc_eqtl, 2, function(x) paste(x$"SNP", x$"Symbol", sep="-"))
+
+png("test_heatmap.png") # height= 1000, width=1280
+y <- heatmap.2(sc_eqtl_plot, title(main = "cis eQTLs by Cell Type", 10), #ColSideColors = map_color_mat_ordered[,2],  labCol = map_color_mat_ordered[,3],
+              cex.main = 10, trace = "none", adjCol = 1, adjRow = 0, labCol = cols,cexRow=3, 
+              labRow = rows, dendrogram = "none", Rowv = F, Colv = F, #col = rev(brewer.pal(8,"YlGnBu"))
+              cexCol = 3, srtCol = 90, 
+              key = T, keysize=2,key.title = "P-value of eQTL for each cell type", key.xlab = "P-value",
+              density.info = c("none"),margins=c(14, 14),
+              sepcolor = "black", 
+              sepwidth=c(0.1,0.1), 
+              colsep=1:nrow(sc_eqtl_plot),
+              rowsep=1:ncol(sc_eqtl_plot)
+      )
+
+dev.off()
+
+fwrite(as.list(rows), "rows.txt", sep="\t")
+
+# OVERLAPPING CIS EQTL HEATMAP
+g <-
+  merge(
+    sc_eqtl,
+    franke_cis_data,
+    by = c("SNP", "Gene"),
+    all.x = F,
+    all.y = F
+  )
+
+sc_eqtl_plot2 <- g[, c("PBMC", "T CD4+", "T CD8+", "NK", "B", "DC", "Mono")]
+sc_eqtl_plot2 <- data.matrix(sc_eqtl_plot2)
+rows2 <- paste(g$"SNP", g$"Symbol", sep="-")
+#apply(sc_eqtl, 2, function(x) paste(x$"SNP", x$"Symbol", sep="-"))
+cols2 <- colnames(sc_eqtl_plot2)
+
+png("test_heatmap2.png")#, height = 1000, width = 1280)
+y <- heatmap.2(sc_eqtl_plot2, title(main = "cis eQTLs by Cell Type, overlap with cis eQTLs", 10), #ColSideColors = map_color_mat_ordered[,2],  labCol = map_color_mat_ordered[,3],
+              cex.main = .1, trace = "none", adjCol = 1, adjRow = 0, labCol = cols2,cexRow=.1, 
+              labRow = rows2, dendrogram = "none", Rowv = F, Colv = F, #col = rev(brewer.pal(8,"YlGnBu"))
+              cexCol = .1, srtCol = 90, 
+              key = F, #keysize=2,key.title = "P-value of eQTL for each cell type", key.xlab = "P-value",
+              density.info = c("none"),margins=c(14, 14),
+              sepcolor = "gray", 
+              sepwidth=c(0.005,0.005), 
+              rowsep=1:ncol(sc_eqtl_plot2),
+              colsep=1:nrow(sc_eqtl_plot2))
+
+dev.off()
+
+fwrite(as.list(rows2), "rows2.txt", sep="\t")
+
+
+# EQTLS NOT IN IT
+g2 <-
+  anti_join(
+    sc_eqtl,
+    franke_cis_data,
+    by = c("SNP", "Gene")
+  )
+
+sc_eqtl_plot3 <- g2[, c("PBMC", "T CD4+", "T CD8+", "NK", "B", "DC", "Mono")]
+sc_eqtl_plot3 <- data.matrix(sc_eqtl_plot3)
+rows3 <- paste(g2$"SNP", g2$"Symbol", sep="-")
+#apply(sc_eqtl, 2, function(x) paste(x$"SNP", x$"Symbol", sep="-"))
+cols3 <- colnames(sc_eqtl_plot3)
+
+png("test_heatmap3.png")#, height = 1000, width = 1280)
+y <- heatmap.2(log10(sc_eqtl_plot3), title(main = "cis eQTLs by Cell Type, non-overlap with cis eQTLs", 10), #ColSideColors = map_color_mat_ordered[,2],  labCol = map_color_mat_ordered[,3],
+              cex.main = 1, trace = "none", adjCol = 1, adjRow = 0, labCol = cols3,cexRow=1, 
+              labRow = rows3, dendrogram = "none", Rowv = F, Colv = F, #col = rev(brewer.pal(8,"YlGnBu"))
+              cexCol = 1, srtCol = 90, 
+              key = F, #keysize=2,key.title = "P-value of eQTL for each cell type", key.xlab = "P-value",
+              density.info = c("none"),margins=c(14, 14),
+              sepcolor = "gray", 
+              sepwidth=c(0.005,0.005), 
+              rowsep=1:ncol(sc_eqtl_plot3),
+              colsep=1:nrow(sc_eqtl_plot3))
+
+dev.off()
+
+```
+
+```{r}
+g0 <- sc_eqtl[, c("PBMC__1", "T CD4+__1", "T CD8+__1", "NK__1", "B__1", "DC__1", "Mono__1")]
+cols <- colnames(g0)
+sig_sc <- sapply(g0, sub, pattern='\\*', replacement=1)
+sig_sc[is.na(sig_sc)] <- 0
+g111 <- sig_sc
+g111 <- matrix(as.numeric(g111), nrow=nrow(g0), ncol=ncol(g0))
+a1 <- data.table(rowSums(g111))
+colnames(a1)<- "a"
+nrow(a1[which(a1$a == 1)])
+
+g22 <- g[, c("PBMC__1", "T CD4+__1", "T CD8+__1", "NK__1", "B__1", "DC__1", "Mono__1")]
+cols <- colnames(g22)
+g222 <- sapply(g22, sub, pattern='\\*', replacement=1)
+g222[is.na(g222)] <- 0
+g222 <- matrix(as.numeric(g222), nrow=nrow(g22), ncol=ncol(g22))
+a2 <- data.table(rowSums(g222))
+colnames(a2)<- "a"
+nrow(a2[which(a2$a == 1)])
+
+g33 <- g2[, c("PBMC__1", "T CD4+__1", "T CD8+__1", "NK__1", "B__1", "DC__1", "Mono__1")]
+cols <- colnames(g33)
+g333 <- sapply(g33, sub, pattern='\\*', replacement=1)
+g333[is.na(g333)] <- 0
+g333 <- matrix(as.numeric(g333), nrow=nrow(g33), ncol=ncol(g33))
+a3 <- data.table(rowSums(g333))
+colnames(a3)<- "a"
+nrow(a3[which(a3$a == 1)])
+
+```
+
 
 # Do we even need sc-eQTLs if we can use IMPACT to identify the cell type?
 

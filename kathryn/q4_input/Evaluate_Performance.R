@@ -12,7 +12,7 @@ Load_and_Train_Model_AUC_CVglmnet_LabeledData <- function(classifier_all, TP_tra
   test <- classifier_all[(TP_training_regions + TN_training_regions+1):nrow(classifier_all),2:ncol(classifier_all)] 
   test_labels <- classifier_all[(TP_training_regions + TN_training_regions+1):nrow(classifier_all),1]
   
-  ENet_fit <- cv.glmnet(x=as.matrix(train[complete.cases(train),]), y= train_labels[complete.cases(train)], family = "binomial", type.measure = "auc", alpha = 0.5)
+  ENet_fit <- cv.glmnet(x=as.matrix(train[complete.cases(train),]), y= train_labels[complete.cases(train)], family = "binomial", type.measure = "auc", alpha = 0)
   ENet_pred_lambdamin <- predict(ENet_fit,as.matrix(test[complete.cases(test),]),s="lambda.min", type = "response") #type = response ensures that the scale is from 0 to 1 
   pred <- prediction(ENet_pred_lambdamin, test_labels[complete.cases(test)])
 
@@ -95,7 +95,7 @@ Load_and_Train_Model_AUC_CVglmnet_LabeledData <- function(classifier_all, TP_tra
 
 
 	#entire model: up to 1,000 positive, 10,000 negative
-	ENet_fit <- cv.glmnet(x=as.matrix(myclassifier[,-1]), y=as.matrix(myclassifier[,1]), family = "binomial", type.measure = "auc", alpha = 0.5)
+	ENet_fit <- cv.glmnet(x=as.matrix(myclassifier[,-1]), y=as.matrix(myclassifier[,1]), family = "binomial", type.measure = "auc", alpha = 0)
         assign(paste0("IMPACT_fit_",tf), ENet_fit)
 
 	w1 <- which(ls(1) == paste0("IMPACT_fit_",tf))
